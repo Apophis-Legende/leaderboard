@@ -46,8 +46,7 @@ def get_leaderboard():
 
 def run_flask():
     # Assurez-vous que Flask écoute sur 0.0.0.0 pour permettre l'accès externe
-    app.run(host='0.0.0.0', port=3000)
-
+    app.run(host='0.0.0.0', port=3000, debug=False)
 
 # Charger les données depuis le fichier JSON
 data = load_json("data.json", default_data={})

@@ -1,3 +1,4 @@
+
 entrypoint = "main.py"
 modules = ["nodejs-20", "python-3.10"]
 
@@ -8,13 +9,8 @@ channel = "stable-23_05"
 
 [deployment]
 run = ["python", "main.py"]
-deploymentTarget = "gce"
-ignorePorts = true
+deploymentTarget = "cloudrun"
 
 [[ports]]
 localPort = 3000
-externalPort = 3000
-
-[[ports]]
-localPort = 5000
 externalPort = 80
