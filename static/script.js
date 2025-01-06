@@ -1,38 +1,59 @@
-<script>
-    // Fonction pour charger les données du leaderboard via AJAX
+document.addEventListener("DOMContentLoaded", function () {
+    // Fonction pour charger les données du leaderboard via l'API Flask
     function loadLeaderboardData(server) {
-        $.get(`/api/leaderboard?server=${server}`, function(data) {
-            const tbody = $('#leaderboard-body');
-            tbody.empty(); // Vider le tableau existant
-
-            // Vérifie si des données existent avant de les afficher
-            if (data && data.utilisateurs) {
-                for (const userId in data.utilisateurs) {
-                    const user = data.utilisateurs[userId];
-                    const row = `<tr>
-                        <td>${user.username}</td>
-                        <td>${user.total_wins}</td>
-                        <td>${user.total_losses}</td>
-                        <td>${user.total_bets}</td>
-                        <td>${user.participation}</td>
-                    </tr>`;
-                    tbody.append(row);
+        console.log(`🔄 Chargement des données pour le serveur : ${server}`);
+        fetch(`/api/leaderboard?server=${server}`)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Erreur API : ${response.status}`);
                 }
-            } else {
-                const row = `<tr><td colspan="5">Aucune donnée disponible</td></tr>`;
-                tbody.append(row);
-            }
-        }).fail(function() {
-            alert('Erreur lors de la récupération des données.');
-        });
+                return response.json();
+            })
+            .then((data) => {
+                console.log("📥 Données reçues :", data);
+                updateLeaderboardTable(data);
+            })
+            .catch((error) => {
+                console.error("❌ Erreur lors de la récupération des données :", error);
+                displayErrorMessage("Erreur lors du chargement des données. Veuillez réessayer.");
+            });
     }
 
-    // Lorsque l'utilisateur choisit un serveur
-    $('#server-select').on('change', function() {
-        const selectedServer = $(this).val();
-        loadLeaderboardData(selectedServer);  // Charger les données du serveur sélectionné
+    // Met à jour le tableau avec les données reçues
+    function updateLeaderboardTable(data) {
+        const tbody = document.getElementById("leaderboard-body");
+        tbody.innerHTML = ""; // Vide le tableau existant
+
+        if (data.utilisateurs && Object.keys(data.utilisateurs).length > 0) {
+            Object.values(data.utilisateurs).forEach((user) => {
+                const row = `
+                    <tr>
+                        <td>${user.username || "Inconnu"}</td>
+                        <td>${user.total_wins || 0}</td>
+                        <td>${user.total_losses || 0}</td>
+                        <td>${user.total_bets || 0}</td>
+                        <td>${user.participation || 0}</td>
+                    </tr>`;
+                tbody.innerHTML += row;
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5">Aucune donnée disponible</td></tr>';
+        }
+    }
+
+    // Affiche un message d'erreur dans le tableau
+    function displayErrorMessage(message) {
+        const tbody = document.getElementById("leaderboard-body");
+        tbody.innerHTML = `<tr><td colspan="5" class="error">${message}</td></tr>`;
+    }
+
+    // Gestionnaire d'événements pour le menu déroulant
+    document.getElementById("server-select").addEventListener("change", function () {
+        const server = this.value;
+        loadLeaderboardData(server);
     });
 
-    // Charger les données du serveur par défaut au démarrage
-    loadLeaderboardData('Tiliwan1');
-</script>
+    // Charger les données pour le serveur par défaut au démarrage
+    const defaultServer = document.getElementById("server-select").value;
+    loadLeaderboardData(defaultServer);
+});

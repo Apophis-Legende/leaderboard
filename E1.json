@@ -1,38 +1,38 @@
 {
     "serveur": "E1",
     "nombre_de_jeux": 1,
-    "mises_totales_avant_commission": "1000 jetons",
-    "gains_totaux": "950 jetons",
-    "commission_totale": "50 jetons",
+    "mises_totales_avant_commission": "20 jetons",
+    "gains_totaux": "19 jetons",
+    "commission_totale": "1 jetons",
     "utilisateurs": {
-        "928329400666173520": {
-            "username": "apophislegende",
-            "total_wins": "950 jetons",
+        "558799966601216020": {
+            "username": "ezekiel6758",
+            "total_wins": "19 jetons",
             "total_losses": "0 jetons",
-            "total_bets": "500 jetons",
+            "total_bets": "10 jetons",
             "participation": 1
         },
-        "1229717382554058762": {
-            "username": "clzgapiidor",
+        "334830968986796044": {
+            "username": "norac29",
             "total_wins": "0 jetons",
-            "total_losses": "500 jetons",
-            "total_bets": "500 jetons",
+            "total_losses": "10 jetons",
+            "total_bets": "10 jetons",
             "participation": 1
         }
     },
     "hôtes": {
-        "928329400666173520": {
-            "username": "apophislegende",
-            "total_bets": "1000 jetons",
-            "total_commission": "50 jetons"
+        "1164911677632950394": {
+            "username": "clikclikboom_",
+            "total_bets": "20 jetons",
+            "total_commission": "1 jetons"
         }
     },
     "croupiers": {
-        "928329400666173520": {
-            "username": "apophislegende",
+        "1164911677632950394": {
+            "username": "clikclikboom_",
             "total_giveaways": 1,
-            "total_kamas_managed": "1000 jetons",
-            "total_commission": "50 jetons"
+            "total_kamas_managed": "20 jetons",
+            "total_commission": "1 jetons"
         }
     }
 }

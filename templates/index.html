@@ -34,40 +34,54 @@
         </tbody>
     </table>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        function loadLeaderboardData(server) {
-            $.get(`/api/leaderboard?server=${server}`, function(data) {
-                const tbody = $('#leaderboard-body');
-                tbody.empty();
+        let currentServer = 'Tiliwan1'; // Serveur par défaut
 
-                if (data && data.utilisateurs) {
-                    for (const userId in data.utilisateurs) {
-                        const user = data.utilisateurs[userId];
-                        const row = `<tr>
+        function fetchLeaderboardData() {
+            // Appeler l'API Flask pour obtenir les données du leaderboard
+            fetch(`/api/leaderboard?server=${currentServer}`)
+                .then(response => response.json())
+                .then(data => {
+                    updateLeaderboardTable(data); // Mettre à jour la table avec les données reçues
+                })
+                .catch(error => {
+                    console.error("Erreur lors de la récupération des données :", error);
+                });
+        }
+
+        function updateLeaderboardTable(data) {
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = ''; // Effacer les données existantes
+
+            if (data && data.utilisateurs) {
+                Object.values(data.utilisateurs).forEach(user => {
+                    const row = `
+                        <tr>
                             <td>${user.username}</td>
                             <td>${user.total_wins}</td>
                             <td>${user.total_losses}</td>
                             <td>${user.total_bets}</td>
-                            <td>${user.participation}%</td>
-                        </tr>`;
-                        tbody.append(row);
-                    }
-                } else {
-                    tbody.append(`<tr><td colspan="5">Aucune donnée disponible</td></tr>`);
-                }
-            }).fail(function() {
-                alert('Erreur lors de la récupération des données.');
-            });
+                            <td>${user.participation}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } else {
+                tbody.innerHTML = `<tr><td colspan="5">Aucune donnée disponible</td></tr>`;
+            }
         }
 
-        $('#server-select').on('change', function() {
-            const selectedServer = $(this).val();
-            loadLeaderboardData(selectedServer);
-        });
+        // Mettre à jour les données toutes les 10 secondes
+        setInterval(fetchLeaderboardData, 10000);
 
-        // Charger les données du serveur par défaut au démarrage
-        loadLeaderboardData('Tiliwan1');
+        // Initialisation : Charger les données dès le chargement de la page
+        window.onload = fetchLeaderboardData;
+
+        // Gestion du menu déroulant pour changer de serveur
+        document.getElementById('server-select').addEventListener('change', function() {
+            currentServer = this.value; // Changer le serveur courant
+            fetchLeaderboardData(); // Charger les nouvelles données
+        });
     </script>
 </body>
 </html>
