@@ -48,7 +48,7 @@ async def open_page_with_selenium(url):
     chrome_bin = os.getenv("CHROME_BIN", "/usr/bin/chromium")
     chrome_options.binary_location = chrome_bin
 
-    service = Service("/nix/store/.../chromedriver")  # Remplacez par le chemin réel si nécessaire
+    service = Service("chromedriver")  # Using PATH-based chromedriver
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
     try:
