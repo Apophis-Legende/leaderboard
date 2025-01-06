@@ -4,10 +4,9 @@ from discord.ext import commands
 import requests
 import os
 import json
-import asyncio
-from logique import process_giveaway_data
 from flask import Flask, render_template
 import threading
+from logique import process_giveaway_data
 
 # Initialiser Flask
 app = Flask(__name__)
@@ -16,67 +15,39 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')  # Affiche votre page HTML principale
 
-# Démarrer le serveur Flask dans un thread séparé
 def run_flask():
+    """Démarrer Flask dans un thread séparé."""
     app.run(host='0.0.0.0', port=5000)
 
-# Démarrer Flask en parallèle avec le bot Discord
-threading.Thread(target=run_flask).start()
-
-# Configuration du bot avec intentions
+# Configuration du bot Discord
 intents = discord.Intents.default()
 intents.messages = True
 intents.guilds = True
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
-# ID du bot cible que vous souhaitez suivre (par exemple, le bot de giveaway)
 TARGET_BOT_ID = 294882584201003009  # ID du GiveawayBot
 
 @bot.event
 async def on_ready():
+    """Événement appelé lorsque le bot est prêt."""
     print(f"✅ Bot connecté en tant que : {bot.user}")
     print(f"✅ ID du bot : {bot.user.id}")
+    await bot.tree.sync()
+    print(f"✅ Commandes Slash synchronisées.")
 
-async def download_json_from_summary(url, channel):
-    print(f"🌐 Téléchargement du JSON depuis : {url}")
-    api_url = url.replace("https://giveawaybot.party/summary#", "https://summary-api.giveawaybot.party/?")
-
-    try:
-        response = requests.get(api_url)
-        response.raise_for_status()
-        raw_data = response.json()
-
-        print(f"✅ JSON brut récupéré avec succès : {raw_data}")
-
-        # Appeler le traitement des données
-        process_giveaway_data(raw_data)
-
-        await channel.send(f"🎉 Données du giveaway traitées et sauvegardées avec succès !")
-    except Exception as e:
-        print(f"❌ Erreur lors du traitement : {e}")
-        await channel.send("⚠️ Erreur lors du traitement des données JSON.")
-
-# Gestion des messages : suivre uniquement ceux du bot cible
 @bot.event
 async def on_message(message):
-    print(f"\n🚨 Nouveau message reçu 🚨")
-    print(f"📨 Contenu du message : {message.content}")
-    print(f"👤 Auteur : {message.author} (ID : {message.author.id})")
-
-    # Ignorer tous les messages sauf ceux du bot cible
+    """Suivre uniquement les messages du bot cible."""
     if message.author.id != TARGET_BOT_ID:
-        print("🔄 Ignoré : ce message ne provient pas du bot cible.")
         return
 
-    print("🎯 Message suivi : ce message provient du bot cible !")
-
-    # Vérifier si un gagnant a été annoncé
     if "won the" in message.content.lower():
-        print("🎉 Un gagnant a été détecté dans le message.")
+        print("🎉 Un gagnant détecté dans le message.")
         await retrieve_previous_message_with_summary(message.channel)
 
 async def retrieve_previous_message_with_summary(channel):
+    """Trouver et traiter le message 'Giveaway Summary'."""
     async for msg in channel.history(limit=50):
         if hasattr(msg, "components") and msg.components:
             for component in msg.components:
@@ -86,32 +57,26 @@ async def retrieve_previous_message_with_summary(channel):
                         return
 
 async def download_json_from_summary(url, channel):
-    print(f"🌐 Téléchargement du JSON depuis : {url}")
+    """Télécharger et traiter le résumé du giveaway."""
     api_url = url.replace("https://giveawaybot.party/summary#", "https://summary-api.giveawaybot.party/?")
-
     try:
         response = requests.get(api_url)
         response.raise_for_status()
         raw_data = response.json()
 
-        print(f"✅ JSON brut récupéré avec succès : {raw_data}")
-
-        # Appeler le traitement des données
+        print(f"✅ JSON brut récupéré : {raw_data}")
         process_giveaway_data(raw_data)
 
         await channel.send(f"🎉 Leaderboard mis à jour automatiquement !")
-        print(f"✅ Leaderboard mis à jour.")
     except Exception as e:
         print(f"❌ Erreur lors du traitement : {e}")
         await channel.send(f"⚠️ Une erreur est survenue : {str(e)}")
 
+def start_bot():
+    """Démarrer le bot Discord."""
+    bot.run(os.getenv("DISCORD_TOKEN"))
 
-@bot.event
-async def on_ready():
-    await bot.tree.sync()
-    print(f"✅ Commandes Slash synchronisées. Connecté en tant que {bot.user}.")
-    print(f"📋 Commandes enregistrées : {[cmd.name for cmd in bot.tree.get_commands()]}")
-
-        
-# Lancer le bot
-bot.run(os.getenv("DISCORD_TOKEN"))
+# Lancer Flask et le bot Discord en parallèle
+if __name__ == "__main__":
+    threading.Thread(target=run_flask).start()
+    start_bot()
