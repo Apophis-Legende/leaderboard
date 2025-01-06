@@ -1,6 +1,5 @@
 import os
 import json
-from firebase_admin import db
 
 def load_json(filename, default_data=None):
     """
@@ -157,3 +156,4 @@ def process_giveaway_data(raw_data):
     # Sauvegarder les données dans le fichier JSON du serveur
     save_json(file_name, server_data)
     print(f"✅ Données sauvegardées pour le serveur {server} dans {file_name}.")
+
