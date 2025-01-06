@@ -18,7 +18,6 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def on_ready():
     print(f"Bot connecté en tant que {bot.user}")
 
-# Détection des giveaways
 @bot.event
 async def on_message(message):
     if "giveaway" in message.content.lower():
@@ -29,11 +28,10 @@ async def on_message(message):
                     print(f"Bouton détecté avec custom_id : {button.custom_id}")
                     await message.channel.send("Giveaway détecté avec un bouton !")
 
-# Interaction avec le bouton
 @bot.event
 async def on_interaction(interaction):
     if interaction.type.name == "component":
-        if interaction.data.get("custom_id") == "giveaway_button_id":  # Remplacez par l'ID réel
+        if interaction.data.get("custom_id") == "giveaway_button_id":  # Remplacez par l'ID du bouton
             button_url = interaction.message.components[0].children[0].url
             print(f"URL récupérée : {button_url}")
             await interaction.response.send_message(f"URL récupérée : {button_url}")
@@ -41,19 +39,22 @@ async def on_interaction(interaction):
             giveaway_data = await open_page_with_selenium(button_url)
             await interaction.followup.send(f"Données du giveaway : {giveaway_data}")
 
-# Fonction pour ouvrir une page en mode headless
 async def open_page_with_selenium(url):
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
 
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.get(url)
+    chrome_bin = os.getenv("CHROME_BIN", "/usr/bin/chromium")
+    chrome_options.binary_location = chrome_bin
+
+    service = Service("/nix/store/.../chromedriver")  # Remplacez par le chemin réel si nécessaire
+    driver = webdriver.Chrome(service=service, options=chrome_options)
 
     try:
+        driver.get(url)
         await asyncio.sleep(5)
-        element = driver.find_element(By.ID, "element_id")  # Remplacez par l'élément ciblé
+        element = driver.find_element(By.ID, "element_id")  # Modifiez en fonction de la page
         giveaway_data = element.text
         print(f"Données extraites : {giveaway_data}")
     except Exception as e:
@@ -64,5 +65,4 @@ async def open_page_with_selenium(url):
 
     return giveaway_data
 
-# Lancer le bot
 bot.run(os.getenv("DISCORD_TOKEN"))
