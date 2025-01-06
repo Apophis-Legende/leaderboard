@@ -6,9 +6,22 @@ import os
 import json
 import asyncio
 from logique import process_giveaway_data
-from utils.html_utils import generate_html_table
-from PIL import Image, ImageDraw, ImageFont
+from flask import Flask, render_template
+import threading
 
+# Initialiser Flask
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')  # Affiche votre page HTML principale
+
+# Démarrer le serveur Flask dans un thread séparé
+def run_flask():
+    app.run(host='0.0.0.0', port=5000)
+
+# Démarrer Flask en parallèle avec le bot Discord
+threading.Thread(target=run_flask).start()
 
 # Configuration du bot avec intentions
 intents = discord.Intents.default()
