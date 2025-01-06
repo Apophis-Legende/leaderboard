@@ -49,7 +49,12 @@ async def on_interaction(interaction):
 # Fonction pour ouvrir la page avec Selenium et extraire des données
 async def open_page_with_selenium(url):
     # Initialiser Selenium (assurez-vous que le driver Chrome est installé)
-    driver = webdriver.Chrome()  # Remplacez par le chemin de votre driver si nécessaire
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.binary_location = "${pkgs.chromium}/bin/chromium"
+    driver = webdriver.Chrome(options=chrome_options)
     driver.get(url)
 
     try:
