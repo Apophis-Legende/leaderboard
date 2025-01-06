@@ -1,0 +1,100 @@
+/* Style du corps de la page */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #36393f; /* Fond gris sombre comme Discord */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column; /* Utilise Flexbox pour la mise en page */
+    align-items: center; /* Centre tout horizontalement */
+    justify-content: flex-start; /* Commence par le haut de la page */
+    min-height: 100vh; /* Assure que la page occupe toute la hauteur de l'écran */
+    color: white; /* Le texte sera en blanc pour contraster avec le fond sombre */
+}
+
+/* Bannière */
+#banner {
+    color: white;
+    width: 100%; /* Prendre toute la largeur de l'écran */
+    height: 200px; /* Hauteur de la bannière */
+    display: flex;
+    justify-content: center; /* Centre horizontalement */
+    align-items: center; /* Centre verticalement */
+    text-align: center;
+    font-size: 2.5em;
+}
+
+/* Centrer le contenu sous la bannière */
+h2 {
+    margin-top: 20px;
+}
+
+/* Style du menu déroulant */
+select {
+    font-size: 16px;
+    padding: 8px;
+    margin: 20px 0;
+    text-align: center;
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    background-color: #2f3136; /* Couleur sombre pour le menu, comme Discord */
+    color: white; /* Texte blanc dans le menu */
+    border: 1px solid #7289da; /* Bordure bleue pour le menu */
+}
+
+/* Style du tableau */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #2f3136; /* Fond sombre pour le tableau */
+    max-width: 1000px;
+    border-radius: 5px; /* Coins arrondis pour le tableau */
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #7289da; /* Bordure bleue pour les cellules */
+}
+
+th {
+    background-color: #2f3136; /* Fond sombre pour les en-têtes */
+    color: #7289da; /* Couleur du texte en bleu pour les en-têtes */
+}
+
+tr:nth-child(even) {
+    background-color: #3a3f47; /* Fond plus clair pour les lignes paires */
+}
+
+/* Media Queries pour la réactivité */
+@media (max-width: 768px) {
+    #banner {
+        height: 150px;
+        font-size: 1.8em;
+    }
+
+    table {
+        width: 90%;
+    }
+
+    select {
+        width: 90%;
+    }
+}
+
+@media (max-width: 480px) {
+    #banner {
+        height: 120px;
+        font-size: 1.5em;
+    }
+
+    select {
+        width: 100%;
+    }
+
+    table {
+        width: 100%;
+    }
+}
