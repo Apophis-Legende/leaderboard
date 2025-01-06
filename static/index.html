@@ -40,32 +40,12 @@
         </tbody>
     </table>
 
-    <!-- Inclure Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
-
     <script>
-        // Configurer Firebase
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://leaderboard-ef986-default-rtdb.europe-west1.firebasedatabase.app",  // L'URL de ta base de données
-            projectId: "leaderboard-ef986",
-            storageBucket: "leaderboard-ef986.firebasestorage.app",
-            messagingSenderId: "524253229167",
-            appId: "1:524253229167:web:a3bb0f032d08e7676a9d9a",
-        };
-
-        // Initialiser Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.database(app);
-
         // Fonction pour récupérer et afficher les données
-        function loadLeaderboardData(server) {
-            const leaderboardRef = db.ref(`leaderboard/${server}`);
-
-            leaderboardRef.once('value', (snapshot) => {
-                const data = snapshot.val();
+        async function loadLeaderboardData(server) {
+            try {
+                const response = await fetch(`/api/leaderboard?server=${server}`);
+                const data = await response.json();
                 const tbody = document.getElementById('leaderboard-body');
                 tbody.innerHTML = '';  // Vider les lignes existantes
 
@@ -88,7 +68,9 @@
                     row.innerHTML = `<td colspan="5">Aucune donnée disponible</td>`;
                     tbody.appendChild(row);
                 }
-            });
+            } catch (error) {
+                console.error('Erreur lors de la récupération des données :', error);
+            }
         }
 
         // Charger les données pour le serveur par défaut au démarrage
