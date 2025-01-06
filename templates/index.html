@@ -1,90 +1,73 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leaderboard - Serveur</title>
-
-    <!-- Utilisez url_for pour lier le fichier CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-
-    <!-- Inclure jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Leaderboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <!-- Bannière avec texte -->
-    <header>
-        <div id="banner">
-            <h1>L'AS de Trèfle</h1>
-        </div>
-    </header>
-
-    <!-- Menu déroulant -->
-    <h2>Choisissez un serveur</h2>
+    <h1>Leaderboard</h1>
+    <label for="server-select">Choisissez un serveur :</label>
     <select id="server-select">
-        <option value="Tiliwan1">Tiliwan 1</option>
-        <option value="Tiliwan2">Tiliwan 2</option>
+        <option value="Tiliwan1">Tiliwan1</option>
+        <option value="Tiliwan2">Tiliwan2</option>
         <option value="Oshimo">Oshimo</option>
         <option value="Herdegrize">Herdegrize</option>
         <option value="Euro">Euro</option>
     </select>
 
-    <!-- Tableau pour afficher les données -->
-    <table id="leaderboard">
+    <table>
         <thead>
             <tr>
                 <th>Nom d'utilisateur</th>
-                <th>Gains Totaux</th>
-                <th>Pertes Totales</th>
-                <th>Mises Totales</th>
-                <th>Participation</th>
+                <th>Victoires</th>
+                <th>Défaites</th>
+                <th>Mises totales</th>
+                <th>Participation (%)</th>
             </tr>
         </thead>
         <tbody id="leaderboard-body">
-            <!-- Les lignes de données seront insérées ici par JavaScript -->
+            <tr>
+                <td colspan="5">Chargement...</td>
+            </tr>
         </tbody>
     </table>
 
-    <!-- Utilisez url_for pour lier le fichier JavaScript -->
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function loadLeaderboardData(server) {
+            $.get(`/api/leaderboard?server=${server}`, function(data) {
+                const tbody = $('#leaderboard-body');
+                tbody.empty();
+
+                if (data && data.utilisateurs) {
+                    for (const userId in data.utilisateurs) {
+                        const user = data.utilisateurs[userId];
+                        const row = `<tr>
+                            <td>${user.username}</td>
+                            <td>${user.total_wins}</td>
+                            <td>${user.total_losses}</td>
+                            <td>${user.total_bets}</td>
+                            <td>${user.participation}%</td>
+                        </tr>`;
+                        tbody.append(row);
+                    }
+                } else {
+                    tbody.append(`<tr><td colspan="5">Aucune donnée disponible</td></tr>`);
+                }
+            }).fail(function() {
+                alert('Erreur lors de la récupération des données.');
+            });
+        }
+
+        $('#server-select').on('change', function() {
+            const selectedServer = $(this).val();
+            loadLeaderboardData(selectedServer);
+        });
+
+        // Charger les données du serveur par défaut au démarrage
+        loadLeaderboardData('Tiliwan1');
+    </script>
 </body>
 </html>
-
-<script>
-    // Fonction pour charger les données du leaderboard via AJAX
-    function loadLeaderboardData(server) {
-        $.get(`/api/leaderboard?server=${server}`, function(data) {
-            const tbody = $('#leaderboard-body');
-            tbody.empty(); // Vider le tableau existant
-
-            // Vérifie si des données existent avant de les afficher
-            if (data && data.utilisateurs) {
-                for (const userId in data.utilisateurs) {
-                    const user = data.utilisateurs[userId];
-                    const row = `<tr>
-                        <td>${user.username}</td>
-                        <td>${user.total_wins}</td>
-                        <td>${user.total_losses}</td>
-                        <td>${user.total_bets}</td>
-                        <td>${user.participation}</td>
-                    </tr>`;
-                    tbody.append(row);
-                }
-            } else {
-                const row = `<tr><td colspan="5">Aucune donnée disponible</td></tr>`;
-                tbody.append(row);
-            }
-        }).fail(function() {
-            alert('Erreur lors de la récupération des données.');
-        });
-    }
-
-    // Lorsque l'utilisateur choisit un serveur
-    $('#server-select').on('change', function() {
-        const selectedServer = $(this).val();
-        loadLeaderboardData(selectedServer);  // Charger les données du serveur sélectionné
-    });
-
-    // Charger les données du serveur par défaut au démarrage
-    loadLeaderboardData('Tiliwan1');
-</script>

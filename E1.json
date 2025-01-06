@@ -1,0 +1,38 @@
+{
+    "serveur": "E1",
+    "nombre_de_jeux": 1,
+    "mises_totales_avant_commission": "1000 jetons",
+    "gains_totaux": "950 jetons",
+    "commission_totale": "50 jetons",
+    "utilisateurs": {
+        "928329400666173520": {
+            "username": "apophislegende",
+            "total_wins": "950 jetons",
+            "total_losses": "0 jetons",
+            "total_bets": "500 jetons",
+            "participation": 1
+        },
+        "1229717382554058762": {
+            "username": "clzgapiidor",
+            "total_wins": "0 jetons",
+            "total_losses": "500 jetons",
+            "total_bets": "500 jetons",
+            "participation": 1
+        }
+    },
+    "hôtes": {
+        "928329400666173520": {
+            "username": "apophislegende",
+            "total_bets": "1000 jetons",
+            "total_commission": "50 jetons"
+        }
+    },
+    "croupiers": {
+        "928329400666173520": {
+            "username": "apophislegende",
+            "total_giveaways": 1,
+            "total_kamas_managed": "1000 jetons",
+            "total_commission": "50 jetons"
+        }
+    }
+}

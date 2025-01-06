@@ -46,26 +46,40 @@ select {
 
 /* Style du tableau */
 table {
-    width: 100%;
+    width: 90%;
     border-collapse: collapse;
     margin-top: 20px;
     background-color: #2f3136; /* Fond sombre pour le tableau */
     max-width: 1000px;
     border-radius: 5px; /* Coins arrondis pour le tableau */
+    border: 1px solid #7289da; /* Bordure bleue */
+    color: white; /* Texte blanc */
+    overflow: hidden; /* Assure que les coins arrondis fonctionnent */
 }
 
-th, td {
+/* En-têtes de tableau */
+th {
+    background-color: #23272a; /* Couleur légèrement plus sombre pour l'en-tête */
+    color: #7289da; /* Texte en bleu pour l'en-tête */
+    padding: 10px;
+    text-align: left;
+}
+
+/* Cellules de tableau */
+td {
     padding: 10px;
     border: 1px solid #7289da; /* Bordure bleue pour les cellules */
 }
 
-th {
-    background-color: #2f3136; /* Fond sombre pour les en-têtes */
-    color: #7289da; /* Couleur du texte en bleu pour les en-têtes */
-}
-
+/* Alternance des lignes */
 tr:nth-child(even) {
     background-color: #3a3f47; /* Fond plus clair pour les lignes paires */
+}
+
+tr:hover {
+    background-color: #434b52; /* Surbrillance au survol */
+    cursor: pointer; /* Change le curseur au survol */
+    transition: background-color 0.3s ease; /* Animation fluide */
 }
 
 /* Media Queries pour la réactivité */
@@ -76,7 +90,7 @@ tr:nth-child(even) {
     }
 
     table {
-        width: 90%;
+        font-size: 14px;
     }
 
     select {
@@ -90,11 +104,12 @@ tr:nth-child(even) {
         font-size: 1.5em;
     }
 
-    select {
+    table {
         width: 100%;
+        font-size: 12px;
     }
 
-    table {
+    select {
         width: 100%;
     }
 }
