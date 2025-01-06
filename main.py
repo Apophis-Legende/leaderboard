@@ -7,7 +7,7 @@ import json
 import asyncio
 from logique import process_giveaway_data
 from utils.html_utils import generate_html_table
-from prettytable import PrettyTable
+from PIL import Image, ImageDraw, ImageFont
 
 # Configuration du bot avec intentions
 intents = discord.Intents.default()
@@ -91,11 +91,98 @@ async def download_json_from_summary(url, channel):
         print(f"❌ Erreur lors du traitement : {e}")
         await channel.send(f"⚠️ Une erreur est survenue : {str(e)}")
 
-@bot.tree.command(name="leaderboard", description="Affiche un leaderboard esthétique sous forme de tableau.")
+def create_table_image(data, serveur, guild):
+    """
+    Crée une image avec un tableau représentant le leaderboard.
+    """
+    # Taille de l'image (largeur, hauteur)
+    width, height = 600, 400
+    image = Image.new('RGB', (width, height), color='white')
+    draw = ImageDraw.Draw(image)
+
+    # Utiliser la police par défaut de Pillow (pas besoin de fichier .ttf)
+    font = ImageFont.load_default()
+
+    # Définir les en-têtes du tableau
+    headers = ["Nom d'utilisateur", "Gains Totaux", "Pertes Totales", "Mises Totales", "Participation"]
+    data_rows = []
+
+    # Récupérer les pseudos des utilisateurs depuis le serveur
+    for user_id, user_data in data["utilisateurs"].items():
+        # Récupérer l'utilisateur du serveur par son ID
+        member = guild.get_member(int(user_id))  # Convertir user_id en int
+
+        # Vérifier si le membre existe
+        if member:
+            nickname = member.nick if member.nick else member.name  # Utiliser le pseudo ou le nom d'utilisateur
+        else:
+            nickname = user_data["username"]  # Si l'utilisateur n'est plus membre, utiliser le nom d'utilisateur global
+
+        # Ajouter les données de l'utilisateur dans le tableau
+        data_rows.append([
+            nickname,  # Utiliser le pseudo spécifique au serveur ou le nom d'utilisateur global
+            f"{user_data['total_wins']} jetons", 
+            f"{user_data['total_losses']} jetons", 
+            f"{user_data['total_bets']} jetons", 
+            user_data["participation"]
+        ])
+
+    # Position du tableau sur l'image
+    x_offset = 10
+    y_offset = 10
+    row_height = 30
+    col_width = 120  # Largeur des colonnes
+
+    # Dessiner l'en-tête avec un fond coloré
+    header_bg_color = (30, 144, 255)  # Bleu clair
+    draw.rectangle([x_offset, y_offset, width, y_offset + row_height], fill=header_bg_color)
+
+    # Dessiner les textes des en-têtes et les bordures des colonnes
+    for i, header in enumerate(headers):
+        # Calculer la position pour centrer le texte
+        bbox = draw.textbbox((0, 0), header, font=font)  # Récupérer la boîte englobante du texte
+        text_width = bbox[2] - bbox[0]  # largeur du texte
+        text_height = bbox[3] - bbox[1]  # hauteur du texte
+        x_position = x_offset + i * col_width + (col_width - text_width) / 2
+        y_position = y_offset + (row_height - text_height) / 2  # Centrer verticalement
+        draw.text((x_position, y_position), header, font=font, fill="white")
+        # Dessiner la ligne de séparation entre les colonnes
+        draw.line([(x_offset + (i + 1) * col_width, y_offset), 
+                   (x_offset + (i + 1) * col_width, y_offset + row_height)], fill="black", width=2)
+
+    # Dessiner les lignes du tableau
+    y_offset += row_height
+    for row in data_rows:
+        for i, col in enumerate(row):
+            # Calculer la position pour centrer le texte
+            bbox = draw.textbbox((0, 0), str(col), font=font)  # Récupérer la boîte englobante du texte
+            text_width = bbox[2] - bbox[0]  # largeur du texte
+            text_height = bbox[3] - bbox[1]  # hauteur du texte
+            x_position = x_offset + i * col_width + (col_width - text_width) / 2
+            y_position = y_offset + (row_height - text_height) / 2  # Centrer verticalement
+            draw.text((x_position, y_position), str(col), font=font, fill="black")
+            # Dessiner la ligne de séparation entre les colonnes
+            draw.line([(x_offset + (i + 1) * col_width, y_offset), 
+                       (x_offset + (i + 1) * col_width, y_offset + row_height)], fill="black", width=1)
+        y_offset += row_height
+        # Dessiner une ligne de séparation horizontale
+        draw.line([(x_offset, y_offset), (width, y_offset)], fill="black", width=2)
+
+    # Dessiner une bordure autour du tableau
+    border_color = (0, 0, 0)
+    border_thickness = 5
+    draw.rectangle([0, 0, width, height], outline=border_color, width=border_thickness)
+
+    # Sauvegarder l'image
+    filename = f"leaderboard_{serveur}.png"
+    image.save(filename)
+    return filename
+
+@bot.tree.command(name="leaderboard", description="Affiche un leaderboard sous forme d'image.")
 @app_commands.describe(serveur="Le serveur pour lequel afficher le tableau (ex: T1, T2)")
 async def leaderboard_table(interaction: discord.Interaction, serveur: str):
     """
-    Affiche un leaderboard esthétique sous forme de tableau dans un Embed avec PrettyTable.
+    Affiche un leaderboard sous forme d'image.
     """
     try:
         # Charger les données JSON du serveur
@@ -106,56 +193,23 @@ async def leaderboard_table(interaction: discord.Interaction, serveur: str):
         with open(filename, "r", encoding="utf-8") as file:
             data = json.load(file)
 
-        # Créer un PrettyTable pour le tableau
-        table = PrettyTable()
+        # Obtenir l'objet guild (serveur)
+        guild = interaction.guild
 
-        # Définir les noms des colonnes
-        table.field_names = ["Nom d'utilisateur", "Gains Totaux", "Pertes Totales", "Mises Totales", "Participation"]
+        # Créer l'image avec le tableau
+        image_file = create_table_image(data, serveur, guild)
 
-        # Ajouter les lignes avec les données du leaderboard
-        for user_id, user_data in data["utilisateurs"].items():
-            table.add_row([
-                user_data["username"], 
-                user_data["total_wins"], 
-                user_data["total_losses"], 
-                user_data["total_bets"], 
-                user_data["participation"]
-            ])
-
-        # Convertir le tableau en texte
-        table_text = str(table)
-
-        # Ajouter les unités "jetons" après avoir généré le tableau
-        table_lines = table_text.splitlines()  # Diviser le texte du tableau en lignes
-
-        # Vérifier les lignes pour éviter les erreurs d'index
-        for i in range(2, len(table_lines) - 1):  # Ignorer les lignes de l'en-tête et de séparation
-            line = table_lines[i].split('|')
-            if len(line) == 5:  # S'assurer qu'il y a bien 5 éléments dans chaque ligne
-                table_lines[i] = f"{line[0].strip()} | {line[1].strip()} jetons | {line[2].strip()} jetons | {line[3].strip()} jetons | {line[4].strip()}"
-            else:
-                print(f"Ligne mal formatée : {table_lines[i]}")
-
-        # Rejoindre les lignes pour recréer le tableau complet
-        table_text = "\n".join(table_lines)
-
-        # Créer l'embed avec un titre et une description stylisée
-        embed = discord.Embed(
-            title=f"Leaderboard - Serveur {serveur}",
-            description=f"Voici le tableau de classement pour le serveur {serveur}.",
-            color=discord.Color.blue()
+        # Envoyer l'image dans Discord
+        await interaction.response.send_message(
+            f"📄 Voici le tableau de classement pour le serveur {serveur} :",
+            file=discord.File(image_file)
         )
-
-        # Ajouter le tableau au champ de l'embed
-        embed.add_field(name="Leaderboard", value=f"```{table_text}```", inline=False)
-
-        # Envoyer l'embed dans Discord
-        await interaction.response.send_message(embed=embed)
 
     except FileNotFoundError:
         await interaction.response.send_message(f"⚠️ Le fichier `{serveur}.json` n'existe pas.", ephemeral=True)
     except Exception as e:
         await interaction.response.send_message(f"❌ Une erreur est survenue : {e}", ephemeral=True)
+
 
 
 @bot.event
