@@ -5,165 +5,185 @@ import threading
 import os
 import json
 import requests
-import asyncio
-from functools import wraps
+from logique import process_giveaway_data, load_json
+from data_manager import load_json, save_json, extract_user_data
+from discord.ui import View, Select
 
-# --- Configuration ---
-SECRET_KEY = "votre_cle_secrete"
-file_lock = threading.Lock()  # Verrou global pour l'accès aux fichiers JSON
-giveaway_queue = asyncio.Queue()  # File d'attente pour les messages Discord
-
-# Mapping des noms de serveurs aux fichiers JSON
-server_file_mapping = {
-    "Tiliwan1": "T1.json",
-    "Tiliwan2": "T2.json",
-    "Oshimo": "O1.json",
-    "Herdegrize": "H1.json",
-    "Euro": "E1.json"
-}
-
-# --- Utilitaires ---
-def load_json(filename, default_data=None):
-    """Charge un fichier JSON ou retourne les données par défaut si le fichier n'existe pas."""
-    with file_lock:
-        if os.path.exists(filename):
-            try:
-                with open(filename, "r", encoding="utf-8") as file:
-                    return json.load(file)
-            except json.JSONDecodeError:
-                print(f"⚠️ Fichier JSON corrompu : {filename}. Réinitialisation.")
-                save_json(filename, default_data or {})
-                return default_data or {}
-        return default_data or {}
-
-def save_json(filename, data):
-    """Sauvegarde des données dans un fichier JSON."""
-    with file_lock:
-        with open(filename, "w", encoding="utf-8") as file:
-            json.dump(data, file, ensure_ascii=False, indent=4)
-        print(f"✅ Fichier sauvegardé : {filename}")
-
-# --- Flask Configuration ---
-app = Flask(__name__)
-
-@app.route('/')
-def index():
-    """Affiche la page principale."""
-    return render_template('index.html')
-
-@app.route('/api/leaderboard', methods=["GET"])
-def get_leaderboard():
-    """Retourne les données du leaderboard sous forme JSON."""
-    server = request.args.get('server', 'Tiliwan1')  # Nom du serveur par défaut
-    server_filename = server_file_mapping.get(server)  # Obtenir le nom du fichier correspondant
-
-    if not server_filename:
-        return jsonify({"error": f"Serveur inconnu : {server}"}), 404
-
-    try:
-        data = load_json(server_filename, default_data={})
-        if not data:
-            raise ValueError(f"Les données du fichier '{server_filename}' sont vides ou mal formatées.")
-        return jsonify(data)
-    except Exception as e:
-        return jsonify({"error": f"Une erreur est survenue : {e}"}), 500
-
-# --- Discord Bot Configuration ---
+# Configuration du bot avec intentions
 intents = discord.Intents.default()
 intents.messages = True
 intents.guilds = True
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+# Configuration de Flask pour le serveur web
+app = Flask(__name__)
+
+@app.route('/update_data', methods=["POST"])
+def update_data():
+    """Endpoint pour recevoir des mises à jour depuis le bot Discord."""
+    try:
+        data = request.json  # Récupérer les données envoyées en JSON
+
+        if not data:
+            return jsonify({"error": "Aucune donnée reçue ou JSON invalide."}), 400
+
+        if not isinstance(data, dict):
+            return jsonify({"error": "Les données doivent être un objet JSON valide."}), 400
+
+        save_json("data.json", data)  # Sauvegarder les données dans data.json
+        return jsonify({"message": "Données mises à jour avec succès"}), 200
+
+    except Exception as e:
+        app.logger.error(f"Erreur dans /update_data : {e}")
+        return jsonify({"error": f"Une erreur est survenue : {e}"}), 500
+
+def load_json(filename, default_data=None):
+    """Charge un fichier JSON ou retourne les données par défaut si le fichier n'existe pas."""
+    filepath = os.path.join("json_files", filename)  # Dossier dédié pour les fichiers JSON
+    if os.path.exists(filepath):
+        with open(filepath, "r", encoding="utf-8") as file:
+            return json.load(file)
+    return default_data or {}
+
+@app.route('/')
+def index():
+    """Route pour afficher la page HTML."""
+    return render_template('index.html')
+
+@app.route('/api/leaderboard', methods=["GET"])
+def get_leaderboard():
+    """API pour fournir les données JSON à la page."""
+    server = request.args.get('server', 'T1')  # Valeur par défaut T1
+    server_filename = f"{server}.json"  # Exemple : T1.json, T2.json, etc.
+    try:
+        # Vérifiez si le fichier existe avant de le charger
+        if not os.path.exists(server_filename):
+            return jsonify({"error": f"Fichier JSON '{server_filename}' introuvable."}), 404
+
+        # Charger les données depuis le fichier JSON du serveur
+        data = load_json(server_filename, default_data={})
+
+        if not data:
+            return jsonify({"error": f"Le fichier '{server_filename}' est vide ou mal formaté."}), 404
+
+        return jsonify(data)
+    except Exception as e:
+        app.logger.error(f"Erreur dans /api/leaderboard : {e}")
+        return jsonify({"error": f"Une erreur est survenue : {e}"}), 500
+
+def run_flask():
+    # Assurez-vous que Flask écoute sur 0.0.0.0 pour permettre l'accès externe
+    app.run(host='0.0.0.0', port=3000, debug=False)
+
+# Charger les données depuis le fichier JSON
+data = load_json("data.json", default_data={})
+
+# Extraire les données des utilisateurs
+user_data = extract_user_data(data)
+for user in user_data:
+    print(user)
+
+# ID du bot cible
+TARGET_BOT_ID = 294882584201003009  # ID du GiveawayBot
+
 async def send_data_to_flask(data):
-    """Envoie des données à l'application Flask via l'API."""
-    flask_url = "https://asdetrefle.replit.app/update_data"
+    """Envoie des données JSON au serveur Flask."""
     try:
-        data["secret"] = SECRET_KEY
-        response = requests.post(flask_url, json=data)
-        if response.status_code == 200:
-            print("✅ Données envoyées avec succès à Flask :", response.json())
-        else:
-            print(f"❌ Erreur lors de l'envoi des données : {response.status_code}, {response.text}")
-    except Exception as e:
-        print(f"❌ Une erreur s'est produite lors de l'envoi : {e}")
+        url = "http://127.0.0.1:3000/update_data"  # Endpoint Flask
+        headers = {'Content-Type': 'application/json'}
 
-async def process_and_save_data(new_data):
-    """Traite et sauvegarde les données reçues, puis les envoie à Flask."""
-    try:
-        existing_data = load_json("data.json", default_data={})
-        existing_data.update(new_data)
-        save_json("data.json", existing_data)
-        await send_data_to_flask(existing_data)
-    except Exception as e:
-        print(f"❌ Une erreur s'est produite lors du traitement des données : {e}")
+        # Envoyer une requête POST avec les données
+        response = requests.post(url, json=data, headers=headers)
+        response.raise_for_status()  # Lève une exception pour les erreurs HTTP
 
-async def process_queue():
-    """Traite les messages dans la file d'attente de manière séquentielle."""
-    while True:
-        new_data = await giveaway_queue.get()
-        try:
-            await process_and_save_data(new_data)
-        except Exception as e:
-            print(f"❌ Erreur lors du traitement des données de la file : {e}")
-        finally:
-            giveaway_queue.task_done()
-
-@bot.tree.command(name="update_page", description="Met à jour les données du serveur.")
-async def update_page(interaction: discord.Interaction):
-    """Commande pour mettre à jour les données."""
-    await interaction.response.send_message("🔄 Mise à jour des données en cours...")
-    await send_data_to_flask(load_json("data.json", default_data={}))
-    await interaction.followup.send("✅ Données mises à jour avec succès.")
-    
-@bot.tree.command(name="process_giveaway", description="Ajoute un giveaway à traiter grâce à l'ID du message.")
-async def process_giveaway(interaction: discord.Interaction, message_id: str):
-    """Traite un giveaway en utilisant l'ID du message."""
-    try:
-        channel = interaction.channel
-        if not channel:
-            await interaction.response.send_message("❌ Cette commande doit être exécutée dans un canal textuel.", ephemeral=True)
-            return
-
-        # Récupérer le message à partir de l'ID
-        message = await channel.fetch_message(int(message_id))
-        if message.author.id != 294882584201003009:  # ID du bot Giveaway
-            await interaction.response.send_message("❌ Ce message ne provient pas du bot cible.", ephemeral=True)
-            return
-
-        if "won the" in message.content.lower():
-            print(f"🎉 Giveaway détecté dans le message : {message.content}")
-            await process_and_save_data({"giveaway_content": message.content})
-            await interaction.response.send_message(f"✅ Giveaway traité avec succès pour le message ID {message_id}.")
-        else:
-            await interaction.response.send_message("❌ Ce message ne contient pas de giveaway valide.", ephemeral=True)
-
-    except discord.NotFound:
-        await interaction.response.send_message(f"❌ Aucun message trouvé avec l'ID {message_id}.", ephemeral=True)
-    except discord.Forbidden:
-        await interaction.response.send_message("❌ Permissions insuffisantes pour récupérer ce message.", ephemeral=True)
-    except Exception as e:
-        print(f"❌ Erreur lors du traitement du giveaway : {e}")
-        await interaction.response.send_message(f"❌ Une erreur est survenue : {e}", ephemeral=True)
-
+        print(f"✅ Données envoyées à Flask avec succès : {response.json()}")
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Erreur lors de l'envoi des données à Flask : {e}")
+        raise
 
 @bot.event
 async def on_ready():
     print(f"✅ Bot connecté en tant que : {bot.user}")
     print(f"✅ ID du bot : {bot.user.id}")
-    bot.loop.create_task(process_queue())  # Lancer le traitement de la file d'attente
 
+async def send_data_to_flask(data):
+    """Envoie des données JSON au serveur Flask."""
+    try:
+        url = "http://127.0.0.1:3000/update_data"  # Endpoint Flask
+        headers = {'Content-Type': 'application/json'}
+
+        # Vérifiez que les données sont un dictionnaire
+        if not isinstance(data, dict):
+            raise ValueError("Les données à envoyer doivent être un dictionnaire JSON.")
+
+        # Envoyer une requête POST avec les données
+        response = requests.post(url, json=data, headers=headers)
+        response.raise_for_status()  # Lève une exception pour les erreurs HTTP
+
+        print(f"✅ Données envoyées à Flask avec succès : {response.json()}")
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Erreur lors de l'envoi des données à Flask : {e}")
+        raise
+        
+async def download_json_from_summary(url, channel):
+    print(f"🌐 Téléchargement du JSON depuis : {url}")
+    api_url = url.replace("https://giveawaybot.party/summary#", "https://summary-api.giveawaybot.party/?")
+
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()
+        raw_data = response.json()
+
+        print(f"✅ JSON brut récupéré avec succès : {raw_data}")
+
+        # Appeler le traitement des données
+        processed_data = process_giveaway_data(raw_data)
+
+        # Envoyer les données traitées à Flask
+        await send_data_to_flask(processed_data)
+
+        await channel.send(f"🎉 Données du giveaway traitées et envoyées à Flask avec succès !")
+    except Exception as e:
+        print(f"❌ Erreur lors du traitement : {e}")
+        await channel.send("⚠️ Erreur lors du traitement des données JSON.")
+
+
+# Gestion des messages : suivre uniquement ceux du bot cible
 @bot.event
 async def on_message(message):
-    if message.author.id == 294882584201003009 and "won the" in message.content.lower():
-        print("🎉 Un gagnant détecté !")
-        await giveaway_queue.put({"message_content": message.content})  # Ajouter à la file
+    print(f"\n🚨 Nouveau message reçu 🚨")
+    print(f"📨 Contenu du message : {message.content}")
+    print(f"👤 Auteur : {message.author} (ID : {message.author.id})")
 
-# --- Flask Server ---
-def run_flask():
-    app.run(host='0.0.0.0', port=3000, debug=False)
+    # Ignorer tous les messages sauf ceux du bot cible
+    if message.author.id != TARGET_BOT_ID:
+        print("🔄 Ignoré : ce message ne provient pas du bot cible.")
+        return
 
-# --- Lancer les serveurs ---
+    print("🎯 Message suivi : ce message provient du bot cible !")
+
+    # Vérifier si un gagnant a été annoncé
+    if "won the" in message.content.lower():
+        print("🎉 Un gagnant a été détecté dans le message.")
+        await retrieve_previous_message_with_summary(message.channel)
+
+async def retrieve_previous_message_with_summary(channel):
+    async for msg in channel.history(limit=50):
+        if hasattr(msg, "components") and msg.components:
+            for component in msg.components:
+                for button in component.children:
+                    if button.label.lower() == "giveaway summary":
+                        await download_json_from_summary(button.url, channel)
+                        return
+
+# Lancer le bot Discord
+def run_bot():
+    bot.run(os.getenv("TOKEN"))
+
+# Exécuter Flask et Discord en parallèle
 if __name__ == "__main__":
     threading.Thread(target=run_flask).start()  # Lancer Flask dans un thread
-    bot.run(os.getenv("TOKEN"))  # Lancer le bot Discord
+    run_bot()  # Lancer le bot Discord

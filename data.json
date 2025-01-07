@@ -1,3 +1,36 @@
 {
-    "nouveau": "contenu"
+    "winners": [
+        {
+            "id": "558799966601216020",
+            "avatar": "85fd54a19dc40fedeacea56be7f63da8",
+            "discrim": "0",
+            "username": "ezekiel6758"
+        }
+    ],
+    "entries": [
+        {
+            "id": "334830968986796044",
+            "avatar": "da7e663255df43984db4dd04e8873c62",
+            "discrim": "0",
+            "username": "norac29"
+        },
+        {
+            "id": "558799966601216020",
+            "avatar": "85fd54a19dc40fedeacea56be7f63da8",
+            "discrim": "0",
+            "username": "ezekiel6758"
+        }
+    ],
+    "giveaway": {
+        "num_winners": 1,
+        "host": {
+            "id": "1164911677632950394",
+            "avatar": "65454743a71f9397875b2799479e27d2",
+            "discrim": "0",
+            "username": "clikclikboom_"
+        },
+        "end": 1736198013,
+        "id": "1325934056029950003",
+        "prize": "E1 19"
+    }
 }
