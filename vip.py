@@ -1,107 +1,272 @@
+import discord
 import json
 import os
+from discord import TextChannel, Guild
 
-# Mapping entre les serveurs et leurs fichiers JSON
-SERVER_FILE_MAPPING = {
-    "Tiliwan1": "T1.json",
-    "Tiliwan2": "T2.json",
-    "Oshimo": "O1.json",
-    "Herdegrize": "H1.json",
-    "Euro": "E1.json"
+NOTIFICATION_CHANNEL_ID = 1323220160253001761
+
+# Liste des rôles VIP
+VIP_ROLE_MAPPING = {
+    1: {
+        "T1": "VIP 1 Tiliwan1",
+        "T2": "VIP 1 Tiliwan2",
+        "O1": "VIP 1 Oshimo",
+        "H1": "VIP 1 Herdegrize",
+        "E1": "VIP 1 Euro"
+    },
+    2: {
+        "T1": "VIP 2 Tiliwan1",
+        "T2": "VIP 2 Tiliwan2",
+        "O1": "VIP 2 Oshimo",
+        "H1": "VIP 2 Herdegrize",
+        "E1": "VIP 2 Euro"
+    },
+    3: {
+        "T1": "VIP 3 Tiliwan1",
+        "T2": "VIP 3 Tiliwan2",
+        "O1": "VIP 3 Oshimo",
+        "H1": "VIP 3 Herdegrize",
+        "E1": "VIP 3 Euro"
+    }
 }
 
-# Définition des paliers VIP
+# Liste des paliers VIP
 VIP_TIERS = {
-    3: 20000,  # Palier VIP 3 : 20000 jetons ou plus
-    2: 10000,  # Palier VIP 2 : Entre 10000 et 19999 jetons
-    1: 4000    # Palier VIP 1 : Entre 4000 et 9999 jetons
+    1: 4000,
+    2: 10000,
+    3: 20000
 }
 
-def load_server_json(server):
-    """Charge les données du fichier JSON correspondant au serveur."""
-    file_name = SERVER_FILE_MAPPING.get(server)
-    if not file_name:
-        raise ValueError(f"Serveur '{server}' non reconnu.")
+# Liste des ID des rôles interdits de recevoir un VIP
+FORBIDDEN_ROLES = [
+    1163157667674603582,  # ID du rôle "Croupiers"
+    1163157357799415992   # ID du rôle "Lead"
+]
+
+MAPPING_SERVER_FILE = {
+    "T1": "T1.json",
+    "T2": "T2.json",
+    "O1": "O1.json",
+    "H1": "H1.json",
+    "E1": "E1.json"
+}
+
+def ensure_forbidden_users_file_exists():
+    """
+    Vérifie si le fichier forbidden_vip_users.json existe et le crée avec un contenu vide si nécessaire.
+    """
+    file_name = "forbidden_vip_users.json"
+    if not os.path.exists(file_name):
+        print(f"📁 Le fichier {file_name} n'existe pas. Création en cours...")
+        with open(file_name, "w", encoding="utf-8") as f:
+            json.dump({}, f, indent=4, ensure_ascii=False)  # Fichier vide avec un dictionnaire
+        print(f"✅ Fichier {file_name} créé avec succès.")
+    else:
+        print(f"✔️ Le fichier {file_name} existe déjà.")
+
+def save_forbidden_vip_users(forbidden_users):
+    """
+    Sauvegarde la liste des utilisateurs interdits dans le fichier forbidden_vip_users.json.
+    """
+    file_name = "forbidden_vip_users.json"
+    with open(file_name, "w", encoding="utf-8") as f:
+        json.dump(forbidden_users, f, indent=4, ensure_ascii=False)
+    print(f"✅ Liste des utilisateurs interdits sauvegardée dans {file_name}.")
+
+async def assign_vip_role(member, server_name, vip_tier, guild: discord.Guild):
+    """
+    Assigne le rôle VIP au membre, enregistre les données dans assigned_roles.json,
+    et envoie une notification dans un salon dédié.
+    """
+    print(f"🔍 Attribution du rôle VIP pour {member.name} (ID : {member.id})")
+    role_name = VIP_ROLE_MAPPING.get(vip_tier, {}).get(server_name, None)
+
+    if role_name:
+        role = discord.utils.get(member.guild.roles, name=role_name)
+        if role:
+            if role not in member.roles:
+                try:
+                    await member.add_roles(role)
+                    print(f"✅ Rôle {role.name} attribué à {member.name}.")
+
+                    # Prépare le message
+                    message = f"🎉 Félicitations {member.mention} ! Vous avez reçu le rôle **{role.name}** pour votre participation sur le serveur **{server_name}**."
+
+                    # Récupérer le salon dédié via son ID
+                    notification_channel = guild.get_channel(NOTIFICATION_CHANNEL_ID)
+                    if notification_channel:
+                        await notification_channel.send(message)  # Envoi dans le salon dédié
+                        print(f"📩 Notification envoyée dans le salon {notification_channel.name}.")
+                    else:
+                        print(f"❌ Le salon avec l'ID {NOTIFICATION_CHANNEL_ID} est introuvable.")
+
+                    # Enregistrement des données
+                    data = load_assigned_roles()
+                    user_data = data["users"].get(str(member.id), {"username": member.name, "roles": []})
+                    if role.name not in user_data["roles"]:
+                        user_data["roles"].append(role.name)
+                    data["users"][str(member.id)] = user_data
+                    save_assigned_roles(data)
+
+                except discord.Forbidden:
+                    print(f"❌ Permissions insuffisantes pour attribuer le rôle {role.name} à {member.name}.")
+                except Exception as e:
+                    print(f"❌ Erreur inattendue : {e}")
+            else:
+                print(f"⚠️ {member.name} possède déjà le rôle {role.name}.")
+        else:
+            print(f"❌ Le rôle {role_name} n'existe pas sur le serveur {member.guild.name}.")
+    else:
+        print(f"❌ Aucun rôle trouvé pour le serveur {server_name} et le niveau VIP {vip_tier}.")
+
+async def check_vip_status(file_name, channel: discord.TextChannel):
+    """
+    Vérifie et met à jour les statuts VIP pour les utilisateurs d'un fichier JSON,
+    et attribue les rôles VIP sur Discord.
+    """
+    print(f"🔄 Lecture des données pour le fichier JSON : {file_name}...")
 
     if not os.path.exists(file_name):
-        print(f"❌ Fichier JSON pour le serveur '{server}' introuvable : {file_name}")
+        print(f"❌ Le fichier {file_name} n'existe pas. Création d'un fichier vide.")
+        with open(file_name, "w", encoding="utf-8") as f:
+            json.dump({"utilisateurs": {}}, f, indent=4, ensure_ascii=False)
+
+    server_data = load_server_json(file_name)
+    users = server_data.get("utilisateurs", {})
+    print(f"🔍 Utilisateurs trouvés : {users}")
+
+    if not users:
+        await channel.send(f"⚠️ Aucun utilisateur trouvé pour le serveur {file_name}.")
+        return
+
+    for user_id, user_data in users.items():
+        print(f"🔍 Utilisateur {user_id} : {user_data}")
+
+        # Extraire la mise totale
+        try:
+            total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
+        except ValueError:
+            print(f"❌ Erreur de format pour les mises de l'utilisateur {user_id}. Ignoré.")
+            continue
+
+        # Calculer le palier VIP
+        new_vip_tier = calculate_vip_tier(total_bets)
+
+        if new_vip_tier:
+            # Vérifiez que le membre est présent dans le serveur
+            try:
+                member = await channel.guild.fetch_member(int(user_id))
+            except discord.NotFound:
+                print(f"❌ Le membre {user_id} n'a pas pu être trouvé.")
+                continue
+
+            # Assigner le rôle VIP en fonction du serveur et du niveau VIP
+            server_name = file_name.split('.')[0]  # Extrait "T1" de "T1.json"
+            await assign_vip_role(member, server_name, new_vip_tier, channel.guild)
+
+
+def load_server_json(file_name):
+    """
+    Charge les données JSON d'un fichier.
+    """
+    if not file_name.endswith(".json"):
+        file_name += ".json"
+
+    try:
+        with open(file_name, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"❌ Fichier introuvable : {file_name}")
+        return {}
+    except json.JSONDecodeError:
+        print(f"❌ Erreur de format dans le fichier JSON : {file_name}")
         return {}
 
-    with open(file_name, "r", encoding="utf-8") as f:
-        return json.load(f)
-
 def calculate_vip_tier(total_bets):
-    """Calcule le palier VIP en fonction des mises totales."""
-    if total_bets >= VIP_TIERS[3]:
-        return 3  # VIP 3
-    elif total_bets >= VIP_TIERS[2]:
-        return 2  # VIP 2
-    elif total_bets >= VIP_TIERS[1]:
-        return 1  # VIP 1
-    else:
-        return None  # Aucun palier atteint
+    """
+    Calcule le palier VIP en fonction des mises totales.
+    """
+    for tier, threshold in sorted(VIP_TIERS.items(), reverse=True):
+        if total_bets >= threshold:
+            return tier
+    return None
 
-async def check_and_notify_vip(player_id, server, channel):
+def load_forbidden_vip_users():
     """
-    Vérifie le palier VIP d'un utilisateur et envoie une notification s'il a débloqué un nouveau VIP.
+    Charge les utilisateurs interdits du fichier forbidden_vip_users.json.
     """
+    file_name = "forbidden_vip_users.json"
     try:
-        # Charger les données du serveur
-        server_data = load_server_json(server)
-        user_data = server_data.get("utilisateurs", {}).get(player_id)
+        with open(file_name, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"⚠️ Fichier des utilisateurs interdits introuvable : {file_name}")
+        return {}
+    except json.JSONDecodeError:
+        print(f"⚠️ Erreur de format dans le fichier JSON des utilisateurs interdits.")
+        return {}
 
-        if not user_data:
-            print(f"❌ Aucun utilisateur avec l'ID {player_id} trouvé sur {server}.")
-            return
+def add_forbidden_user(user_id, member, role_name, reason="Non spécifiée"):
+    """
+    Ajoute un utilisateur interdit dans le fichier JSON, avec son username, ses rôles et la raison.
+    """
+    file_name = "forbidden_vip_users.json"
 
-        # Récupérer le total des mises
-        total_bets = int(user_data["total_bets"].split(" ")[0])  # Exemple : "4500 jetons"
+    # Si le fichier n'existe pas, le créer avec un dictionnaire vide
+    if not os.path.exists(file_name):
+        with open(file_name, "w", encoding="utf-8") as f:
+            json.dump({}, f, indent=4, ensure_ascii=False)
 
-        # Calculer le palier VIP actuel
-        current_vip_tier = calculate_vip_tier(total_bets)
-        previous_vip_tier = user_data.get("vip_tier")  # Palier VIP précédent
+    # Charger les membres interdits existants
+    with open(file_name, "r", encoding="utf-8") as f:
+        forbidden_users = json.load(f)
 
-        # Vérifier si un nouveau palier a été atteint
-        if current_vip_tier and current_vip_tier != previous_vip_tier:
-            # Mettre à jour les données utilisateur (en mémoire, pas dans le fichier)
-            user_data["vip_tier"] = current_vip_tier
-
-            # Envoyer un message Discord
-            await channel.send(
-                f"🎉 **Félicitations** <@{player_id}> : Vous avez débloqué le VIP {current_vip_tier} !"
-            )
-
+    # Ajouter ou mettre à jour l'utilisateur dans la liste
+    if user_id in forbidden_users:
+        existing_roles = forbidden_users[user_id].get("roles", [])
+        if role_name not in existing_roles:
+            forbidden_users[user_id]["roles"].append(role_name)
+            forbidden_users[user_id]["reason"] = reason  # mettre à jour la raison
+            print(f"✅ Rôle {role_name} ajouté à {member.name} avec la raison : {reason}")
         else:
-            print(f"🔹 Aucun nouveau palier VIP pour l'utilisateur {player_id}.")
-
-    except Exception as e:
-        print(f"❌ Erreur dans check_and_notify_vip : {e}")
-
-def get_player_vip_status(player_id, server):
-    """
-    Récupère le statut VIP actuel d'un joueur pour un serveur donné depuis le fichier JSON du serveur.
-    """
-    try:
-        # Charger les données du serveur
-        server_data = load_server_json(server)
-
-        # Récupérer les données du joueur
-        player_data = server_data.get("utilisateurs", {}).get(player_id, {"total_bets": 0, "vip_tier": None})
-        return player_data
-
-    except Exception as e:
-        print(f"❌ Erreur lors de la récupération des données VIP : {e}")
-        return {"total_bets": 0, "vip_tier": None}
-
-def display_vip_status(player_id, server):
-    """
-    Affiche les informations VIP d'un joueur pour un serveur donné.
-    """
-    player_data = get_player_vip_status(player_id, server)
-    total_bets = player_data.get("total_bets", 0)
-    vip_tier = player_data.get("vip_tier", None)
-
-    if vip_tier:
-        print(f"🔹 Joueur {player_id} sur {server} : Palier VIP {vip_tier}, Total misé : {total_bets} jetons.")
+            print(f"⚠️ {member.name} a déjà ce rôle dans la liste des interdits.")
     else:
-        print(f"🔸 Joueur {player_id} sur {server} : Aucun palier VIP atteint. Total misé : {total_bets} jetons.")
+        forbidden_users[user_id] = {
+            "username": member.name,  # Ajouter le username
+            "roles": [role_name],  # Ajouter le rôle attribué
+            "reason": reason  # Ajouter la raison
+        }
+        print(f"✅ Utilisateur {member.name} ajouté à la liste des interdits avec la raison : {reason}")
+
+    # Sauvegarder la liste mise à jour
+    with open(file_name, "w", encoding="utf-8") as f:
+        json.dump(forbidden_users, f, indent=4, ensure_ascii=False)
+
+
+def save_assigned_roles(data):
+    """
+    Sauvegarde les données des utilisateurs dans le fichier assigned_roles.json.
+    """
+    file_name = "assigned_roles.json"
+    with open(file_name, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+    print(f"✅ Données des rôles attribués sauvegardées dans {file_name}.")
+
+
+def load_assigned_roles():
+    """
+    Charge les données des utilisateurs depuis le fichier assigned_roles.json.
+    """
+    file_name = "assigned_roles.json"
+    if not os.path.exists(file_name):
+        print(f"📁 Le fichier {file_name} n'existe pas. Création en cours...")
+        with open(file_name, "w", encoding="utf-8") as f:
+            json.dump({"users": {}}, f, indent=4, ensure_ascii=False)
+        return {"users": {}}
+
+    try:
+        with open(file_name, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        print(f"❌ Erreur de format dans le fichier {file_name}. Réinitialisation.")
+        return {"users": {}}

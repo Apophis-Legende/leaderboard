@@ -1,0 +1,38 @@
+{
+    "serveur": "T2",
+    "nombre_de_jeux": 2,
+    "mises_totales_avant_commission": "4000 jetons",
+    "gains_totaux": "3800 jetons",
+    "commission_totale": "200 jetons",
+    "utilisateurs": {
+        "1229717382554058762": {
+            "username": "clzgapiidor",
+            "total_wins": "3800 jetons",
+            "total_losses": "0 jetons",
+            "total_bets": "2000 jetons",
+            "participation": 2
+        },
+        "852604289900871710": {
+            "username": "asxmaaa",
+            "total_wins": "0 jetons",
+            "total_losses": "2000 jetons",
+            "total_bets": "2000 jetons",
+            "participation": 2
+        }
+    },
+    "hôtes": {
+        "1229717382554058762": {
+            "username": "clzgapiidor",
+            "total_bets": "4000 jetons",
+            "total_commission": "200 jetons"
+        }
+    },
+    "croupiers": {
+        "1229717382554058762": {
+            "username": "clzgapiidor",
+            "total_giveaways": 2,
+            "total_kamas_managed": "4000 jetons",
+            "total_commission": "200 jetons"
+        }
+    }
+}

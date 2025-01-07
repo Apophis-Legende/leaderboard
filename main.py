@@ -8,7 +8,9 @@ import requests
 from logique import process_giveaway_data, load_json
 from data_manager import load_json, save_json, extract_user_data
 from discord.ui import View, Select
-from vip import load_server_json, get_player_vip_status, display_vip_status
+from vip import check_vip_status, MAPPING_SERVER_FILE, FORBIDDEN_ROLES, ensure_forbidden_users_file_exists, load_assigned_roles
+from discord import app_commands
+
 
 # Configuration du bot avec intentions
 intents = discord.Intents.default()
@@ -16,6 +18,13 @@ intents.messages = True
 intents.guilds = True
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+def get_json_file_from_message(server_name):
+    """
+    Retourne le fichier JSON associé au serveur détecté (ex: T1 -> T1.json).
+    """
+    return MAPPING_SERVER_FILE.get(server_name)
+
 
 # Configuration de Flask pour le serveur web
 app = Flask(__name__)
@@ -119,6 +128,17 @@ SERVER_FILE_MAPPING = {
     "Euro": "E1.json"
 }
 
+def extract_server_from_message(message_content):
+    """
+    Extrait le nom du serveur à partir d'un message contenant des informations de giveaway.
+    """
+    # Liste des serveurs connus
+    known_servers = ["Tiliwan1", "Tiliwan2", "Oshimo", "Herdegrize", "Euro"]
+    for server in known_servers:
+        if server in message_content:
+            return server
+    return None
+
 
 def load_server_json(server):
     """Charge les données du fichier JSON correspondant au serveur."""
@@ -152,8 +172,15 @@ async def send_data_to_flask(data):
 @bot.event
 async def on_ready():
     print(f"✅ Bot connecté en tant que : {bot.user}")
+    ensure_forbidden_users_file_exists()
+    print(f"✅ Bot connecté en tant que : {bot.user}")
     print(f"✅ ID du bot : {bot.user.id}")
 
+    try:
+        synced = await bot.tree.sync()
+        print(f"✅ Commandes slash synchronisées : {len(synced)}")
+    except Exception as e:
+        print(f"❌ Erreur lors de la synchronisation des commandes slash : {e}")
 
 async def send_data_to_flask(data):
     """Envoie des données JSON au serveur Flask."""
@@ -244,9 +271,81 @@ async def on_message(message):
         print("🎉 Un gagnant a été détecté dans le message.")
         await retrieve_previous_message_with_summary(message.channel)
 
-    # Vérifier les VIP pour les utilisateurs après un giveaway
-    raw_data = ...  # Récupérez les données JSON du giveaway
-    await handle_giveaway(raw_data, message.channel)
+        try:
+            # Extraire la partie contenant le serveur depuis le message
+            parts = message.content.split("won the")[-1].strip().split(" ")
+            raw_server_name = parts[0]  # Récupère "T2"
+            server_name = raw_server_name.strip("**")  # Supprime les `**` si présents
+
+            print(f"📝 Serveur détecté pour VIP : {server_name}")
+
+            # Utiliser MAPPING_SERVER_FILE pour trouver le fichier JSON correspondant
+            if server_name not in MAPPING_SERVER_FILE:
+                raise ValueError(f"Serveur inconnu ou non pris en charge : {server_name}")
+
+            json_file = MAPPING_SERVER_FILE[server_name]
+
+            # Vérifier si le fichier JSON du serveur existe et mettre à jour les VIP
+            print(f"🔄 Mise à jour des statuts VIP pour le serveur {server_name} en cours...")
+            await check_vip_status(json_file, message.channel)
+            print(f"✅ Mise à jour des statuts VIP pour le serveur {json_file} terminée.")
+
+        except (IndexError, ValueError) as e:
+            print(f"❌ Erreur lors de l'extraction des informations VIP : {e}")
+            await message.channel.send("⚠️ Impossible de déterminer le serveur pour la mise à jour VIP.")
+
+async def update_vip_status(json_file, channel):
+    """
+    Met à jour les statuts VIP pour un fichier JSON donné.
+    """
+    print(f"🔄 Lecture des données pour le fichier {json_file}...")
+
+    try:
+        # Charger les données du fichier JSON
+        with open(json_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        utilisateurs = data.get("utilisateurs", {})
+        print(f"🔍 Utilisateurs trouvés : {utilisateurs}")
+
+        for user_id, user_data in utilisateurs.items():
+            total_bets = int(user_data["total_bets"].split(" ")[0])  # Conversion à partir de "XXXX jetons"
+            vip_tier = calculate_vip_tier(total_bets)
+
+            if vip_tier and vip_tier != user_data.get("vip_tier"):
+                user_data["vip_tier"] = vip_tier
+                await channel.send(
+                    f"🎉 **Félicitations** <@{user_id}> : Vous avez débloqué le statut VIP {vip_tier} !"
+                )
+
+        print(f"✅ Mise à jour des statuts VIP terminée pour le fichier {json_file}.")
+        await channel.send(f"✅ Mise à jour des statuts VIP pour le serveur **{json_file.replace('.json', '')}** terminée.")
+
+    except FileNotFoundError:
+        print(f"❌ Fichier introuvable : {json_file}")
+        await channel.send(f"⚠️ Fichier `{json_file}` introuvable. Impossible de mettre à jour les VIP.")
+
+    except Exception as e:
+        print(f"❌ Une erreur est survenue lors de la mise à jour des VIP : {e}")
+        await channel.send(f"⚠️ Une erreur est survenue lors de la mise à jour des VIP : {e}")
+        
+def extract_server_name_from_message(message_content):
+    """
+    Extrait le nom du serveur à partir d'un message comme
+    'Congratulations <@928329400666173520>! You won the E1 9500!'
+    """
+    try:
+        # Divisez le message en mots et récupérez le serveur après "won the"
+        parts = message_content.split(" ")
+        index_of_won = parts.index("won")
+        server_name = parts[index_of_won + 2]  # Le serveur est après "the"
+
+        # Nettoyez les caractères indésirables
+        server_name = server_name.strip("!").strip("**")
+        return server_name
+    except (ValueError, IndexError) as e:
+        print(f"❌ Erreur lors de l'extraction du serveur : {e}")
+        return None
 
 async def retrieve_previous_message_with_summary(channel):
     """
@@ -314,22 +413,175 @@ async def display_server_data(server, channel):
 
 async def handle_giveaway(raw_data, channel):
     """
-    Exemple : Traite les données d'un giveaway et vérifie les statuts VIP.
+    Exemple : Traite les données d'un giveaway et met à jour les VIP.
     """
     try:
-        # Extraction des informations du giveaway
-        prize = raw_data["giveaway"]["prize"]
-        server = prize.split(" ")[0]  # Exemple : "T1"
-        entries = raw_data["entries"]  # Liste des participants
+        # Extraction du serveur et des informations
+        server = raw_data["giveaway"]["prize"].split(" ")[0]  # Nom du serveur
+        print(f"🔍 Serveur extrait : {server}")
 
-        for entry in entries:
-            player_id = entry["id"]  # ID du joueur
-            # Vérification et notification du VIP
-            await check_and_notify_vip(player_id, server, channel)
-
+        # Mise à jour des VIP
+        await check_vip_status(server, channel)
     except Exception as e:
         print(f"❌ Erreur dans handle_giveaway : {e}")
-        await channel.send("⚠️ Une erreur est survenue lors du traitement des données du giveaway.")
+        await channel.send(f"⚠️ Une erreur est survenue lors du traitement des données du giveaway : {e}")
+
+@bot.tree.command(name="update_vip", description="Met à jour les statuts VIP pour un serveur donné.")
+async def update_vip(interaction: discord.Interaction, server: str):
+    await interaction.response.defer()
+    print(f"🔄 Demande de mise à jour VIP pour le serveur {server}")
+
+    # Ajoutez un mapping des serveurs si nécessaire
+    server_mapping = {
+        "Tiliwan2": "T2",
+        "Tiliwan1": "T1",
+        "Herdegrize": "H1",
+        "Oshimo": "O1"
+    }
+
+    server_name = server_mapping.get(server, server)  # Par défaut, utilise le nom donné
+    await interaction.followup.send(f"🔄 Mise à jour des statuts VIP pour le serveur **{server}** en cours...")
+    await check_vip_status(server_name, interaction.channel)
+
+@bot.tree.command(name="add_forbidden_user", description="Ajoute un membre interdit au fichier JSON.")
+@app_commands.describe(user_id="ID du membre à interdire", reason="Raison pour laquelle ce membre est interdit.")
+async def add_forbidden_user(interaction: discord.Interaction, user_id: str, reason: str):
+    """
+    Ajoute un membre interdit dans le fichier JSON, avec son username et ses rôles.
+    """
+    file_name = "forbidden_vip_users.json"
+
+    # Charger les membres interdits existants
+    if os.path.exists(file_name):
+        with open(file_name, "r", encoding="utf-8") as f:
+            forbidden_users = json.load(f)
+    else:
+        forbidden_users = {}
+
+    # Vérifier si l'utilisateur est déjà dans la liste
+    if user_id in forbidden_users:
+        await interaction.response.send_message(
+            f"⚠️ L'utilisateur avec l'ID `{user_id}` est déjà dans la liste des interdits."
+        )
+        return
+
+    guild = interaction.guild
+
+    try:
+        # Utilisez fetch_member pour garantir que l'utilisateur est récupéré
+        member = await guild.fetch_member(int(user_id))
+    except discord.NotFound:
+        await interaction.response.send_message(
+            f"⚠️ Impossible de trouver un membre avec l'ID `{user_id}` dans cette guilde."
+        )
+        return
+
+    # Extraire les rôles sous forme de liste
+    roles = [role.name for role in member.roles if role.name != "@everyone"]
+
+    # Ajouter l'utilisateur avec le username, les rôles et la raison
+    forbidden_users[user_id] = {
+        "username": member.name,
+        "roles": roles,
+        "reason": reason
+    }
+
+    # Sauvegarder la liste mise à jour
+    with open(file_name, "w", encoding="utf-8") as f:
+        json.dump(forbidden_users, f, indent=4, ensure_ascii=False)
+
+    # Réponse au succès
+    await interaction.response.send_message(
+        f"✅ L'utilisateur `{member.name}` avec l'ID `{user_id}` a été ajouté à la liste des interdits.\n"
+        f"📋 Rôles : {', '.join(roles)}\n"
+        f"❓ Raison : {reason}"
+    )
+
+@bot.tree.command(name="list_forbidden_users", description="Affiche la liste des membres interdits.")
+async def list_forbidden_users(interaction: discord.Interaction):
+    """
+    Liste les membres interdits dans le fichier JSON.
+    """
+    file_name = "forbidden_vip_users.json"
+
+    # Charger les membres interdits
+    if os.path.exists(file_name):
+        with open(file_name, "r", encoding="utf-8") as f:
+            forbidden_users = json.load(f)
+    else:
+        await interaction.response.send_message("⚠️ Aucun membre interdit trouvé.")
+        return
+
+    # Créer une liste des utilisateurs interdits
+    response = "🔒 **Liste des membres interdits :**\n"
+    for user_id, data in forbidden_users.items():
+        reason = data.get("reason", "Non spécifiée")
+        response += f"- ID : `{user_id}` | Raison : {reason}\n"
+
+    await interaction.response.send_message(response[:2000])  # Discord limite les messages à 2000 caractères.
+
+@bot.tree.command(name="remove_forbidden_user", description="Supprime un membre de la liste des interdits.")
+@app_commands.describe(user_id="ID du membre à retirer de la liste des interdits.")
+async def remove_forbidden_user(interaction: discord.Interaction, user_id: str):
+    """
+    Supprime un membre de la liste des interdits.
+    """
+    file_name = "forbidden_vip_users.json"
+
+    # Charger les membres interdits
+    if os.path.exists(file_name):
+        with open(file_name, "r", encoding="utf-8") as f:
+            forbidden_users = json.load(f)
+    else:
+        await interaction.response.send_message("⚠️ Aucun membre interdit trouvé.")
+        return
+
+    # Supprimer l'utilisateur
+    if user_id in forbidden_users:
+        del forbidden_users[user_id]
+        with open(file_name, "w", encoding="utf-8") as f:
+            json.dump(forbidden_users, f, indent=4, ensure_ascii=False)
+
+        await interaction.response.send_message(
+            f"✅ L'utilisateur avec l'ID `{user_id}` a été retiré de la liste des interdits."
+        )
+    else:
+        await interaction.response.send_message(f"⚠️ Aucun utilisateur avec l'ID `{user_id}` trouvé dans la liste des interdits.")
+
+@bot.tree.command(name="reset_vip", description="Réinitialise les données des VIP et supprime les rôles attribués.")
+async def reset_vip(interaction: discord.Interaction):
+    """
+    Réinitialise les données des VIP et supprime tous les rôles attribués.
+    """
+    await interaction.response.defer()  # Répondre rapidement pour éviter un timeout
+
+    guild = interaction.guild
+    data = load_assigned_roles()
+    users = data["users"]
+
+    if not users:
+        await interaction.followup.send("⚠️ Aucun rôle VIP attribué trouvé à réinitialiser.")
+        return
+
+    for user_id, user_data in users.items():
+        try:
+            member = await guild.fetch_member(int(user_id))
+            roles_to_remove = [discord.utils.get(guild.roles, name=role) for role in user_data["roles"]]
+            roles_to_remove = [role for role in roles_to_remove if role is not None]
+
+            if roles_to_remove:
+                await member.remove_roles(*roles_to_remove)
+                print(f"✅ Rôles retirés pour {member.name} : {', '.join([role.name for role in roles_to_remove])}")
+            else:
+                print(f"⚠️ Aucun rôle à retirer pour {member.name}.")
+        except discord.NotFound:
+            print(f"❌ Membre introuvable avec l'ID {user_id}.")
+        except Exception as e:
+            print(f"❌ Erreur inattendue pour l'utilisateur {user_id} : {e}")
+
+    # Réinitialiser le fichier
+    save_assigned_roles({"users": {}})
+    await interaction.followup.send("✅ Tous les rôles VIP ont été supprimés et les données ont été réinitialisées.")
 
 
 # Lancer le bot Discord
