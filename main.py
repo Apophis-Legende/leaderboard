@@ -175,7 +175,7 @@ async def retrieve_previous_message_with_summary(channel):
         if hasattr(msg, "components") and msg.components:
             for component in msg.components:
                 for button in component.children:
-                    if button.label.lower() == "giveaway summary":
+                    if isinstance(button.label, str) and "summary" in button.label.lower():
                         await download_json_from_summary(button.url, channel)
                         return
 
