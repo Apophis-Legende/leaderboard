@@ -36,7 +36,7 @@ def format_kamas(jetons_amount):
         return "0 Kamas"
 
 def calculate_benefice(wins, total_bets):
-    """Calculate total benefit (wins - bets)"""
+    """Calculate total benefit (wins - total_bets)"""
     try:
         win_amount = int(wins.split(' ')[0])
         bet_amount = int(total_bets.split(' ')[0])
