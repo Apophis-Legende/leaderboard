@@ -1,3 +1,4 @@
+from vip import VIP_ROLE_MAPPING, VIP_TIERS, calculate_vip_tier, MAPPING_SERVER_FILE
 
 def format_kamas(jetons_amount):
     """Convert jetons to kamas format"""
@@ -21,7 +22,7 @@ def calculate_benefice(wins, losses):
     except:
         return "0 jetons"
 
-from vip import VIP_ROLE_MAPPING, VIP_TIERS, calculate_vip_tier, MAPPING_SERVER_FILE
+
 
 def get_highest_vip(user_id, server):
     """Get highest VIP level for user based on total bets"""
