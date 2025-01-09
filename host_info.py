@@ -5,7 +5,7 @@ from format_utils import format_kamas
 def calculate_host_stats(host_id):
     """Calcule les statistiques pour un hôte spécifique à travers tous les serveurs."""
     servers = ['T1.json', 'T2.json', 'O1.json', 'H1.json', 'E1.json']
-    stats_by_server = {}
+    stats_by_server = {'username': None}
     
     for server_file in servers:
         try:
