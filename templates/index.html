@@ -41,20 +41,17 @@
             const kamas = amount * 10000; // 1 jeton = 10k kamas
             const isNegative = kamas < 0;
             const absKamas = Math.abs(kamas);
-            
+
             let result;
             if (absKamas >= 1000000) {
                 const millions = absKamas/1000000;
                 const whole = Math.floor(millions);
-                if (whole >= 1) {
-                    result = `${whole}M Kamas`;
-                } else {
-                    result = `${Math.floor(absKamas/1000)}K Kamas`;
-                }
+                const decimal = Math.floor((millions - whole) * 10);
+                result = decimal === 0 ? `${whole}M Kamas` : `${whole}M${decimal} Kamas`;
             } else {
                 result = `${Math.floor(absKamas/1000)}K Kamas`;
             }
-            
+
             return isNegative ? `-${result}` : result;
         }
 
@@ -108,7 +105,7 @@
                         `;
                     });
                 });
-                
+
                 Promise.all(promises).then(rows => {
                     tbody.innerHTML = rows.join('');
                 });
