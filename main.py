@@ -76,11 +76,7 @@ def index():
 @app.route('/api/leaderboard', methods=["GET"])
 def get_leaderboard():
     """API pour fournir les données JSON à la page."""
-    # Désactive la mise en cache
-    response = app.make_response()
-    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-    response.headers['Pragma'] = 'no-cache'
-    response.headers['Expires'] = '0'
+    server = request.args.get('server')
 
     # Correspondance entre les noms des serveurs et les fichiers JSON
     server_file_mapping = {
@@ -92,7 +88,7 @@ def get_leaderboard():
     }
 
     # Récupérer le nom du serveur depuis les paramètres de la requête
-    server = request.args.get('server', '')
+
     if not server:
         return jsonify({"error": "Paramètre 'server' manquant dans la requête."}), 400
 
@@ -116,12 +112,16 @@ def get_leaderboard():
         if not data:
             return jsonify({"error": f"Le fichier '{file_name}' est vide ou mal formaté."}), 404
 
-        return jsonify(data), 200
+        response = app.make_response(jsonify(data)) # Fixed: Added jsonify(data) as argument
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
 
     except Exception as e:
         print(f"❌ Erreur lors du traitement du fichier {file_name} : {e}")
         return jsonify({"error": f"Une erreur est survenue lors de la lecture du fichier {file_name} : {str(e)}"}), 500
-        
+
 def is_admin():
     async def predicate(interaction: discord.Interaction):
         if not interaction.user.guild_permissions.administrator:
@@ -186,7 +186,7 @@ def load_server_json(server):
 
     with open(file_name, "r", encoding="utf-8") as f:
         return json.load(f)  # Charge les données JSON
-        
+
 async def send_data_to_flask(data):
     """Met à jour directement les données dans Flask."""
     try:
@@ -233,7 +233,7 @@ async def send_data_to_flask(data):
     except requests.exceptions.RequestException as e:
         print(f"❌ Erreur lors de l'envoi des données à Flask : {e}")
         raise
-        
+
 async def download_json_from_summary(url, channel):
     """
     Télécharge les données JSON d'un giveaway, traite les données et les envoie au serveur Flask.
@@ -553,7 +553,7 @@ async def add_giveaway(interaction: discord.Interaction, link: str):
     except Exception as e:
         print(f"❌ Erreur : {e}")
         await interaction.followup.send(f"❌ Une erreur est survenue : {e}")
-        
+
 @bot.tree.command(name="delete_giveaway", description="Supprime les données associées à un giveaway via son lien.")
 @is_admin()  # Restriction aux administrateurs
 @is_in_guild()  # Bloque l'accès en DM
@@ -564,7 +564,7 @@ async def delete_giveaway_command(interaction: discord.Interaction, link: str):
     except Exception as e:
         await interaction.response.send_message(f"❌ Une erreur est survenue : {e}", ephemeral=True)
 
-    
+
 @bot.tree.command(name="update_vip", description="Met à jour les statuts VIP pour un serveur donné.")
 @is_admin()  # Restriction aux administrateurs
 @is_in_guild()  # Bloque l'accès en DM
@@ -724,7 +724,7 @@ async def reset_vip(interaction: discord.Interaction):
             else:
                 print(f"⚠️ Aucun rôle à retirer pour {member.name}.")
         except discord.NotFound:
-            print(f"❌ Membre introuvable avec l'ID {user_id}.")
+            print(f"❌ Membre introuvable avec l'ID {user_id}..")
         except Exception as e:
             print(f"❌ Erreur inattendue pour l'utilisateur {user_id} : {e}")
 
@@ -740,7 +740,7 @@ async def reset_vip(interaction: discord.Interaction):
         print(f"⚠️ Le fichier {file_path} n'existe pas.")
 
     await interaction.followup.send("✅ Tous les rôles VIP ont été supprimés et les données ont été réinitialisées.")
-    
+
 # Lancer le bot Discord
 def run_bot():
     bot.run(os.getenv("TOKEN"))
