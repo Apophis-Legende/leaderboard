@@ -1,0 +1,217 @@
+ * Serving Flask app 'main'
+2025-01-09 20:55:21 INFO     discord.client logging in using static token
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:3000
+ * Running on http://172.31.196.9:3000
+Press CTRL+C to quit
+172.31.196.9 - - [09/Jan/2025 20:55:22] "GET / HTTP/1.1" 200 -
+2025-01-09 20:55:22 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: 9b531a8de1c52920d054fc728a4d2913).
+172.31.196.9 - - [09/Jan/2025 20:55:22] "GET / HTTP/1.1" 200 -
+172.31.196.9 - - [09/Jan/2025 20:55:22] "GET /static/styles.css HTTP/1.1" 304 -
+172.31.196.9 - - [09/Jan/2025 20:55:22] "GET /static/styles.css HTTP/1.1" 304 -
+[2025-01-09 20:55:24,297] ERROR in app: Exception on /api/leaderboard [GET]
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/runner/workspace/main.py", line 80, in get_leaderboard
+    response = app.make_response()
+TypeError: Flask.make_response() missing 1 required positional argument: 'rv'
+172.31.196.9 - - [09/Jan/2025 20:55:24] "GET /api/leaderboard?server=Tiliwan1&t=1736456123710 HTTP/1.1" 500 -
+[2025-01-09 20:55:24,323] ERROR in app: Exception on /api/leaderboard [GET]
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/runner/workspace/main.py", line 80, in get_leaderboard
+    response = app.make_response()
+TypeError: Flask.make_response() missing 1 required positional argument: 'rv'
+172.31.196.9 - - [09/Jan/2025 20:55:24] "GET /api/leaderboard?server=Tiliwan1&t=1736456123786 HTTP/1.1" 500 -
+✅ Commandes slash synchronisées : 8 commandes.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : Go
+👤 Auteur : clzgapiidor (ID : 1229717382554058762)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+[2025-01-09 20:55:34,658] ERROR in app: Exception on /api/leaderboard [GET]
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/runner/workspace/main.py", line 80, in get_leaderboard
+    response = app.make_response()
+TypeError: Flask.make_response() missing 1 required positional argument: 'rv'
+172.31.196.9 - - [09/Jan/2025 20:55:34] "GET /api/leaderboard?server=Tiliwan1&t=1736456134115 HTTP/1.1" 500 -
+[2025-01-09 20:55:34,660] ERROR in app: Exception on /api/leaderboard [GET]
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/runner/workspace/main.py", line 80, in get_leaderboard
+    response = app.make_response()
+TypeError: Flask.make_response() missing 1 required positional argument: 'rv'
+172.31.196.9 - - [09/Jan/2025 20:55:34] "GET /api/leaderboard?server=Tiliwan1&t=1736456134118 HTTP/1.1" 500 -
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : En gros hit paie les coms de la journée
+👤 Auteur : clikclikboom_ (ID : 1164911677632950394)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : Même si tu devrais garder les 139 que tu m'a prit pour coms 😭😭🤣
+👤 Auteur : chabin_. (ID : 218040465835032576)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+[2025-01-09 20:55:44,878] ERROR in app: Exception on /api/leaderboard [GET]
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/runner/workspace/main.py", line 80, in get_leaderboard
+    response = app.make_response()
+TypeError: Flask.make_response() missing 1 required positional argument: 'rv'
+172.31.196.9 - - [09/Jan/2025 20:55:44] "GET /api/leaderboard?server=Tiliwan1&t=1736456144107 HTTP/1.1" 500 -
+[2025-01-09 20:55:44,990] ERROR in app: Exception on /api/leaderboard [GET]
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/runner/workspace/main.py", line 80, in get_leaderboard
+    response = app.make_response()
+TypeError: Flask.make_response() missing 1 required positional argument: 'rv'
+172.31.196.9 - - [09/Jan/2025 20:55:44] "GET /api/leaderboard?server=Tiliwan1&t=1736456144112 HTTP/1.1" 500 -
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : désolé avec les mises a jours des fois les informations arrivent en doublons excusé moi pour la gene temporaire
+👤 Auteur : apophislegende (ID : 928329400666173520)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : Mais Piss la vie c 50/50 les com
+👤 Auteur : clzgapiidor (ID : 1229717382554058762)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+[2025-01-09 20:55:54,598] ERROR in app: Exception on /api/leaderboard [GET]
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/runner/workspace/main.py", line 80, in get_leaderboard
+    response = app.make_response()
+TypeError: Flask.make_response() missing 1 required positional argument: 'rv'
+172.31.196.9 - - [09/Jan/2025 20:55:54] "GET /api/leaderboard?server=Tiliwan1&t=1736456154002 HTTP/1.1" 500 -
+[2025-01-09 20:55:54,602] ERROR in app: Exception on /api/leaderboard [GET]
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/runner/workspace/main.py", line 80, in get_leaderboard
+    response = app.make_response()
+TypeError: Flask.make_response() missing 1 required positional argument: 'rv'
+172.31.196.9 - - [09/Jan/2025 20:55:54] "GET /api/leaderboard?server=Tiliwan1&t=1736456154006 HTTP/1.1" 500 -
+[2025-01-09 20:56:04,750] ERROR in app: Exception on /api/leaderboard [GET]
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/runner/workspace/main.py", line 80, in get_leaderboard
+    response = app.make_response()
+TypeError: Flask.make_response() missing 1 required positional argument: 'rv'
+172.31.196.9 - - [09/Jan/2025 20:56:04] "GET /api/leaderboard?server=Tiliwan1&t=1736456164106 HTTP/1.1" 500 -
+[2025-01-09 20:56:04,751] ERROR in app: Exception on /api/leaderboard [GET]
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/runner/workspace/main.py", line 80, in get_leaderboard
+    response = app.make_response()
+TypeError: Flask.make_response() missing 1 required positional argument: 'rv'
+172.31.196.9 - - [09/Jan/2025 20:56:04] "GET /api/leaderboard?server=Tiliwan1&t=1736456164110 HTTP/1.1" 500 -
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : Ou Apo paie les coms
+👤 Auteur : clzgapiidor (ID : 1229717382554058762)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : La vie
+👤 Auteur : clzgapiidor (ID : 1229717382554058762)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+[2025-01-09 20:56:17,162] ERROR in app: Exception on /api/leaderboard [GET]
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/runner/workspace/main.py", line 80, in get_leaderboard
+    response = app.make_response()
+TypeError: Flask.make_response() missing 1 required positional argument: 'rv'
+172.31.196.9 - - [09/Jan/2025 20:56:17] "GET /api/leaderboard?server=Tiliwan1&t=1736456174171 HTTP/1.1" 500 -
+[2025-01-09 20:56:17,246] ERROR in app: Exception on /api/leaderboard [GET]
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/runner/workspace/main.py", line 80, in get_leaderboard
+    response = app.make_response()
+TypeError: Flask.make_response() missing 1 required positional argument: 'rv'
+172.31.196.9 - - [09/Jan/2025 20:56:17] "GET /api/leaderboard?server=Tiliwan1&t=1736456174169 HTTP/1.1" 500 -
