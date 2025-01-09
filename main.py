@@ -504,6 +504,24 @@ def find_server_file(server, mapping):
 @bot.event
 async def on_ready():
     try:
+        # Initialiser les fichiers JSON
+        for server_file in MAPPING_SERVER_FILE.values():
+            if not os.path.exists(server_file):
+                initial_data = {
+                    "serveur": server_file.replace('.json', ''),
+                    "nombre_de_jeux": 0,
+                    "mises_totales_avant_commission": "0 jetons",
+                    "gains_totaux": "0 jetons",
+                    "commission_totale": "0 jetons",
+                    "utilisateurs": {},
+                    "hôtes": {},
+                    "croupiers": {}
+                }
+                with open(server_file, 'w', encoding='utf-8') as f:
+                    json.dump(initial_data, f, indent=4, ensure_ascii=False)
+                print(f"✅ Fichier {server_file} créé")
+
+        # Synchroniser les commandes
         synced = await bot.tree.sync()
         print(f"✅ Commandes slash synchronisées : {len(synced)} commandes.")
     except Exception as e:
