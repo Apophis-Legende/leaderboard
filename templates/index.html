@@ -41,7 +41,10 @@
             const kamas = amount * 10000; // 1 jeton = 10k kamas
             
             if (kamas >= 1000000) {
-                return `${(kamas/1000000).toFixed(1)}M`.replace('.0M', 'M') + ' Kamas';
+                const millions = kamas/1000000;
+                const whole = Math.floor(millions);
+                const decimal = Math.floor((millions - whole) * 10);
+                return decimal === 0 ? `${whole}M Kamas` : `${whole}M${decimal} Kamas`;
             }
             return `${Math.floor(kamas/1000)}K Kamas`;
         }
