@@ -16,10 +16,11 @@ def load_json(filename):
     Charge un fichier JSON ou retourne None si le fichier est introuvable ou corrompu.
     """
     try:
-        if not os.path.exists(filename):
-            print(f"❌ Le fichier {filename} n'existe pas.")
+        absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+        if not os.path.exists(absolute_path):
+            print(f"❌ Le fichier {absolute_path} n'existe pas.")
             return None
-        with open(filename, "r", encoding="utf-8") as file:
+        with open(absolute_path, "r", encoding="utf-8") as file:
             data = json.load(file)
             if not data:
                 print(f"⚠️ Le fichier {filename} est vide.")
