@@ -14,16 +14,18 @@ MAPPING_SERVER_FILE = {
 # Charger un fichier JSON local
 def load_json(filename, default_data=None):
     try:
-        with open(filename, "r", encoding="utf-8") as file:
+        absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+        with open(absolute_path, "r", encoding="utf-8") as file:
             return json.load(file)
     except FileNotFoundError:
         return default_data or {}
 
 # Sauvegarder un fichier JSON local
 def save_json(filename, data):
-    with open(filename, "w", encoding="utf-8") as file:
+    absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+    with open(absolute_path, "w", encoding="utf-8") as file:
         json.dump(data, file, ensure_ascii=False, indent=4)
-    print(f"✅ Fichier sauvegardé : {filename}")
+    print(f"✅ Fichier sauvegardé : {absolute_path}")
 
 # Convertir un montant "123 jetons" en entier
 def convert_amount_to_int(amount_str):
