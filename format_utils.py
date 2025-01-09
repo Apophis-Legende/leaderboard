@@ -25,7 +25,14 @@ def format_kamas(jetons_amount):
         kamas = amount * 10000  # 1 jeton = 10k kamas
         
         if kamas >= 1000000:
-            return f"{kamas/1000000:.1f}M Kamas".replace('.0M', 'M')
+            millions = kamas/1000000
+            # Si c'est un nombre entier de millions
+            if millions.is_integer():
+                return f"{int(millions)}M Kamas"
+            # Sinon, on formate avec le chiffre après la virgule
+            whole = int(millions)
+            decimal = int((millions - whole) * 10)
+            return f"{whole}M{decimal} Kamas"
         return f"{kamas//1000}K Kamas"
     except:
         return "0 Kamas"
