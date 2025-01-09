@@ -58,10 +58,10 @@ def format_host_card(stats):
     for server, data in stats.items():
         card += f"║ 🌍 Serveur: {server}\n"
         card += f"║ 👤 {data['username']}\n"
-        card += f"║ 💰 Commission: {format_kamas(f'{data['total_commission']} jetons')}\n"
-        card += f"║ 🎲 Mises Totales: {format_kamas(f'{data['total_bets']} jetons')}\n"
+        card += f"║ 💰 Commission: {format_kamas(str(data['total_commission']) + ' jetons')}\n"
+        card += f"║ 🎲 Mises Totales: {format_kamas(str(data['total_bets']) + ' jetons')}\n"
         card += f"║ 🎮 Giveaways: {data['total_giveaways']}\n"
-        card += f"║ 💸 Commission générée: {format_kamas(f'{data['commission_from_participation']} jetons')}\n"
+        card += f"║ 💸 Commission générée: {format_kamas(str(data['commission_from_participation']) + ' jetons')}\n"
         card += "║ ──────────────────────────────────────────\n"
     
     card += "╚══════════════════════════════════════════\n```"
