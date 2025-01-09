@@ -62,9 +62,17 @@
         }
 
         function getHighestVip(userId, server) {
-            // Cette fonction sera appelée via l'API
-            return fetch(`/api/vip_status?user_id=${userId}&server=${server}`)
-                .then(response => response.text())
+            // Vérifie d'abord si l'utilisateur est interdit
+            return fetch('/api/check_forbidden?user_id=' + userId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.forbidden) {
+                        return '---';
+                    }
+                    // Si non interdit, récupère le statut VIP
+                    return fetch(`/api/vip_status?user_id=${userId}&server=${server}`)
+                        .then(response => response.text());
+                })
                 .catch(() => '---');
         }
 
