@@ -11,11 +11,11 @@ VIP_TIERS = {
 
 # Mapping des fichiers serveur
 MAPPING_SERVER_FILE = {
-    "T1": "T1.json",
-    "T2": "T2.json", 
-    "O1": "O1.json",
-    "H1": "H1.json",
-    "E1": "E1.json"
+    "Tiliwan1": "T1.json",
+    "Tiliwan2": "T2.json",
+    "Oshimo": "O1.json",
+    "Herdegrize": "H1.json",
+    "Euro": "E1.json"
 }
 
 def format_kamas(jetons_amount):
@@ -50,11 +50,16 @@ def calculate_vip_tier(total_bets):
 def get_highest_vip(user_id, server):
     """Get highest VIP level for user"""
     try:
-        with open(MAPPING_SERVER_FILE[server], 'r') as f:
+        file_path = MAPPING_SERVER_FILE.get(server)
+        if not file_path:
+            print(f"Erreur VIP: Server {server} non trouvé dans le mapping")
+            return "---"
+            
+        with open(file_path, 'r') as f:
             data = json.load(f)
-            if str(user_id) in data['utilisateurs']:
+            if str(user_id) in data.get('utilisateurs', {}):
                 user_data = data['utilisateurs'][str(user_id)]
-                total_bets = int(user_data['total_bets'].split(' ')[0])
+                total_bets = int(user_data.get('total_bets', '0 jetons').split(' ')[0])
                 
                 vip_tier = calculate_vip_tier(total_bets)
                 return f"VIP {vip_tier}" if vip_tier else "---"
