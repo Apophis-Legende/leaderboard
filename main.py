@@ -76,6 +76,12 @@ def index():
 @app.route('/api/leaderboard', methods=["GET"])
 def get_leaderboard():
     """API pour fournir les données JSON à la page."""
+    # Désactive la mise en cache
+    response = app.make_response()
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+
     # Correspondance entre les noms des serveurs et les fichiers JSON
     server_file_mapping = {
         "Tiliwan1": "T1.json",

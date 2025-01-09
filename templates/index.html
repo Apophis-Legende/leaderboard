@@ -39,7 +39,7 @@
 
         function fetchLeaderboardData() {
             // Appeler l'API Flask pour obtenir les données du leaderboard
-            fetch(`/api/leaderboard?server=${currentServer}`)
+            fetch(`/api/leaderboard?server=${currentServer}&t=${new Date().getTime()}`)
                 .then(response => response.json())
                 .then(data => {
                     updateLeaderboardTable(data); // Mettre à jour la table avec les données reçues
