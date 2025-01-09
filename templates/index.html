@@ -39,14 +39,20 @@
         function formatKamas(jetons) {
             const amount = parseInt(jetons);
             const kamas = amount * 10000; // 1 jeton = 10k kamas
+            const isNegative = kamas < 0;
+            const absKamas = Math.abs(kamas);
             
-            if (kamas >= 1000000) {
-                const millions = kamas/1000000;
+            let result;
+            if (absKamas >= 1000000) {
+                const millions = absKamas/1000000;
                 const whole = Math.floor(millions);
                 const decimal = Math.floor((millions - whole) * 10);
-                return decimal === 0 ? `${whole}M Kamas` : `${whole}M${decimal} Kamas`;
+                result = decimal === 0 ? `${whole}M Kamas` : `${whole}M${decimal} Kamas`;
+            } else {
+                result = `${Math.floor(absKamas/1000)}K Kamas`;
             }
-            return `${Math.floor(kamas/1000)}K Kamas`;
+            
+            return isNegative ? `-${result}` : result;
         }
 
         function calculateBenefice(wins, total_bets) {
