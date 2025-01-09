@@ -48,8 +48,8 @@ def calculate_host_stats(host_id):
 
 def format_host_card(stats):
     """Formate les statistiques de l'hôte en carte ASCII."""
-    if not stats:
-        return "```\nAucune donnée trouvée pour cet hôte.\n```"
+    if not stats or all(not data for data in stats.values()):
+        return "```\nAucune donnée d'hôte trouvée pour cet utilisateur.\n```"
         
     card = "```\n╔══════════════════════════════════════════\n"
     card += "║             Carte de l'Hôte              \n"
