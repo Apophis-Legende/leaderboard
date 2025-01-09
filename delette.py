@@ -31,9 +31,11 @@ def load_json(filename):
         return None
 
 def save_json(filename, data):
-  """Sauvegarde des données dans un fichier JSON."""
-  with open(filename, "w", encoding="utf-8") as file:
-      json.dump(data, file, indent=4, ensure_ascii=False)
+    """Sauvegarde des données dans un fichier JSON."""
+    absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+    with open(absolute_path, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=4, ensure_ascii=False)
+    print(f"✅ Fichier sauvegardé : {absolute_path}")
 
 def format_amount(amount):
     """
