@@ -1,30 +1,30 @@
 {
     "serveur": "T2",
-    "nombre_de_jeux": 1,
-    "mises_totales_avant_commission": "10400 jetons",
-    "gains_totaux": "9880 jetons",
-    "commission_totale": "520 jetons",
+    "nombre_de_jeux": 2,
+    "mises_totales_avant_commission": "30400 jetons",
+    "gains_totaux": "28880 jetons",
+    "commission_totale": "1520 jetons",
     "utilisateurs": {
         "1229717382554058762": {
             "username": "clzgapiidor",
             "total_wins": "9880 jetons",
-            "total_losses": "0 jetons",
-            "total_bets": "5200 jetons",
-            "participation": 1
+            "total_losses": "10000 jetons",
+            "total_bets": "15200 jetons",
+            "participation": 2
         },
         "218040465835032576": {
             "username": "chabin_.",
-            "total_wins": "0 jetons",
+            "total_wins": "19000 jetons",
             "total_losses": "5200 jetons",
-            "total_bets": "5200 jetons",
-            "participation": 1
+            "total_bets": "15200 jetons",
+            "participation": 2
         }
     },
     "hôtes": {
         "1164911677632950394": {
             "username": "clikclikboom_",
-            "total_bets": "10400 jetons",
-            "total_commission": "520 jetons"
+            "total_bets": "30400 jetons",
+            "total_commission": "1520 jetons"
         }
     },
     "croupiers": {}
