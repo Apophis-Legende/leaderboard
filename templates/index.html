@@ -49,10 +49,10 @@
             return `${Math.floor(kamas/1000)}K Kamas`;
         }
 
-        function calculateBenefice(wins, losses) {
+        function calculateBenefice(wins, total_bets) {
             const win_amount = parseInt(wins);
-            const loss_amount = parseInt(losses);
-            return `${win_amount - loss_amount} jetons`;
+            const bet_amount = parseInt(total_bets);
+            return `${win_amount - bet_amount} jetons`;
         }
 
         function getHighestVip(userId, server) {
@@ -84,7 +84,7 @@
                         return `
                             <tr>
                                 <td>${user.username}</td>
-                                <td>${formatKamas(calculateBenefice(user.total_wins, user.total_losses))}</td>
+                                <td>${formatKamas(calculateBenefice(user.total_wins, user.total_bets))}</td>
                                 <td>${formatKamas(user.total_bets)}</td>
                                 <td>${vipStatus}</td>
                             </tr>
