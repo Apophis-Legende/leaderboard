@@ -73,6 +73,14 @@ def index():
     """Route pour afficher la page HTML."""
     return render_template('index.html')
 
+@app.route('/api/vip_status', methods=["GET"])
+def get_vip_status():
+    """API pour obtenir le statut VIP d'un utilisateur"""
+    from format_utils import get_highest_vip
+    user_id = request.args.get('user_id')
+    server = request.args.get('server')
+    return get_highest_vip(user_id, server)
+
 @app.route('/api/leaderboard', methods=["GET"])
 def get_leaderboard():
     """API pour fournir les données JSON à la page."""

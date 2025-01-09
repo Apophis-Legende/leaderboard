@@ -21,10 +21,9 @@
         <thead>
             <tr>
                 <th>Nom d'utilisateur</th>
-                <th>Victoires</th>
-                <th>Défaites</th>
-                <th>Mises totales</th>
-                <th>Participation </th>
+                <th>Bénéfice (Kamas)</th>
+                <th>Mises totales (Kamas)</th>
+                <th>VIP</th>
             </tr>
         </thead>
         <tbody id="leaderboard-body">
@@ -36,6 +35,29 @@
 
     <script>
         let currentServer = 'Tiliwan1'; // Serveur par défaut
+
+        function formatKamas(jetons) {
+            const amount = parseInt(jetons);
+            const kamas = amount * 10000; // 1 jeton = 10k kamas
+            
+            if (kamas >= 1000000) {
+                return `${(kamas/1000000).toFixed(1)}M`.replace('.0M', 'M') + ' Kamas';
+            }
+            return `${Math.floor(kamas/1000)}K Kamas`;
+        }
+
+        function calculateBenefice(wins, losses) {
+            const win_amount = parseInt(wins);
+            const loss_amount = parseInt(losses);
+            return `${win_amount - loss_amount} jetons`;
+        }
+
+        function getHighestVip(userId, server) {
+            // Cette fonction sera appelée via l'API
+            return fetch(`/api/vip_status?user_id=${userId}&server=${server}`)
+                .then(response => response.text())
+                .catch(() => '---');
+        }
 
         function fetchLeaderboardData() {
             // Appeler l'API Flask pour obtenir les données du leaderboard
@@ -58,10 +80,9 @@
                     const row = `
                         <tr>
                             <td>${user.username}</td>
-                            <td>${user.total_wins}</td>
-                            <td>${user.total_losses}</td>
-                            <td>${user.total_bets}</td>
-                            <td>${user.participation}</td>
+                            <td>${formatKamas(calculateBenefice(user.total_wins, user.total_losses))}</td>
+                            <td>${formatKamas(user.total_bets)}</td>
+                            <td>${getHighestVip(user.id, currentServer)}</td>
                         </tr>
                     `;
                     tbody.innerHTML += row;
