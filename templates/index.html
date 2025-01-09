@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -114,19 +114,35 @@
             }
         }
 
-        // Mettre à jour uniquement les données du tableau toutes les 10 secondes
-        setInterval(() => {
-            fetch(`/api/leaderboard?server=${currentServer}&t=${new Date().getTime()}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.utilisateurs) {
-                        updateLeaderboardTable(data);
-                    }
-                })
-                .catch(error => {
-                    console.error("Erreur lors de la mise à jour :", error);
-                });
-        }, 10000);
+        // Mettre à jour uniquement si l'onglet est actif, toutes les 30 secondes
+        let updateInterval;
+
+        function startUpdates() {
+            updateInterval = setInterval(() => {
+                if (!document.hidden) {
+                    fetch(`/api/leaderboard?server=${currentServer}&t=${new Date().getTime()}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data && data.utilisateurs) {
+                                updateLeaderboardTable(data);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Erreur lors de la mise à jour :", error);
+                        });
+                }
+            }, 30000);
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                clearInterval(updateInterval);
+            } else {
+                startUpdates();
+            }
+        });
+
+        startUpdates();
 
         // Initialisation : Charger les données dès le chargement de la page
         window.onload = fetchLeaderboardData;
