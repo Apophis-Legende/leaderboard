@@ -1,27 +1,35 @@
 /* Style du corps de la page */
 body {
     font-family: Arial, sans-serif;
-    background-color: #36393f; /* Fond gris sombre comme Discord */
+    background-image: url('/static/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     margin: 0;
     padding: 0;
     display: flex;
-    flex-direction: column; /* Utilise Flexbox pour la mise en page */
-    align-items: center; /* Centre tout horizontalement */
-    justify-content: flex-start; /* Commence par le haut de la page */
-    min-height: 100vh; /* Assure que la page occupe toute la hauteur de l'écran */
-    color: white; /* Le texte sera en blanc pour contraster avec le fond sombre */
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    color: white;
 }
 
 /* Bannière */
 #banner {
     color: white;
-    width: 100%; /* Prendre toute la largeur de l'écran */
-    height: 200px; /* Hauteur de la bannière */
+    width: 100%;
+    height: 200px;
     display: flex;
-    justify-content: center; /* Centre horizontalement */
-    align-items: center; /* Centre verticalement */
+    justify-content: center;
+    align-items: center;
     text-align: center;
     font-size: 2.5em;
+    background-image: url('/static/banner.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin-bottom: 20px;
 }
 
 /* Centrer le contenu sous la bannière */
