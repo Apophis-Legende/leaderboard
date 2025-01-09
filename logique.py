@@ -312,8 +312,11 @@ async def process_giveaway_data(raw_data, channel):
             server_data["hôtes"][host_id] = {
                 "username": host_username,
                 "total_bets": "0 jetons",
-                "total_commission": "0 jetons"
+                "total_commission": "0 jetons",
+                "total_giveaways": 0
             }
+        else:
+            server_data["hôtes"][host_id]["total_giveaways"] +=1
 
         current_host_bets = convert_amount_to_float(server_data["hôtes"][host_id]["total_bets"])
         current_host_commission = convert_amount_to_float(server_data["hôtes"][host_id]["total_commission"])
