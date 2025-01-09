@@ -23,6 +23,7 @@ def calculate_benefice(wins, losses):
 
 def get_highest_vip(user_id, server):
     """Get highest VIP level for user"""
+    from vip import VIP_ROLE_MAPPING
     import json
     try:
         with open('assigned_roles.json', 'r') as f:
@@ -31,26 +32,13 @@ def get_highest_vip(user_id, server):
                 roles = data['users'][str(user_id)]['roles']
                 max_vip = 0
                 
-                # Map server codes to full names
-                server_mapping = {
-                    "T1": "Tiliwan1",
-                    "T2": "Tiliwan2",  # Both T1 and T2 check for Tiliwan1 roles
-                    "O1": "Oshimo",
-                    "H1": "Herdegrize",
-                    "E1": "Euro"
-                }
+                # Vérifier chaque niveau VIP en commençant par le plus haut
+                for vip_level in [3, 2, 1]:
+                    role_name = VIP_ROLE_MAPPING[vip_level][server]
+                    if role_name in roles:
+                        return f"VIP {vip_level}"
                 
-                server_name = server_mapping.get(server, server)
-                
-                for role in roles:
-                    if server_name in role and 'VIP' in role:
-                        try:
-                            vip_level = int(role.split('VIP')[1].split()[0])
-                            max_vip = max(max_vip, vip_level)
-                        except (IndexError, ValueError):
-                            continue
-                
-                return f"VIP {max_vip}" if max_vip > 0 else "---"
+                return "---"
     except Exception as e:
         print(f"Erreur VIP: {e}")
     return "---"
