@@ -41,13 +41,13 @@ def calculate_host_stats(host_id):
 def format_host_card(stats):
     """Formate les statistiques de l'hôte en carte ASCII."""
     return f"""```
-╔══════════════════════════════════════════╗
-║             Carte de l'Hôte              ║
-╠══════════════════════════════════════════╣
+╔══════════════════════════════════════════
+║             Carte de l'Hôte              
+╠══════════════════════════════════════════
 ║ 👤 {stats['username']}
 ║ 💰 Commission Totale: {format_kamas(f"{stats['total_commission']} jetons")}
 ║ 🎲 Mises Totales: {format_kamas(f"{stats['total_bets']} jetons")}
 ║ 🎮 Giveaways Organisés: {stats['total_giveaways']}
-║ 💸 Commission générée (participations): {format_kamas(f"{stats['commission_from_participation']} jetons")}
-╚══════════════════════════════════════════╝
+║ 💸 Commission générée : {format_kamas(f"{stats['commission_from_participation']} jetons")}
+╚══════════════════════════════════════════
 ```"""
