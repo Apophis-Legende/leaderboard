@@ -749,6 +749,22 @@ async def reset_vip(interaction: discord.Interaction):
 
     await interaction.followup.send("✅ Tous les rôles VIP ont été supprimés et les données ont été réinitialisées.")
 
+@bot.tree.command(name="host_info", description="Affiche les informations d'un hôte")
+@is_admin()
+@is_in_guild()
+async def host_info(interaction: discord.Interaction, user_id: str):
+    """Affiche les informations détaillées d'un hôte."""
+    try:
+        from host_info import calculate_host_stats, format_host_card
+        stats = calculate_host_stats(user_id)
+        if stats['username']:
+            card = format_host_card(stats)
+            await interaction.response.send_message(card)
+        else:
+            await interaction.response.send_message("❌ Aucune donnée d'hôte trouvée pour cet utilisateur.")
+    except Exception as e:
+        await interaction.response.send_message(f"❌ Une erreur est survenue : {str(e)}")
+
 @bot.tree.command(name="reset_json", description="Réinitialise tous les fichiers JSON (T1, T2, O1, H1, E1)")
 @is_admin()
 @is_in_guild()
