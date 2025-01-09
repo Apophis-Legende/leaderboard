@@ -114,8 +114,19 @@
             }
         }
 
-        // Mettre à jour les données toutes les 10 secondes
-        setInterval(fetchLeaderboardData, 10000);
+        // Mettre à jour uniquement les données du tableau toutes les 10 secondes
+        setInterval(() => {
+            fetch(`/api/leaderboard?server=${currentServer}&t=${new Date().getTime()}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.utilisateurs) {
+                        updateLeaderboardTable(data);
+                    }
+                })
+                .catch(error => {
+                    console.error("Erreur lors de la mise à jour :", error);
+                });
+        }, 10000);
 
         // Initialisation : Charger les données dès le chargement de la page
         window.onload = fetchLeaderboardData;
