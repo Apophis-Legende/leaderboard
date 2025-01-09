@@ -35,12 +35,12 @@ def format_kamas(jetons_amount):
     except:
         return "0 Kamas"
 
-def calculate_benefice(wins, losses):
-    """Calculate total benefit"""
+def calculate_benefice(wins, total_bets):
+    """Calculate total benefit (wins - bets)"""
     try:
         win_amount = int(wins.split(' ')[0])
-        loss_amount = int(losses.split(' ')[0])
-        total = win_amount - loss_amount
+        bet_amount = int(total_bets.split(' ')[0])
+        total = win_amount - bet_amount
         return f"{total} jetons"
     except:
         return "0 jetons"
