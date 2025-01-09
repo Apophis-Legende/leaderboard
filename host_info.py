@@ -14,29 +14,29 @@ def calculate_host_stats(host_id):
                 server_name = server_file.replace('.json', '')
                 
                 # Stats en tant qu'hôte
-                if host_id in data.get('hôtes', {}):
-                    host_data = data['hôtes'][host_id]
+                host_data = data.get('hôtes', {}).get(str(host_id))
+                if host_data:
                     stats_by_server[server_name] = {
                         'username': host_data['username'],
-                        'total_commission': int(host_data['total_commission'].split()[0]),
-                        'total_bets': int(host_data['total_bets'].split()[0]),
+                        'total_commission': host_data['total_commission'],
+                        'total_bets': host_data['total_bets'],
                         'total_giveaways': host_data.get('total_giveaways', 0),
-                        'commission_from_participation': 0
+                        'commission_from_participation': "0 jetons"
                     }
                 
                 # Commission générée par ses participations
-                if host_id in data.get('utilisateurs', {}):
-                    user_data = data['utilisateurs'][host_id]
+                user_data = data.get('utilisateurs', {}).get(str(host_id))
+                if user_data:
                     total_bets = int(user_data['total_bets'].split()[0])
-                    commission = int(total_bets * 0.05)
+                    commission = f"{int(total_bets * 0.05)} jetons"
                     
                     if server_name in stats_by_server:
                         stats_by_server[server_name]['commission_from_participation'] = commission
                     else:
                         stats_by_server[server_name] = {
                             'username': user_data['username'],
-                            'total_commission': 0,
-                            'total_bets': 0,
+                            'total_commission': "0 jetons",
+                            'total_bets': "0 jetons",
                             'total_giveaways': 0,
                             'commission_from_participation': commission
                         }
@@ -58,10 +58,10 @@ def format_host_card(stats):
     for server, data in stats.items():
         card += f"║ 🌍 Serveur: {server}\n"
         card += f"║ 👤 {data['username']}\n"
-        card += f"║ 💰 Commission: {format_kamas(str(data['total_commission']) + ' jetons')}\n"
-        card += f"║ 🎲 Mises Totales: {format_kamas(str(data['total_bets']) + ' jetons')}\n"
+        card += f"║ 💰 Commission: {format_kamas(data['total_commission'])}\n"
+        card += f"║ 🎲 Mises Totales: {format_kamas(data['total_bets'])}\n"
         card += f"║ 🎮 Giveaways: {data['total_giveaways']}\n"
-        card += f"║ 💸 Commission générée: {format_kamas(str(data['commission_from_participation']) + ' jetons')}\n"
+        card += f"║ 💸 Commission générée: {format_kamas(data['commission_from_participation'])}\n"
         card += "║ ──────────────────────────────────────────\n"
     
     card += "╚══════════════════════════════════════════\n```"
