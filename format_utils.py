@@ -1,6 +1,21 @@
 
 import json
-from vip import VIP_ROLE_MAPPING, VIP_TIERS, calculate_vip_tier, MAPPING_SERVER_FILE
+
+# Mapping des niveaux VIP et seuils
+VIP_TIERS = {
+    1: 4000,  # 4000 jetons
+    2: 10000, # 10000 jetons
+    3: 20000  # 20000 jetons
+}
+
+# Mapping des fichiers serveur
+MAPPING_SERVER_FILE = {
+    "T1": "T1.json",
+    "T2": "T2.json", 
+    "O1": "O1.json",
+    "H1": "H1.json",
+    "E1": "E1.json"
+}
 
 def format_kamas(jetons_amount):
     """Convert jetons to kamas format"""
@@ -24,8 +39,15 @@ def calculate_benefice(wins, losses):
     except:
         return "0 jetons"
 
+def calculate_vip_tier(total_bets):
+    """Calculate VIP tier based on total bets"""
+    for tier, threshold in sorted(VIP_TIERS.items(), reverse=True):
+        if total_bets >= threshold:
+            return tier
+    return None
+
 def get_highest_vip(user_id, server):
-    """Get highest VIP level for user using calculate_vip_tier"""
+    """Get highest VIP level for user"""
     try:
         with open(MAPPING_SERVER_FILE[server], 'r') as f:
             data = json.load(f)
