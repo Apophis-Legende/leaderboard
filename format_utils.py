@@ -30,8 +30,9 @@ def get_highest_vip(user_id, server):
             if str(user_id) in data['users']:
                 roles = data['users'][str(user_id)]['roles']
                 max_vip = 0
+                server_code = server.split()[0]  # Extrait T1 de "Tiliwan1"
                 for role in roles:
-                    if server in role and 'VIP' in role:
+                    if server_code in role and 'VIP' in role:
                         level = int(role.split(' ')[1])
                         max_vip = max(max_vip, level)
                 return f"VIP {max_vip}" if max_vip > 0 else "---"
