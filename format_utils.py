@@ -1,3 +1,5 @@
+
+import json
 from vip import VIP_ROLE_MAPPING, VIP_TIERS, calculate_vip_tier, MAPPING_SERVER_FILE
 
 def format_kamas(jetons_amount):
@@ -22,19 +24,25 @@ def calculate_benefice(wins, losses):
     except:
         return "0 jetons"
 
-
-
 def get_highest_vip(user_id, server):
-    """Get highest VIP level for user based on total bets"""
+    """Get highest VIP level for user based on VIP tiers"""
     try:
-        # Charger les données du serveur
+        # Charger les données du serveur depuis le mapping
         with open(MAPPING_SERVER_FILE[server], 'r') as f:
             data = json.load(f)
             if str(user_id) in data['utilisateurs']:
                 user_data = data['utilisateurs'][str(user_id)]
                 total_bets = int(user_data['total_bets'].split(' ')[0])
-                vip_level = calculate_vip_tier(total_bets)
-                return f"VIP {vip_level}" if vip_level else "---"
+                
+                # Utiliser la même logique que vip.py
+                for tier, threshold in sorted(VIP_TIERS.items(), reverse=True):
+                    if total_bets >= threshold:
+                        # Vérifier le rôle correspondant dans VIP_ROLE_MAPPING
+                        role_name = VIP_ROLE_MAPPING[tier][server]
+                        if role_name:
+                            return f"VIP {tier}"
+                            
+                return "---"
     except Exception as e:
         print(f"Erreur VIP: {e}")
     return "---"
