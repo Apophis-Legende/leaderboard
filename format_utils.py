@@ -25,24 +25,16 @@ def calculate_benefice(wins, losses):
         return "0 jetons"
 
 def get_highest_vip(user_id, server):
-    """Get highest VIP level for user based on VIP tiers"""
+    """Get highest VIP level for user using calculate_vip_tier"""
     try:
-        # Charger les données du serveur depuis le mapping
         with open(MAPPING_SERVER_FILE[server], 'r') as f:
             data = json.load(f)
             if str(user_id) in data['utilisateurs']:
                 user_data = data['utilisateurs'][str(user_id)]
                 total_bets = int(user_data['total_bets'].split(' ')[0])
                 
-                # Utiliser la même logique que vip.py
-                for tier, threshold in sorted(VIP_TIERS.items(), reverse=True):
-                    if total_bets >= threshold:
-                        # Vérifier le rôle correspondant dans VIP_ROLE_MAPPING
-                        role_name = VIP_ROLE_MAPPING[tier][server]
-                        if role_name:
-                            return f"VIP {tier}"
-                            
-                return "---"
+                vip_tier = calculate_vip_tier(total_bets)
+                return f"VIP {vip_tier}" if vip_tier else "---"
     except Exception as e:
         print(f"Erreur VIP: {e}")
     return "---"
