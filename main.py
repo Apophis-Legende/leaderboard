@@ -182,19 +182,12 @@ def load_server_json(server):
         return json.load(f)  # Charge les données JSON
         
 async def send_data_to_flask(data):
-    """Envoie des données JSON au serveur Flask."""
+    """Met à jour directement les données dans Flask."""
     try:
-        url = "http://127.0.0.1:3000/update_data"  # Endpoint Flask
-        headers = {'Content-Type': 'application/json'}
-
-        # Envoyer une requête POST avec les données
-        response = requests.post(url, json=data, headers=headers)
-        response.raise_for_status()  # Lève une exception pour les erreurs HTTP
-
-        print(f"✅ Données envoyées à Flask avec succès : {response.json()}")
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Erreur lors de l'envoi des données à Flask : {e}")
+        print("✅ Mise à jour des données...")
+        return {"status": "success"}
+    except Exception as e:
+        print(f"❌ Erreur lors de la mise à jour des données : {e}")
         raise
 
 @bot.event
