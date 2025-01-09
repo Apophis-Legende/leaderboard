@@ -9,7 +9,7 @@ channel = "stable-23_05"
 
 [deployment]
 run = ["python", "main.py"]
-deploymentTarget = "cloudrun"
+deploymentTarget = "gce"
 
 [[ports]]
 localPort = 80

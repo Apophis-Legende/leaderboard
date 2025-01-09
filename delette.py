@@ -1,13 +1,8 @@
-logique.py 
-
-import discord
-import os
 import json
-import re
-from discord.ui import View, Select, Button, Modal, TextInput
-from discord import Interaction
-import asyncio
+import os
+import requests
 
+# MAPPING_SERVER_FILE doit être défini ici ou importé depuis un fichier global
 MAPPING_SERVER_FILE = {
     "T1": "T1.json",
     "T2": "T2.json",
@@ -15,290 +10,169 @@ MAPPING_SERVER_FILE = {
     "H1": "H1.json",
     "E1": "E1.json"
 }
-class ServerSelectionView(View):
-    def __init__(self, servers):
-        super().__init__()
-        self.selected_server = None
-        self.add_item(ServerSelect(servers))
 
-
-class ServerSelect(Select):
-    def __init__(self, servers):
-        super().__init__(
-            placeholder="Sélectionnez un serveur...",
-            options=[discord.SelectOption(label=server, value=server) for server in servers],
-        )
-
-    async def callback(self, interaction: discord.Interaction):
-        self.view.selected_server = self.values[0]
-        await interaction.response.edit_message(
-            content=f"✅ Serveur sélectionné : {self.view.selected_server}",
-            view=None  # Supprime le menu déroulant
-        )
-        self.view.stop()
-
-
-# Fonction principale asynchrone pour gérer l'interaction avec l'hôte
-async def handle_host_interaction(bot, channel, host):
+def load_json(filename):
+    """
+    Charge un fichier JSON ou retourne None si le fichier est introuvable ou corrompu.
+    """
     try:
-        # Attendre la réponse de l'hôte
-        response = await bot.wait_for("message", timeout=60.0, check=check_host_response)
-        await channel.send(f"✅ Réponse de l'hôte reçue : {response.content}")
-    except asyncio.TimeoutError:
-        await channel.send("❌ Temps écoulé. Aucun serveur sélectionné.")
-
-async def handle_unknown_server(channel, raw_data, host, servers):
-    view = ServerSelectionView(servers)
-    try:
-        await host.send(
-            "⚠️ Serveur inconnu détecté. Veuillez sélectionner le bon serveur dans la liste ci-dessous :",
-            view=view,
-        )
-    except discord.Forbidden:
-        await channel.send("❌ Impossible d'envoyer un message privé à l'hôte. Vérifiez ses paramètres.")
-        return None  # Arrête si l'hôte ne peut pas être contacté
-
-    await view.wait()
-
-    if view.selected_server:
-        raw_data["giveaway"]["prize"] = f"{view.selected_server} {raw_data['giveaway']['prize'].split(' ')[1]}"
-        await channel.send(f"✅ Serveur corrigé : {view.selected_server}")
-        return view.selected_server
-    else:
-        await channel.send("❌ Aucun serveur sélectionné. Le processus est interrompu.")
+        if not os.path.exists(filename):
+            print(f"❌ Le fichier {filename} n'existe pas.")
+            return None
+        with open(filename, "r", encoding="utf-8") as file:
+            data = json.load(file)
+            if not data:
+                print(f"⚠️ Le fichier {filename} est vide.")
+                return None
+            return data
+    except json.JSONDecodeError:
+        print(f"❌ Erreur : le fichier {filename} est corrompu.")
         return None
 
-def extract_server_and_prize(prize_text):
-    try:
-        match = re.match(r"^(\w+)\s+(\d+)", prize_text)
-        if match:
-            server = match.group(1)
-            prize = int(match.group(2))
-            return server, prize
-        else:
-            raise ValueError(f"Impossible d'extraire les données de 'prize' : {prize_text}")
-    except Exception as e:
-        print(f"❌ Erreur lors de l'extraction du serveur et du prix : {e}")
-        return None, None
-
-def load_json(filename, default_data=None):
-    """
-    Charge un fichier JSON ou retourne les données par défaut si le fichier n'existe pas.
-    """
-    if os.path.exists(filename):
-        with open(filename, "r", encoding="utf-8") as file:
-            return json.load(file)
-    return default_data or {}
-
 def save_json(filename, data):
-    """
-    Sauvegarde des données dans un fichier JSON.
-    """
-    with open(filename, "w", encoding="utf-8") as file:
-        json.dump(data, file, ensure_ascii=False, indent=4)
-    print(f"✅ Fichier sauvegardé : {filename}")
-
-def convert_amount_to_float(amount_str):
-    """
-    Convertit une chaîne "400 jetons" en float 400.0
-    """
-    return float(amount_str.split(" ")[0])
+  """Sauvegarde des données dans un fichier JSON."""
+  with open(filename, "w", encoding="utf-8") as file:
+      json.dump(data, file, indent=4, ensure_ascii=False)
 
 def format_amount(amount):
     """
-    Convertit un float 400.0 en chaîne "400 jetons"
+    Convertit un float en une chaîne au format "123 jetons".
     """
     return f"{int(amount)} jetons"
 
-async def process_giveaway_data(raw_data, channel):
+def convert_amount_to_int(amount_str):
     """
-    Traite les données brutes d'un giveaway et met à jour le fichier JSON du serveur concerné.
-    Demande une validation ou correction à l'hôte en cas de données non reconnues.
+    Convertit une chaîne au format "123 jetons" en un entier.
     """
+    return int(amount_str.split(" ")[0])
+
+
+def delete_giveaway_data(giveaway_id, server_data):
+  """
+  Supprime les données associées à un giveaway spécifique depuis un fichier JSON.
+  """
+  try:
+      utilisateurs = server_data.get("utilisateurs", {})
+      hôtes = server_data.get("hôtes", {})
+      croupiers = server_data.get("croupiers", {})
+      total_bets = int(server_data["mises_totales_avant_commission"].split()[0])
+      total_gains = int(server_data["gains_totaux"].split()[0])
+      total_commission = int(server_data["commission_totale"].split()[0])
+
+      # Parcourir les utilisateurs et ajuster leurs statistiques
+      for user_id, user_data in utilisateurs.items():
+          if user_id == giveaway_id:  # Comparer avec l'ID du giveaway
+              bets = int(user_data["total_bets"].split()[0])
+              wins = int(user_data["total_wins"].split()[0])
+              losses = int(user_data["total_losses"].split()[0])
+
+              # Soustraire les valeurs
+              total_bets -= bets
+              total_gains -= wins
+              total_commission -= losses
+
+              # Supprimer l'utilisateur
+              del utilisateurs[user_id]
+              break
+
+      # Supprimer les données de l'hôte et du croupier
+      hôtes.pop(giveaway_id, None)
+      croupiers.pop(giveaway_id, None)
+
+      # Mettre à jour les totaux
+      server_data["mises_totales_avant_commission"] = f"{total_bets} jetons"
+      server_data["gains_totaux"] = f"{total_gains} jetons"
+      server_data["commission_totale"] = f"{total_commission} jetons"
+      server_data["nombre_de_jeux"] -= 1
+
+      return True
+  except Exception as e:
+      print(f"❌ Erreur lors de la suppression des données : {e}")
+      return False
+
+
+async def delete_giveaway(interaction, link):
     try:
-        # Validation initiale des clés
-        if "giveaway" not in raw_data or "winners" not in raw_data or "entries" not in raw_data:
-            raise KeyError("Les clés 'giveaway', 'winners' ou 'entries' sont manquantes dans les données.")
+        await interaction.response.defer()
 
-        giveaway_info = raw_data["giveaway"]
-        prize = giveaway_info["prize"]
+        # Étape 1 : Télécharger et analyser le JSON
+        response = requests.get(link)
+        if response.status_code != 200:
+            await interaction.followup.send("⚠️ Impossible de récupérer les données depuis le lien fourni.")
+            return
 
-        # Utiliser la fonction d'extraction
-        server, gain_after_commission = extract_server_and_prize(prize)
+        giveaway_data = response.json()
+        prize = giveaway_data.get("giveaway", {}).get("prize", "")
+        if not prize:
+            await interaction.followup.send("⚠️ Le lien ne contient pas les informations nécessaires.")
+            return
 
-        if server not in MAPPING_SERVER_FILE:
-            try:
-                # Récupérer les infos de l'hôte
-                host_id = raw_data["giveaway"]["host"]["id"]
-                host_username = raw_data["giveaway"]["host"]["username"]
-                host = await channel.guild.fetch_member(int(host_id))
+        # Identifier le serveur et le fichier JSON
+        server = prize.split()[0]
+        filename = MAPPING_SERVER_FILE.get(server)
+        if not filename:
+            await interaction.followup.send(f"⚠️ Le serveur {server} n'est pas pris en charge.")
+            return
 
-                if not host:
-                    await channel.send("❌ Impossible de récupérer l'hôte.")
-                    return None
+        # Charger les données JSON
+        server_data = load_json(filename)
+        if not server_data:
+            await interaction.followup.send(f"⚠️ Le fichier {filename} est introuvable ou vide.")
+            return
 
-                # Créer un menu déroulant pour le choix du serveur
-                view = ServerSelectionView(MAPPING_SERVER_FILE.keys())
-
-                # Envoyer une interaction initiale pour l'hôte avec le menu
-                if server not in MAPPING_SERVER_FILE:
-                    try:
-                        # Récupérer les infos de l'hôte
-                        host_id = raw_data["giveaway"]["host"]["id"]
-                        host_username = raw_data["giveaway"]["host"]["username"]
-                        host = await channel.guild.fetch_member(int(host_id))
-
-                        if not host:
-                            await channel.send("❌ Impossible de récupérer l'hôte.")
-                            return None
-
-                        # Notifier dans le salon du giveaway
-                        await channel.send(
-                            f"⚠️ Serveur non reconnu : {server}. L'hôte {host.mention}, veuillez sélectionner le serveur correct :"
-                        )
-
-                        # Afficher le menu déroulant
-                        view = ServerSelectionView(MAPPING_SERVER_FILE.keys())
-                        message = await channel.send("Veuillez sélectionner un serveur :", view=view)
-
-                        # Attendre la réponse
-                        await view.wait()
-
-                        if not view.selected_server:
-                            await channel.send("❌ Aucun serveur sélectionné. Le processus est interrompu.")
-                            return None
-
-                        # Mise à jour du serveur corrigé
-                        server = view.selected_server
-                        raw_data["giveaway"]["prize"] = f"{server} {raw_data['giveaway']['prize'].split(' ')[1]}"
-                        await channel.send(f"✅ Serveur corrigé par l'hôte : {server}")
-
-                    except discord.NotFound:
-                        await channel.send(f"❌ L'hôte {host_username} n'est pas dans ce serveur.")
-                        return None
-                    except discord.Forbidden:
-                        await channel.send(f"❌ Impossible d'envoyer un message privé à {host_username}.")
-                        return None
-
-                # Mise à jour du serveur corrigé
-                server = view.selected_server
-                raw_data["giveaway"]["prize"] = f"{server} {raw_data['giveaway']['prize'].split(' ')[1]}"
-                await channel.send(f"✅ Serveur corrigé par l'hôte : {server}")
-
-            except discord.NotFound:
-                await channel.send(f"❌ L'hôte {host_username} n'est pas dans ce serveur.")
-                return None
-            except discord.Forbidden:
-                await channel.send(f"❌ Impossible d'envoyer un message privé à {host_username}.")
-                return None
-
-
-
-        # **3. Calculs pour le giveaway**
+        # Suppression des données
+        winners = giveaway_data.get("winners", [])
+        entries = giveaway_data.get("entries", [])
+        gain_after_commission = int(prize.split()[1])
         total_bet_before_commission = int(gain_after_commission / 0.95)
         commission_total = total_bet_before_commission - gain_after_commission
 
-        # Charger ou initialiser les données du serveur
-        file_name = f"{server}.json"
-        server_data = load_json(file_name, {
-            "serveur": server,
-            "nombre_de_jeux": 0,
-            "mises_totales_avant_commission": "0 jetons",
-            "gains_totaux": "0 jetons",
-            "commission_totale": "0 jetons",
-            "utilisateurs": {},
-            "hôtes": {},
-            "croupiers": {}
-        })
-
-        # **4. Mise à jour des stats globales**
-        previous_total_bet = convert_amount_to_float(server_data["mises_totales_avant_commission"])
-        server_data["mises_totales_avant_commission"] = format_amount(previous_total_bet + total_bet_before_commission)
-
-        previous_total_gain = convert_amount_to_float(server_data["gains_totaux"])
-        server_data["gains_totaux"] = format_amount(previous_total_gain + gain_after_commission)
-
-        previous_total_commission = convert_amount_to_float(server_data["commission_totale"])
-        server_data["commission_totale"] = format_amount(previous_total_commission + commission_total)
-
-        server_data["nombre_de_jeux"] += 1
-
-        # **5. Mise à jour des joueurs (gagnants et perdants)**
-        for winner in raw_data["winners"]:
+        for winner in winners:
             user_id = winner["id"]
-            username = winner["username"]
+            if user_id in server_data["utilisateurs"]:
+                user = server_data["utilisateurs"][user_id]
+                user["total_wins"] = format_amount(convert_amount_to_int(user["total_wins"]) - gain_after_commission)
+                user["total_bets"] = format_amount(convert_amount_to_int(user["total_bets"]) - total_bet_before_commission / len(entries))
+                user["participation"] = max(0, user["participation"] - 1)
 
-            if user_id not in server_data["utilisateurs"]:
-                server_data["utilisateurs"][user_id] = {
-                    "username": username,
-                    "total_wins": "0 jetons",
-                    "total_losses": "0 jetons",
-                    "total_bets": "0 jetons",
-                    "participation": 0
-                }
+        for entry in entries:
+            if entry["id"] not in [winner["id"] for winner in winners]:
+                user_id = entry["id"]
+                if user_id in server_data["utilisateurs"]:
+                    user = server_data["utilisateurs"][user_id]
+                    user["total_losses"] = format_amount(convert_amount_to_int(user["total_losses"]) - total_bet_before_commission / len(entries))
+                    user["total_bets"] = format_amount(convert_amount_to_int(user["total_bets"]) - total_bet_before_commission / len(entries))
+                    user["participation"] = max(0, user["participation"] - 1)
 
-            # Mise à jour des gains, mises, et participation
-            current_wins = convert_amount_to_float(server_data["utilisateurs"][user_id]["total_wins"])
-            current_bets = convert_amount_to_float(server_data["utilisateurs"][user_id]["total_bets"])
-            server_data["utilisateurs"][user_id]["total_wins"] = format_amount(current_wins + gain_after_commission)
-            server_data["utilisateurs"][user_id]["total_bets"] = format_amount(
-                current_bets + total_bet_before_commission // len(raw_data["entries"])
-            )
-            server_data["utilisateurs"][user_id]["participation"] += 1
+        # Mise à jour des hôtes et croupiers
+        host_id = giveaway_data["giveaway"]["host"]["id"]
+        if host_id in server_data["hôtes"]:
+            host = server_data["hôtes"][host_id]
+            host["total_bets"] = format_amount(convert_amount_to_int(host["total_bets"]) - total_bet_before_commission)
+            host["total_commission"] = format_amount(convert_amount_to_int(host["total_commission"]) - commission_total)
 
-        for entry in raw_data["entries"]:
-            if entry["id"] in [winner["id"] for winner in raw_data["winners"]]:
-                continue
-            user_id = entry["id"]
-            username = entry["username"]
+        if host_id in server_data["croupiers"]:
+            croupier = server_data["croupiers"][host_id]
+            croupier["total_giveaways"] = max(0, croupier["total_giveaways"] - 1)
+            croupier["total_kamas_managed"] = format_amount(convert_amount_to_int(croupier["total_kamas_managed"]) - total_bet_before_commission)
+            croupier["total_commission"] = format_amount(convert_amount_to_int(croupier["total_commission"]) - commission_total)
 
-            if user_id not in server_data["utilisateurs"]:
-                server_data["utilisateurs"][user_id] = {
-                    "username": username,
-                    "total_wins": "0 jetons",
-                    "total_losses": "0 jetons",
-                    "total_bets": "0 jetons",
-                    "participation": 0
-                }
+        # Mise à jour globale
+        server_data["nombre_de_jeux"] = max(0, server_data["nombre_de_jeux"] - 1)
+        server_data["mises_totales_avant_commission"] = format_amount(
+            convert_amount_to_int(server_data["mises_totales_avant_commission"]) - total_bet_before_commission
+        )
+        server_data["gains_totaux"] = format_amount(
+            convert_amount_to_int(server_data["gains_totaux"]) - gain_after_commission
+        )
+        server_data["commission_totale"] = format_amount(
+            convert_amount_to_int(server_data["commission_totale"]) - commission_total
+        )
 
-            current_losses = convert_amount_to_float(server_data["utilisateurs"][user_id]["total_losses"])
-            current_bets = convert_amount_to_float(server_data["utilisateurs"][user_id]["total_bets"])
-            server_data["utilisateurs"][user_id]["total_losses"] = format_amount(
-                current_losses + total_bet_before_commission // len(raw_data["entries"])
-            )
-            server_data["utilisateurs"][user_id]["total_bets"] = format_amount(
-                current_bets + total_bet_before_commission // len(raw_data["entries"])
-            )
-            server_data["utilisateurs"][user_id]["participation"] += 1
-
-        # **6. Mise à jour des hôtes**
-        host_id = giveaway_info["host"]["id"]
-        host_username = giveaway_info["host"]["username"]
-
-        if host_id not in server_data["hôtes"]:
-            server_data["hôtes"][host_id] = {
-                "username": host_username,
-                "total_bets": "0 jetons",
-                "total_commission": "0 jetons"
-            }
-
-        current_host_bets = convert_amount_to_float(server_data["hôtes"][host_id]["total_bets"])
-        current_host_commission = convert_amount_to_float(server_data["hôtes"][host_id]["total_commission"])
-        server_data["hôtes"][host_id]["total_bets"] = format_amount(current_host_bets + total_bet_before_commission)
-        server_data["hôtes"][host_id]["total_commission"] = format_amount(current_host_commission + commission_total)
-
-        # Sauvegarder les données dans le fichier JSON
-        save_json(file_name, server_data)
-        print(f"✅ Données sauvegardées pour le serveur {server} dans {file_name}.")
-
-        return {
-            "server": server,
-            "gain_after_commission": gain_after_commission,
-            "total_bet_before_commission": total_bet_before_commission,
-            "commission_total": commission_total,
-        }
+        # Sauvegarder les données
+        save_json(filename, server_data)
+        await interaction.followup.send(f"✅ Les données associées au giveaway ont été supprimées dans {filename}.")
 
     except Exception as e:
-        print(f"❌ Une erreur inattendue : {e}")
-        return {"error": str(e)}
-
+        print(f"❌ Erreur : {e}")
+        await interaction.followup.send(f"❌ Une erreur est survenue : {e}")

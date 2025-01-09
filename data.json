@@ -1,3 +1,6 @@
 {
-    "error": "ServerSelect.__init__() missing 1 required positional argument: 'options'"
+    "server": "T2",
+    "gain_after_commission": 0,
+    "total_bet_before_commission": 0,
+    "commission_total": 0
 }
