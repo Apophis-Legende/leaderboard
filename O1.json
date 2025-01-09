@@ -1,10 +1,31 @@
 {
     "serveur": "O1",
-    "nombre_de_jeux": 0,
-    "mises_totales_avant_commission": "0 jetons",
-    "gains_totaux": "0 jetons",
-    "commission_totale": "0 jetons",
-    "utilisateurs": {},
-    "hôtes": {},
+    "nombre_de_jeux": 1,
+    "mises_totales_avant_commission": "22 jetons",
+    "gains_totaux": "21 jetons",
+    "commission_totale": "1 jetons",
+    "utilisateurs": {
+        "1229717382554058762": {
+            "username": "clzgapiidor",
+            "total_wins": "21 jetons",
+            "total_losses": "0 jetons",
+            "total_bets": "11 jetons",
+            "participation": 1
+        },
+        "1035593559312715776": {
+            "username": "094685.",
+            "total_wins": "0 jetons",
+            "total_losses": "11 jetons",
+            "total_bets": "11 jetons",
+            "participation": 1
+        }
+    },
+    "hôtes": {
+        "1229717382554058762": {
+            "username": "clzgapiidor",
+            "total_bets": "22 jetons",
+            "total_commission": "1 jetons"
+        }
+    },
     "croupiers": {}
 }
