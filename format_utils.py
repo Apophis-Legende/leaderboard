@@ -34,7 +34,7 @@ def get_highest_vip(user_id, server):
                 # Map server codes to full names
                 server_mapping = {
                     "T1": "Tiliwan1",
-                    "T2": "Tiliwan2",
+                    "T2": "Tiliwan1",  # Both T1 and T2 check for Tiliwan1 roles
                     "O1": "Oshimo",
                     "H1": "Herdegrize",
                     "E1": "Euro"
