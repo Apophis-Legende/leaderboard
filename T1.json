@@ -1,31 +1,24 @@
 {
     "serveur": "T1",
-    "nombre_de_jeux": 3,
-    "mises_totales_avant_commission": "1800 jetons",
-    "gains_totaux": "1710 jetons",
-    "commission_totale": "90 jetons",
+    "nombre_de_jeux": 2,
+    "mises_totales_avant_commission": "8105 jetons",
+    "gains_totaux": "7700 jetons",
+    "commission_totale": "405 jetons",
     "utilisateurs": {
         "928329400666173520": {
             "username": "apophislegende",
-            "total_wins": "1710 jetons",
+            "total_wins": "7700 jetons",
             "total_losses": "0 jetons",
-            "total_bets": "1800 jetons",
-            "participation": 3
+            "total_bets": "8105 jetons",
+            "participation": 2
         }
     },
     "hôtes": {
         "928329400666173520": {
             "username": "apophislegende",
-            "total_bets": "1800 jetons",
-            "total_commission": "90 jetons"
+            "total_bets": "8105 jetons",
+            "total_commission": "405 jetons"
         }
     },
-    "croupiers": {
-        "928329400666173520": {
-            "username": "apophislegende",
-            "total_giveaways": 3,
-            "total_kamas_managed": "1800 jetons",
-            "total_commission": "90 jetons"
-        }
-    }
+    "croupiers": {}
 }

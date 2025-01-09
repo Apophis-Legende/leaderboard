@@ -493,6 +493,16 @@ test = ["certifi (>=2024)", "cryptography-vectors (==44.0.0)", "pretend (>=0.7)"
 test-randomorder = ["pytest-randomly"]
 
 [[package]]
+name = "delete"
+version = "0.3.0"
+description = "Linux Trash Bin."
+optional = false
+python-versions = "*"
+files = [
+    {file = "delete-0.3.0-py2.py3-none-any.whl", hash = "sha256:905d18de609567780148d4100e31e5cfafffe84e20e695ef22e195535718e139"},
+]
+
+[[package]]
 name = "discord"
 version = "2.3.2"
 description = "A mirror package for discord.py. Please install that instead."
@@ -2063,4 +2073,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10.0,<3.11"
-content-hash = "902fee93dad7ac819910db7f2b1231e981fa1bef74bec1b5e32d549c40a4eaad"
+content-hash = "7bca958544995bf0b61852abf877badb49fd842aa0b76c23ec1b6cf8ef63b8a2"

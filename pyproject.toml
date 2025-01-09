@@ -17,6 +17,7 @@ firebase-admin = "^6.6.0"
 flask = "^3.1.0"
 flask-socketio = "^5.5.0"
 watchdog = "^6.0.0"
+delete = "^0.3.0"
 
 [tool.pyright]
 # https://github.com/microsoft/pyright/blob/main/docs/configuration.md

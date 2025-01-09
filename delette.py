@@ -1,3 +1,5 @@
+logique.py 
+
 import discord
 import os
 import json
@@ -13,45 +15,31 @@ MAPPING_SERVER_FILE = {
     "H1": "H1.json",
     "E1": "E1.json"
 }
+class ServerSelectionView(View):
+    def __init__(self, servers):
+        super().__init__()
+        self.selected_server = None
+        self.add_item(ServerSelect(servers))
+
 
 class ServerSelect(Select):
     def __init__(self, servers):
         super().__init__(
             placeholder="Sélectionnez un serveur...",
-            options=[discord.SelectOption(label=server) for server in servers]
+            options=[discord.SelectOption(label=server, value=server) for server in servers],
         )
 
     async def callback(self, interaction: discord.Interaction):
-        # Récupérer le serveur sélectionné
-        selected_server = self.values[0]
-        # Désactiver le menu après la sélection
-        self.view.clear_items()
-        await interaction.message.edit(view=self.view)
-        # Confirmation au client
-        await interaction.response.send_message(f"✅ Serveur sélectionné : {selected_server}")
-
-class ServerSelectionView(View):
-    def __init__(self, servers):
-        super().__init__()
-        self.add_item(ServerSelect(servers))
-
-async def on_event(bot, message, host_id, servers):
-    # Vérifier si l'événement correspond à la logique
-    if "non reconnu" in message.content.lower():
-        # Récupérer l'utilisateur hôte
-        host = await bot.fetch_user(host_id)  # Convertir ID brut en utilisateur
-        # Envoyer le message avec le menu déroulant
-        await message.channel.send(
-            f"⚠️ Serveur non reconnu : h1. L'hôte {host.mention}, veuillez sélectionner le serveur correct :",
-            view=ServerSelectionView(servers)
+        self.view.selected_server = self.values[0]
+        await interaction.response.edit_message(
+            content=f"✅ Serveur sélectionné : {self.view.selected_server}",
+            view=None  # Supprime le menu déroulant
         )
+        self.view.stop()
+
 
 # Fonction principale asynchrone pour gérer l'interaction avec l'hôte
 async def handle_host_interaction(bot, channel, host):
-    def check_host_response(message):
-        # Vérifie si le message provient de l'utilisateur hôte
-        return message.author == host
-
     try:
         # Attendre la réponse de l'hôte
         response = await bot.wait_for("message", timeout=60.0, check=check_host_response)
@@ -79,45 +67,6 @@ async def handle_unknown_server(channel, raw_data, host, servers):
     else:
         await channel.send("❌ Aucun serveur sélectionné. Le processus est interrompu.")
         return None
-
-class ServerSelectionView(View):
-    def __init__(self, servers):
-        super().__init__()
-        self.selected_server = None  # Variable pour le serveur sélectionné
-        self.add_item(ServerSelect(servers))  # Ajouter le menu déroulant à la vue
-        
-async def handle_price_correction(channel, raw_data):
-    host_id = raw_data["giveaway"]["host"]["id"]
-    host = await channel.guild.fetch_member(int(host_id))
-
-    if not host:
-        await channel.send("❌ Impossible de trouver l'hôte.")
-        return None
-
-    # Demander confirmation
-    view = ConfirmPriceView()
-    await channel.send(
-        f"⚠️ L'hôte {host.mention}, êtes-vous sûr du prix `{raw_data['giveaway']['prize']}` ?",
-        view=view
-    )
-    await view.wait()
-
-    if view.value is True:  # Confirmé
-        await channel.send("✅ Prix confirmé par l'hôte.")
-        return raw_data["giveaway"]["prize"]
-
-    elif view.value is False:  # Rejeté, ouvrir une fenêtre de saisie
-        modal = PriceCorrectionModal()
-        await host.send("❌ Veuillez corriger le prix :", view=modal)
-        await modal.wait()
-
-        if hasattr(modal, "corrected_prize"):
-            await channel.send(f"✅ Prix corrigé par l'hôte : {modal.corrected_prize}")
-            return modal.corrected_prize
-        else:
-            await channel.send("❌ Le prix n'a pas été corrigé.")
-            return None
-
 
 def extract_server_and_prize(prize_text):
     try:
@@ -353,20 +302,3 @@ async def process_giveaway_data(raw_data, channel):
         print(f"❌ Une erreur inattendue : {e}")
         return {"error": str(e)}
 
-class ConfirmDataView(View):
-    def __init__(self, interaction: Interaction, data):
-        super().__init__()
-        self.interaction = interaction
-        self.data = data
-        self.value = None
-
-    @discord.ui.button(label="Valider", style=discord.ButtonStyle.success)
-    async def confirm(self, button: Button, interaction: Interaction):
-        self.value = True
-        await interaction.response.send_message("✅ Données validées par l’hôte.")
-        self.stop()
-
-    @discord.ui.button(label="Rejeter", style=discord.ButtonStyle.danger)
-    async def reject(self, button: Button, interaction: Interaction):
-        self.value = False
-        await interaction.response.send_message("❌ Données rejetées par l’hôte.")

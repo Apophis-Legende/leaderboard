@@ -5,12 +5,16 @@ import threading
 import os
 import json
 import requests
-from logique import process_giveaway_data, load_json
+from logique import process_giveaway_data, load_json, save_json, extract_server_and_prize
 from data_manager import load_json, save_json, extract_user_data
 from discord.ui import View, Select
 from vip import check_vip_status, MAPPING_SERVER_FILE, FORBIDDEN_ROLES, ensure_forbidden_users_file_exists, load_assigned_roles
 from discord import app_commands
-
+from discord import Interaction
+from delette import delete_giveaway
+from add import add_giveaway_data
+import re
+from modif import process_giveaway
 
 # Configuration du bot avec intentions
 intents = discord.Intents.default()
@@ -24,6 +28,14 @@ def get_json_file_from_message(server_name):
     Retourne le fichier JSON associé au serveur détecté (ex: T1 -> T1.json).
     """
     return MAPPING_SERVER_FILE.get(server_name)
+
+MAPPING_SERVER_FILE = {
+    "T1": "T1.json",
+    "T2": "T2.json",
+    "O1": "O1.json",
+    "H1": "H1.json",
+    "E1": "E1.json"
+}
 
 
 # Configuration de Flask pour le serveur web
@@ -103,6 +115,22 @@ def get_leaderboard():
     except Exception as e:
         print(f"❌ Erreur lors du traitement du fichier {file_name} : {e}")
         return jsonify({"error": f"Une erreur est survenue lors de la lecture du fichier {file_name} : {str(e)}"}), 500
+        
+def is_admin():
+    async def predicate(interaction: discord.Interaction):
+        if not interaction.user.guild_permissions.administrator:
+            print(f"🚫 {interaction.user} n'a pas la permission d'administrateur.")
+            return False
+        return True
+    return app_commands.check(predicate)
+
+def is_in_guild():
+    async def predicate(interaction: discord.Interaction):
+        if interaction.guild is None:
+            print(f"🚫 {interaction.user} tente d'exécuter une commande en DM.")
+            return False
+        return True
+    return app_commands.check(predicate)
 
 def run_flask():
     # Assurez-vous que Flask écoute sur 0.0.0.0 pour permettre l'accès externe
@@ -182,6 +210,11 @@ async def on_ready():
     except Exception as e:
         print(f"❌ Erreur lors de la synchronisation des commandes slash : {e}")
 
+    # Vérifier et initialiser les fichiers JSON
+    verifier_et_initialiser_fichiers_json(MAPPING_SERVER_FILE)
+
+    print("✅ Vérification et initialisation des fichiers JSON terminées.")
+
 async def send_data_to_flask(data):
     """Envoie des données JSON au serveur Flask."""
     try:
@@ -205,6 +238,7 @@ async def send_data_to_flask(data):
 async def download_json_from_summary(url, channel):
     """
     Télécharge les données JSON d'un giveaway, traite les données et les envoie au serveur Flask.
+    Ajoute une validation interactive par l'hôte si des erreurs sont détectées.
     """
     print(f"🌐 Téléchargement du JSON depuis : {url}")
     api_url = url.replace("https://giveawaybot.party/summary#", "https://summary-api.giveawaybot.party/?")
@@ -222,9 +256,9 @@ async def download_json_from_summary(url, channel):
             raise ValueError("Les données JSON brutes récupérées ne sont pas valides ou sont vides.")
 
         # Appeler le traitement des données
-        processed_data = process_giveaway_data(raw_data)
+        processed_data = await process_giveaway_data(raw_data, channel)
 
-        # Vérifiez que les données traitées sont un dictionnaire
+        # Vérifiez que les données traitées sont valides
         if not processed_data:
             raise ValueError("Les données traitées sont vides ou nulles.")
         if not isinstance(processed_data, dict):
@@ -235,7 +269,7 @@ async def download_json_from_summary(url, channel):
         await send_data_to_flask(processed_data)
 
         # Confirmer l'envoi réussi au canal Discord
-        await channel.send(f"🎉 Données du giveaway traitées et envoyées à Flask avec succès !")
+        await channel.send(f"🎉 Les données du giveaway ont été enregistrées !")
 
     except requests.exceptions.RequestException as req_err:
         # Gestion des erreurs liées à la requête HTTP
@@ -251,6 +285,22 @@ async def download_json_from_summary(url, channel):
         # Gestion générique des erreurs
         print(f"❌ Une erreur inattendue est survenue : {e}")
         await channel.send("⚠️ Une erreur inattendue est survenue lors du traitement des données JSON.")
+
+        # Validation interactive par l’hôte en cas d’erreur majeure
+        view = ConfirmDataView(channel.guild, raw_data)
+        await channel.guild.owner.send("❓ Une erreur est survenue lors du traitement des données. Voulez-vous valider ou rejeter les données suivantes :", view=view)
+        await view.wait()
+
+        if view.value:
+            await channel.send("✅ Données validées par l'hôte, traitement en cours.")
+            # Recommencez le traitement avec les données validées
+            processed_data = await process_giveaway_data(raw_data, channel)
+            if processed_data:
+                await send_data_to_flask(processed_data)
+                await channel.send("🎉 Données validées et enregistrées avec succès.")
+        else:
+            await channel.send("❌ Données rejetées par l'hôte.")
+
 
 # Gestion des messages : suivre uniquement ceux du bot cible
 @bot.event
@@ -328,24 +378,23 @@ async def update_vip_status(json_file, channel):
     except Exception as e:
         print(f"❌ Une erreur est survenue lors de la mise à jour des VIP : {e}")
         await channel.send(f"⚠️ Une erreur est survenue lors de la mise à jour des VIP : {e}")
-        
-def extract_server_name_from_message(message_content):
+
+def extract_server_and_prize(prize_text):
     """
-    Extrait le nom du serveur à partir d'un message comme
-    'Congratulations <@928329400666173520>! You won the E1 9500!'
+    Extrait le nom du serveur et le montant du prix depuis le champ 'prize'.
+    Exemple : 'E1 380 blabla' -> ('E1', 380)
     """
     try:
-        # Divisez le message en mots et récupérez le serveur après "won the"
-        parts = message_content.split(" ")
-        index_of_won = parts.index("won")
-        server_name = parts[index_of_won + 2]  # Le serveur est après "the"
-
-        # Nettoyez les caractères indésirables
-        server_name = server_name.strip("!").strip("**")
-        return server_name
-    except (ValueError, IndexError) as e:
-        print(f"❌ Erreur lors de l'extraction du serveur : {e}")
-        return None
+        match = re.match(r"^(\w+)\s+(\d+)", prize_text)
+        if match:
+            server = match.group(1)
+            prize = int(match.group(2))
+            return server, prize
+        else:
+            raise ValueError(f"Impossible d'extraire les données de 'prize' : {prize_text}")
+    except Exception as e:
+        print(f"❌ Erreur lors de l'extraction du serveur et du prix : {e}")
+        return None, None
 
 async def retrieve_previous_message_with_summary(channel):
     """
@@ -426,7 +475,82 @@ async def handle_giveaway(raw_data, channel):
         print(f"❌ Erreur dans handle_giveaway : {e}")
         await channel.send(f"⚠️ Une erreur est survenue lors du traitement des données du giveaway : {e}")
 
+def find_server_file(server, mapping):
+    """
+    Trouve le fichier JSON associé à un serveur à partir du mapping.
+    Vérifie l'existence du fichier dans le répertoire courant.
+
+    Args:
+        server (str): Le nom du serveur (par exemple, "E1", "T1").
+        mapping (dict): Mapping des serveurs vers les fichiers JSON.
+
+    Returns:
+        str: Le chemin du fichier JSON s'il existe.
+
+    Raises:
+        FileNotFoundError: Si le fichier correspondant au serveur est introuvable.
+    """
+    filename = mapping.get(server)
+    if not filename:
+        raise FileNotFoundError(f"⚠️ Le serveur '{server}' n'est pas défini dans le mapping.")
+
+    if not os.path.exists(filename):
+        raise FileNotFoundError(f"⚠️ Le fichier {filename} n'existe pas dans le répertoire courant.")
+
+    print(f"✅ Fichier trouvé pour le serveur {server}: {filename}")
+    return filename
+
+# Événement pour synchroniser les commandes du bot
+@bot.event
+async def on_ready():
+    try:
+        synced = await bot.tree.sync()
+        print(f"✅ Commandes slash synchronisées : {len(synced)} commandes.")
+    except Exception as e:
+        print(f"❌ Erreur lors de la synchronisation des commandes : {e}")
+
+@bot.tree.command(name="modif-json", description="Extrait et transforme des données brutes JSON depuis un lien.")
+@is_admin()  # Restriction aux administrateurs
+@is_in_guild()  # Bloque l'accès en DM
+@app_commands.describe(link="Lien vers le fichier JSON brut", prize="Nouveau prize (format : 'T1 950')")
+async def modif_json(interaction: discord.Interaction, link: str, prize: str):
+    await interaction.response.defer()
+
+    try:
+        # Appeler la fonction principale pour traiter le fichier JSON
+        result = process_giveaway(link, prize)
+        await interaction.followup.send(result)
+
+    except Exception as e:
+        await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
+
+
+@bot.tree.command(name="add_giveaway", description="Ajoute les données associées à un giveaway via son lien.")
+@is_admin()  # Restriction aux administrateurs
+@is_in_guild()  # Bloque l'accès en DM
+async def add_giveaway(interaction: discord.Interaction, link: str):
+    await interaction.response.defer()
+    try:
+        add_giveaway_data(link, MAPPING_SERVER_FILE)
+        await interaction.followup.send("✅ Données ajoutées avec succès !")
+    except Exception as e:
+        print(f"❌ Erreur : {e}")
+        await interaction.followup.send(f"❌ Une erreur est survenue : {e}")
+        
+@bot.tree.command(name="delete_giveaway", description="Supprime les données associées à un giveaway via son lien.")
+@is_admin()  # Restriction aux administrateurs
+@is_in_guild()  # Bloque l'accès en DM
+async def delete_giveaway_command(interaction: discord.Interaction, link: str):
+    try:
+        await delete_giveaway(interaction, link)
+        await interaction.response.send_message("✅ Giveaway supprimé avec succès.", ephemeral=True)
+    except Exception as e:
+        await interaction.response.send_message(f"❌ Une erreur est survenue : {e}", ephemeral=True)
+
+    
 @bot.tree.command(name="update_vip", description="Met à jour les statuts VIP pour un serveur donné.")
+@is_admin()  # Restriction aux administrateurs
+@is_in_guild()  # Bloque l'accès en DM
 async def update_vip(interaction: discord.Interaction, server: str):
     await interaction.response.defer()
     print(f"🔄 Demande de mise à jour VIP pour le serveur {server}")
@@ -444,6 +568,8 @@ async def update_vip(interaction: discord.Interaction, server: str):
     await check_vip_status(server_name, interaction.channel)
 
 @bot.tree.command(name="add_forbidden_user", description="Ajoute un membre interdit au fichier JSON.")
+@is_admin()  # Restriction aux administrateurs
+@is_in_guild()  # Bloque l'accès en DM
 @app_commands.describe(user_id="ID du membre à interdire", reason="Raison pour laquelle ce membre est interdit.")
 async def add_forbidden_user(interaction: discord.Interaction, user_id: str, reason: str):
     """
@@ -498,6 +624,8 @@ async def add_forbidden_user(interaction: discord.Interaction, user_id: str, rea
     )
 
 @bot.tree.command(name="list_forbidden_users", description="Affiche la liste des membres interdits.")
+@is_admin()  # Restriction aux administrateurs
+@is_in_guild()  # Bloque l'accès en DM
 async def list_forbidden_users(interaction: discord.Interaction):
     """
     Liste les membres interdits dans le fichier JSON.
@@ -521,6 +649,8 @@ async def list_forbidden_users(interaction: discord.Interaction):
     await interaction.response.send_message(response[:2000])  # Discord limite les messages à 2000 caractères.
 
 @bot.tree.command(name="remove_forbidden_user", description="Supprime un membre de la liste des interdits.")
+@is_admin()  # Restriction aux administrateurs
+@is_in_guild()  # Bloque l'accès en DM
 @app_commands.describe(user_id="ID du membre à retirer de la liste des interdits.")
 async def remove_forbidden_user(interaction: discord.Interaction, user_id: str):
     """
@@ -549,6 +679,8 @@ async def remove_forbidden_user(interaction: discord.Interaction, user_id: str):
         await interaction.response.send_message(f"⚠️ Aucun utilisateur avec l'ID `{user_id}` trouvé dans la liste des interdits.")
 
 @bot.tree.command(name="reset_vip", description="Réinitialise les données des VIP et supprime les rôles attribués.")
+@is_admin()  # Restriction aux administrateurs
+@is_in_guild()  # Bloque l'accès en DM
 async def reset_vip(interaction: discord.Interaction):
     """
     Réinitialise les données des VIP et supprime tous les rôles attribués.
@@ -557,7 +689,7 @@ async def reset_vip(interaction: discord.Interaction):
 
     guild = interaction.guild
     data = load_assigned_roles()
-    users = data["users"]
+    users = data.get("users", {})
 
     if not users:
         await interaction.followup.send("⚠️ Aucun rôle VIP attribué trouvé à réinitialiser.")
@@ -579,11 +711,19 @@ async def reset_vip(interaction: discord.Interaction):
         except Exception as e:
             print(f"❌ Erreur inattendue pour l'utilisateur {user_id} : {e}")
 
-    # Réinitialiser le fichier
-    save_assigned_roles({"users": {}})
+    # Supprimer le fichier JSON
+    file_path = "assigned_roles.json"
+    if os.path.exists(file_path):
+        try:
+            os.remove(file_path)
+            print(f"✅ Fichier {file_path} supprimé avec succès.")
+        except Exception as e:
+            print(f"❌ Impossible de supprimer le fichier {file_path} : {e}")
+    else:
+        print(f"⚠️ Le fichier {file_path} n'existe pas.")
+
     await interaction.followup.send("✅ Tous les rôles VIP ont été supprimés et les données ont été réinitialisées.")
-
-
+    
 # Lancer le bot Discord
 def run_bot():
     bot.run(os.getenv("TOKEN"))

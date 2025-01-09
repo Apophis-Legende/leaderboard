@@ -1,38 +1,50 @@
 {
     "serveur": "T2",
-    "nombre_de_jeux": 2,
-    "mises_totales_avant_commission": "4000 jetons",
-    "gains_totaux": "3800 jetons",
-    "commission_totale": "200 jetons",
+    "nombre_de_jeux": 6,
+    "mises_totales_avant_commission": "3291 jetons",
+    "gains_totaux": "3127 jetons",
+    "commission_totale": "164 jetons",
     "utilisateurs": {
-        "1229717382554058762": {
-            "username": "clzgapiidor",
-            "total_wins": "3800 jetons",
+        "928329400666173520": {
+            "username": "apophislegende",
+            "total_wins": "950 jetons",
             "total_losses": "0 jetons",
-            "total_bets": "2000 jetons",
+            "total_bets": "1000 jetons",
+            "participation": 1
+        },
+        "911016102119735317": {
+            "username": "ratelaciible",
+            "total_wins": "950 jetons",
+            "total_losses": "100 jetons",
+            "total_bets": "600 jetons",
             "participation": 2
         },
-        "852604289900871710": {
-            "username": "asxmaaa",
-            "total_wins": "0 jetons",
-            "total_losses": "2000 jetons",
-            "total_bets": "2000 jetons",
-            "participation": 2
+        "334830968986796044": {
+            "username": "norac29",
+            "total_wins": "427 jetons",
+            "total_losses": "921 jetons",
+            "total_bets": "1145 jetons",
+            "participation": 5
+        },
+        "795586989067075594": {
+            "username": "fatchoudou",
+            "total_wins": "800 jetons",
+            "total_losses": "124 jetons",
+            "total_bets": "545 jetons",
+            "participation": 3
         }
     },
     "hôtes": {
-        "1229717382554058762": {
-            "username": "clzgapiidor",
-            "total_bets": "4000 jetons",
-            "total_commission": "200 jetons"
+        "928329400666173520": {
+            "username": "apophislegende",
+            "total_bets": "1000 jetons",
+            "total_commission": "50 jetons"
+        },
+        "1164911677632950394": {
+            "username": "clikclikboom_",
+            "total_bets": "2291 jetons",
+            "total_commission": "114 jetons"
         }
     },
-    "croupiers": {
-        "1229717382554058762": {
-            "username": "clzgapiidor",
-            "total_giveaways": 2,
-            "total_kamas_managed": "4000 jetons",
-            "total_commission": "200 jetons"
-        }
-    }
+    "croupiers": {}
 }
