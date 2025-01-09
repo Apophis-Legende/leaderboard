@@ -1,5 +1,6 @@
 
 import json
+from vip import calculate_vip_tier
 
 # Mapping des niveaux VIP et seuils
 VIP_TIERS = {
