@@ -741,6 +741,38 @@ async def reset_vip(interaction: discord.Interaction):
 
     await interaction.followup.send("✅ Tous les rôles VIP ont été supprimés et les données ont été réinitialisées.")
 
+@bot.tree.command(name="reset_json", description="Réinitialise tous les fichiers JSON (T1, T2, O1, H1, E1)")
+@is_admin()
+@is_in_guild()
+async def reset_json(interaction: discord.Interaction):
+    """Réinitialise tous les fichiers JSON avec leur structure par défaut."""
+    await interaction.response.defer()
+
+    initial_data = {
+        "serveur": "",  # Sera rempli pour chaque fichier
+        "nombre_de_jeux": 0,
+        "mises_totales_avant_commission": "0 jetons",
+        "gains_totaux": "0 jetons",
+        "commission_totale": "0 jetons",
+        "utilisateurs": {},
+        "hôtes": {},
+        "croupiers": {}
+    }
+
+    files = ["T1.json", "T2.json", "O1.json", "H1.json", "E1.json"]
+
+    for file in files:
+        try:
+            data = initial_data.copy()
+            data["serveur"] = file.replace(".json", "")
+            with open(file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=4, ensure_ascii=False)
+            print(f"✅ {file} réinitialisé avec succès")
+        except Exception as e:
+            print(f"❌ Erreur lors de la réinitialisation de {file}: {e}")
+
+    await interaction.followup.send("✅ Tous les fichiers JSON ont été réinitialisés avec succès!")
+    
 # Lancer le bot Discord
 def run_bot():
     bot.run(os.getenv("TOKEN"))
