@@ -752,8 +752,8 @@ async def reset_all(interaction: discord.Interaction):
                     print(f"❌ Erreur pour l'utilisateur {user_id} : {e}")
                     continue
 
-    # Supprimer assigned_roles.json
-    if os.path.exists("assigned_roles.json"):
+        # Supprimer assigned_roles.json
+        if os.path.exists("assigned_roles.json"):
         try:
             os.remove("assigned_roles.json")
             print("✅ Fichier assigned_roles.json supprimé")
