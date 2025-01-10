@@ -62,9 +62,10 @@ def update_data():
 
 def load_json(filename, default_data=None):
     """Charge un fichier JSON ou retourne les données par défaut si le fichier n'existe pas."""
-    filepath = os.path.join("json_files", filename)  # Dossier dédié pour les fichiers JSON
-    if os.path.exists(filepath):
-        with open(filepath, "r", encoding="utf-8") as file:
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    absolute_path = os.path.join(script_dir, filename)
+    if os.path.exists(absolute_path):
+        with open(absolute_path, "r", encoding="utf-8") as file:
             return json.load(file)
     return default_data or {}
 
@@ -724,7 +725,7 @@ async def remove_forbidden_user(interaction: discord.Interaction, user_id: str):
 @is_admin()
 @is_in_guild()
 async def reset_all(interaction: discord.Interaction):
-    """Réinitialise les données VIP et tous les fichiers JSON"""
+    """Réinitialise lesdonnées VIP et tous les fichiers JSON"""
     try:
         await interaction.response.defer()
 
@@ -826,3 +827,13 @@ def run_bot():
 if __name__ == "__main__":
     threading.Thread(target=run_flask).start()  # Lancer Flask dans un thread
     run_bot()  # Lancer le bot Discord
+
+def save_json(filename, data):
+    """
+    Sauvegarde des données dans un fichier JSON.
+    """
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    absolute_path = os.path.join(script_dir, filename)
+    with open(absolute_path, "w", encoding="utf-8") as file:
+        json.dump(data, file, ensure_ascii=False, indent=4)
+    print(f"✅ Fichier sauvegardé : {absolute_path}")
