@@ -78,6 +78,7 @@ def get_highest_vip(user_id, server):
             commission_str = data.get('commission_totale', '0 jetons')
             try:
                 commission_totale = int(commission_str.split(' ')[0])
+                print(f"Commission totale trouvée: {commission_totale}")
             except (ValueError, IndexError):
                 print(f"Erreur de conversion commission: {commission_str}")
                 commission_totale = 0
