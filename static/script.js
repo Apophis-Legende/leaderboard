@@ -36,15 +36,15 @@ function loadServerData(server) {
                     const vip1El = document.getElementById('vip1-share');
                     const vip2El = document.getElementById('vip2-share');
                     const vip3El = document.getElementById('vip3-share');
-                    
+
                     vip1El.textContent = vipData.vip1.amount || "0K";
                     vip2El.textContent = vipData.vip2.amount || "0K";
                     vip3El.textContent = vipData.vip3.amount || "0K";
-                    
+
                     vip1El.style.cssText = vipData.vip1.style || 'color: #68d391; font-weight: bold;';
                     vip2El.style.cssText = vipData.vip2.style || 'color: #4299e1; font-weight: bold;';
                     vip3El.style.cssText = vipData.vip3.style || 'color: #f6ad55; font-weight: bold;';
-                    
+
                     document.getElementById('total-commission').textContent = 
                         vipData.vip1.amount + ' + ' + vipData.vip2.amount + ' + ' + vipData.vip3.amount;
                 })
@@ -139,3 +139,22 @@ document.getElementById('server-select').addEventListener('change', function() {
 
 // Chargement initial
 loadServerData(document.getElementById('server-select').value);
+
+function getHighestVip(userId, server) {
+    return fetch(`/api/vip_status?user_id=${userId}&server=${server}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const tier = Math.max(
+                data.vip1 ? 1 : 0,
+                data.vip2 ? 2 : 0,
+                data.vip3 ? 3 : 0
+            );
+            return tier > 0 ? `VIP ${tier}` : '---';
+        })
+        .catch(() => '---');
+}
