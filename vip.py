@@ -167,31 +167,30 @@ async def check_vip_status(file_name, channel: discord.TextChannel):
 
 def load_server_json(file_name):
     """
-    Charge les données JSON d'un fichier.
+    Charge les données depuis Replit DB.
     """
-    if not file_name.endswith(".json"):
-        file_name += ".json"
-
-    absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), file_name)
+    from replit import db
+    server_name = file_name.replace('.json', '')
+    
     try:
-        with open(absolute_path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        print(f"❌ Fichier introuvable : {absolute_path}")
-        initial_data = {
-            "serveur": file_name.replace('.json', ''),
-            "nombre_de_jeux": 0,
-            "mises_totales_avant_commission": "0 jetons",
-            "gains_totaux": "0 jetons",
-            "commission_totale": "0 jetons",
-            "utilisateurs": {},
-            "hôtes": {},
-            "croupiers": {}
-        }
-        save_json(file_name, initial_data)
-        return initial_data
-    except json.JSONDecodeError:
-        print(f"❌ Erreur de format dans le fichier JSON : {file_name}")
+        data = db.get(server_name)
+        if data is None:
+            print(f"📝 Initialisation des données pour {server_name}")
+            initial_data = {
+                "serveur": server_name,
+                "nombre_de_jeux": 0,
+                "mises_totales_avant_commission": "0 jetons",
+                "gains_totaux": "0 jetons",
+                "commission_totale": "0 jetons",
+                "utilisateurs": {},
+                "hôtes": {},
+                "croupiers": {}
+            }
+            db[server_name] = initial_data
+            return initial_data
+        return dict(data)
+    except Exception as e:
+        print(f"❌ Erreur lors du chargement des données {server_name}: {e}")
         return {}
 
 def calculate_vip_tier(total_bets):
