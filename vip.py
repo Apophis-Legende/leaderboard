@@ -1,6 +1,4 @@
 import discord
-import json
-import os
 from discord import TextChannel, Guild
 from replit import db
 
@@ -77,18 +75,17 @@ def save_forbidden_vip_users(forbidden_users):
 
 async def assign_vip_role(member, server_name, vip_tier, guild: discord.Guild):
     """
-    Assigne le rôle VIP au membre, enregistre les données dans assigned_roles.json,
+    Assigne le rôle VIP au membre, enregistre les données dans Replit DB,
     et envoie une notification dans un salon dédié.
     """
     print(f"🔍 Attribution du rôle VIP pour {member.name} (ID : {member.id})")
-    
-    # Vérifier si l'utilisateur est interdit
-    with open("forbidden_vip_users.json", "r") as f:
-        forbidden_users = json.load(f)
-        if str(member.id) in forbidden_users:
-            print(f"🚫 Utilisateur {member.name} interdit de VIP")
-            return
-            
+
+    # Charger les utilisateurs interdits depuis Replit DB
+    forbidden_users = load_forbidden_vip_users()
+    if str(member.id) in forbidden_users:
+        print(f"🚫 Utilisateur {member.name} interdit de VIP")
+        return
+
     role_name = VIP_ROLE_MAPPING.get(vip_tier, {}).get(server_name, None)
 
     if role_name:
@@ -229,8 +226,10 @@ def load_forbidden_vip_users():
     Charge les utilisateurs interdits depuis Replit DB.
     """
     try:
+        # Charger les utilisateurs interdits
         forbidden_users = db.get("forbidden_vip_users", {})
         if forbidden_users is None:
+            # Initialisation si les données n'existent pas
             db["forbidden_vip_users"] = {}
             return {}
         return dict(forbidden_users)
@@ -238,41 +237,37 @@ def load_forbidden_vip_users():
         print(f"⚠️ Erreur lors du chargement des utilisateurs interdits : {e}")
         return {}
 
+
 def add_forbidden_user(user_id, member, role_name, reason="Non spécifiée"):
     """
-    Ajoute un utilisateur interdit dans le fichier JSON, avec son username, ses rôles et la raison.
+    Ajoute un utilisateur interdit dans Replit DB, avec son username, ses rôles et la raison.
     """
-    file_name = "forbidden_vip_users.json"
 
-    # Si le fichier n'existe pas, le créer avec un dictionnaire vide
-    if not os.path.exists(file_name):
-        with open(file_name, "w", encoding="utf-8") as f:
-            json.dump({}, f, indent=4, ensure_ascii=False)
 
-    # Charger les membres interdits existants
-    with open(file_name, "r", encoding="utf-8") as f:
-        forbidden_users = json.load(f)
+    # Charger les utilisateurs interdits existants depuis Replit DB
+    forbidden_users = db.get("forbidden_vip_users", {})
+    if forbidden_users is None:
+        forbidden_users = {}
 
-    # Ajouter ou mettre à jour l'utilisateur dans la liste
-    if user_id in forbidden_users:
-        existing_roles = forbidden_users[user_id].get("roles", [])
+    # Ajouter ou mettre à jour l'utilisateur dans la base de données
+    if str(user_id) in forbidden_users:
+        existing_roles = forbidden_users[str(user_id)].get("roles", [])
         if role_name not in existing_roles:
-            forbidden_users[user_id]["roles"].append(role_name)
-            forbidden_users[user_id]["reason"] = reason  # mettre à jour la raison
+            forbidden_users[str(user_id)]["roles"].append(role_name)
+            forbidden_users[str(user_id)]["reason"] = reason  # Mettre à jour la raison
             print(f"✅ Rôle {role_name} ajouté à {member.name} avec la raison : {reason}")
         else:
             print(f"⚠️ {member.name} a déjà ce rôle dans la liste des interdits.")
     else:
-        forbidden_users[user_id] = {
+        forbidden_users[str(user_id)] = {
             "username": member.name,  # Ajouter le username
             "roles": [role_name],  # Ajouter le rôle attribué
             "reason": reason  # Ajouter la raison
         }
         print(f"✅ Utilisateur {member.name} ajouté à la liste des interdits avec la raison : {reason}")
 
-    # Sauvegarder la liste mise à jour
-    with open(file_name, "w", encoding="utf-8") as f:
-        json.dump(forbidden_users, f, indent=4, ensure_ascii=False)
+    # Sauvegarder les données dans Replit DB
+    db["forbidden_vip_users"] = forbidden_users
 
 
 def save_assigned_roles(data):
