@@ -1,6 +1,6 @@
 {
     "server": "T1",
-    "gain_after_commission": 950,
+    "gain_after_commission": 950.0,
     "total_bet_before_commission": 1000,
-    "commission_total": 50
+    "commission_total": 50.0
 }
