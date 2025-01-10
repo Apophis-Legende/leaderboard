@@ -1,8 +1,9 @@
+
 from replit import db
 from format_utils import format_kamas
 
 def calculate_host_stats(host_id):
-    """Calcule les statistiques pour un hôte spécifique à travers tous les serveurs dans Replit DB."""
+    """Calcule les statistiques pour un hôte spécifique à travers tous les serveurs."""
     servers = ['T1', 'T2', 'O1', 'H1', 'E1']
     total_stats = {
         'username': '',
@@ -14,25 +15,28 @@ def calculate_host_stats(host_id):
 
     for server in servers:
         try:
-            # Charger les données du serveur depuis Replit DB
-            data = db.get(server, {})
+            server_data = db.get(f"{server}.json", {})
+            if not server_data:
+                continue
 
             # Stats en tant qu'hôte
-            if host_id in data.get('hôtes', {}):
-                host_data = data['hôtes'][host_id]
+            hosts = server_data.get('hôtes', {})
+            if host_id in hosts:
+                host_data = hosts[host_id]
                 total_stats['username'] = host_data['username']
                 total_stats['total_commission'] += int(host_data['total_commission'].split()[0])
                 total_stats['total_bets'] += int(host_data['total_bets'].split()[0])
                 total_stats['total_giveaways'] += host_data.get('total_giveaways', 0)
 
-            # Commission générée par ses participations
-            if host_id in data.get('utilisateurs', {}):
-                user_data = data['utilisateurs'][host_id]
+            # Commission générée par participations
+            users = server_data.get('utilisateurs', {})
+            if host_id in users:
+                user_data = users[host_id]
                 total_bets = int(user_data['total_bets'].split()[0])
                 total_stats['commission_from_participation'] += int(total_bets * 0.05)
 
         except Exception as e:
-            print(f"Erreur lors de la lecture des données du serveur {server}: {e}")
+            print(f"❌ Erreur lecture données {server}: {e}")
 
     return total_stats
 
@@ -64,14 +68,14 @@ def format_host_card(stats):
 
     for server in ['T1', 'T2', 'O1', 'H1', 'E1']:
         try:
-            # Charger les données du serveur depuis Replit DB
-            data = db.get(server, {})
-            if stats['username'] in [host_data.get('username') for host_data in data.get('hôtes', {}).values()]:
-                host_data = next(hd for hd in data['hôtes'].values() if hd.get('username') == stats['username'])
-                server_name = server_names[server]
+            server_data = db.get(f"{server}.json", {})
+            hosts = server_data.get('hôtes', {})
+            host_data = next((data for data in hosts.values() if data.get('username') == stats['username']), None)
+            
+            if host_data:
                 server_card = f"""```
 ╔══════════════════════════════════════════
-║              {server_name}                
+║              {server_names[server]}                
 ╠══════════════════════════════════════════
 ║ 💰 Commission: {format_kamas(host_data['total_commission'])}
 ║ 🎲 Mises: {format_kamas(host_data['total_bets'])}
@@ -79,6 +83,7 @@ def format_host_card(stats):
 ╚══════════════════════════════════════════```"""
                 cards.append(server_card)
         except Exception as e:
+            print(f"❌ Erreur format carte {server}: {e}")
             continue
 
     return "\n".join(cards)
