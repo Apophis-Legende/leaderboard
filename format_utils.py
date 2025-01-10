@@ -62,12 +62,25 @@ def get_highest_vip(user_id, server):
             
         with open(file_path, 'r') as f:
             data = json.load(f)
-            if str(user_id) in data.get('utilisateurs', {}):
-                user_data = data['utilisateurs'][str(user_id)]
-                total_bets = int(user_data.get('total_bets', '0 jetons').split(' ')[0])
-                
-                vip_tier = calculate_vip_tier(total_bets)
-                return f"VIP {vip_tier}" if vip_tier else "---"
+            commission_totale = int(data.get('commission_totale', '0 jetons').split(' ')[0])
+            redistribution = commission_totale // 2  # 50% de la commission totale
+            
+            # Calculer les parts VIP
+            vip1_share = int(redistribution * 0.20)  # 20% pour VIP 1
+            vip2_share = int(redistribution * 0.30)  # 30% pour VIP 2
+            vip3_share = int(redistribution * 0.50)  # 50% pour VIP 3
+            
+            return {
+                'vip1': f"{vip1_share} jetons",
+                'vip2': f"{vip2_share} jetons",
+                'vip3': f"{vip3_share} jetons",
+                'total': f"{commission_totale} jetons"
+            }
     except Exception as e:
         print(f"Erreur VIP: {e}")
-    return "---"
+        return {
+            'vip1': "0 jetons",
+            'vip2': "0 jetons",
+            'vip3': "0 jetons",
+            'total': "0 jetons"
+        }
