@@ -567,10 +567,14 @@ async def delete_giveaway_command(interaction: discord.Interaction, link: str):
         await delete_giveaway(interaction, link)
         await interaction.followup.send("✅ Giveaway supprimé avec succès.", ephemeral=True)
     except Exception as e:
-        if not interaction.response.is_done():
-            await interaction.response.send_message(f"❌ Une erreur est survenue : {e}", ephemeral=True)
-        else:
-            await interaction.followup.send(f"❌ Une erreur est survenue : {e}", ephemeral=True)
+        try:
+            if not interaction.response.is_done():
+                await interaction.response.send_message(f"❌ Une erreur est survenue : {str(e)}", ephemeral=True)
+            else:
+                await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}", ephemeral=True)
+        except discord.errors.InteractionResponded:
+            # Si l'interaction a déjà reçu une réponse, on ignore l'erreur
+            pass
 
 
 @bot.tree.command(name="update_vip", description="Met à jour les statuts VIP pour un serveur donné.")
