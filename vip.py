@@ -66,12 +66,13 @@ def ensure_forbidden_users_file_exists():
 
 def save_forbidden_vip_users(forbidden_users):
     """
-    Sauvegarde la liste des utilisateurs interdits dans le fichier forbidden_vip_users.json.
+    Sauvegarde la liste des utilisateurs interdits dans Replit DB.
     """
-    file_name = "forbidden_vip_users.json"
-    with open(file_name, "w", encoding="utf-8") as f:
-        json.dump(forbidden_users, f, indent=4, ensure_ascii=False)
-    print(f"✅ Liste des utilisateurs interdits sauvegardée dans {file_name}.")
+    try:
+        db["forbidden_vip_users"] = dict(forbidden_users)
+        print("✅ Liste des utilisateurs interdits sauvegardée dans la DB.")
+    except Exception as e:
+        print(f"❌ Erreur lors de la sauvegarde des utilisateurs interdits : {e}")
 
 async def assign_vip_role(member, server_name, vip_tier, guild: discord.Guild):
     """
@@ -224,17 +225,16 @@ def calculate_vip_tier(total_bets):
 
 def load_forbidden_vip_users():
     """
-    Charge les utilisateurs interdits du fichier forbidden_vip_users.json.
+    Charge les utilisateurs interdits depuis Replit DB.
     """
-    file_name = "forbidden_vip_users.json"
     try:
-        with open(file_name, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        print(f"⚠️ Fichier des utilisateurs interdits introuvable : {file_name}")
-        return {}
-    except json.JSONDecodeError:
-        print(f"⚠️ Erreur de format dans le fichier JSON des utilisateurs interdits.")
+        forbidden_users = db.get("forbidden_vip_users", {})
+        if forbidden_users is None:
+            db["forbidden_vip_users"] = {}
+            return {}
+        return dict(forbidden_users)
+    except Exception as e:
+        print(f"⚠️ Erreur lors du chargement des utilisateurs interdits : {e}")
         return {}
 
 def add_forbidden_user(user_id, member, role_name, reason="Non spécifiée"):
