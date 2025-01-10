@@ -37,13 +37,13 @@ function loadServerData(server) {
                     const vip2El = document.getElementById('vip2-share');
                     const vip3El = document.getElementById('vip3-share');
                     
-                    vip1El.textContent = vipData.vip1.amount;
-                    vip2El.textContent = vipData.vip2.amount;
-                    vip3El.textContent = vipData.vip3.amount;
+                    vip1El.textContent = vipData.vip1.amount || "0K";
+                    vip2El.textContent = vipData.vip2.amount || "0K";
+                    vip3El.textContent = vipData.vip3.amount || "0K";
                     
-                    vip1El.style.cssText = vipData.vip1.style;
-                    vip2El.style.cssText = vipData.vip2.style;
-                    vip3El.style.cssText = vipData.vip3.style;
+                    vip1El.style.cssText = vipData.vip1.style || 'color: #68d391; font-weight: bold;';
+                    vip2El.style.cssText = vipData.vip2.style || 'color: #4299e1; font-weight: bold;';
+                    vip3El.style.cssText = vipData.vip3.style || 'color: #f6ad55; font-weight: bold;';
                     
                     document.getElementById('total-commission').textContent = 
                         vipData.vip1.amount + ' + ' + vipData.vip2.amount + ' + ' + vipData.vip3.amount;
