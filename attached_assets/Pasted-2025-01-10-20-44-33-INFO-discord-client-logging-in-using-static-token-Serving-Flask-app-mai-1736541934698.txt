@@ -1,0 +1,71 @@
+2025-01-10 20:44:33 INFO     discord.client logging in using static token
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:3000
+ * Running on http://172.31.196.57:3000
+Press CTRL+C to quit
+2025-01-10 20:44:34 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: cd6dac5deaff9573cec82b85e6cb20e2).
+172.31.196.57 - - [10/Jan/2025 20:44:35] "GET / HTTP/1.1" 200 -
+172.31.196.57 - - [10/Jan/2025 20:44:35] "GET /static/styles.css HTTP/1.1" 304 -
+✅ Commandes slash synchronisées : 9 commandes.
+172.31.196.57 - - [10/Jan/2025 20:44:36] "GET /static/background.jpg HTTP/1.1" 304 -
+172.31.196.57 - - [10/Jan/2025 20:44:37] "GET /static/banner.png HTTP/1.1" 304 -
+🔍 Requête pour le fichier JSON : T1.json
+🔍 Tentative de connexion à la base de données Replit...
+✅ Connexion à la base de données Replit réussie
+✅ Données chargées: {'serveur': 'T1', 'nombre_de_jeux': 2, 'mises_totales_avant_commission': '11000 jetons', 'gains_totaux': '10450 jetons', 'commission_totale': '550 jetons', 'utilisateurs': {'928329400666173520': {'username': 'apophislegende', 'total_wins': '10450 jetons', 'total_losses': '0 jetons', 'total_bets': '11000 jetons', 'participation': 2}}, 'hôtes': {'928329400666173520': {'username': 'apophislegende', 'total_bets': '11000 jetons', 'total_commission': '550 jetons', 'total_giveaways': 2}}, 'croupiers': {}}
+172.31.196.57 - - [10/Jan/2025 20:44:37] "GET /api/leaderboard?server=Tiliwan1&t=1736541876739 HTTP/1.1" 200 -
+[2025-01-10 20:44:37,509] ERROR in app: Exception on /api/check_forbidden [GET]
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/runner/workspace/main.py", line 104, in check_forbidden
+    forbidden_users = load_forbidden_vip_users()
+NameError: name 'load_forbidden_vip_users' is not defined
+172.31.196.57 - - [10/Jan/2025 20:44:37] "GET /api/check_forbidden?user_id=928329400666173520 HTTP/1.1" 500 -
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : 
+👤 Auteur : GiveawayBot#2381 (ID : 294882584201003009)
+🎯 Message suivi : ce message provient du bot cible !
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : Congratulations <@928329400666173520>! You won the **T1 950**!
+👤 Auteur : GiveawayBot#2381 (ID : 294882584201003009)
+🎯 Message suivi : ce message provient du bot cible !
+🎉 Un gagnant a été détecté dans le message.
+🔍 Recherche des messages récents avec un résumé de giveaway...
+❌ Le message ID 1327377683788730523 ne contient pas de composants.
+📩 Analyse des composants du message ID 1327377650523701288
+🌐 Bouton 'Giveaway Summary' trouvé : https://giveawaybot.party/summary#giveaway=415263552505643018/1327377680731078666
+🌐 Téléchargement du JSON depuis : https://giveawaybot.party/summary#giveaway=415263552505643018/1327377680731078666
+✅ JSON brut récupéré avec succès : {'winners': [{'id': '928329400666173520', 'avatar': 'f470b5c6ad3cb033a7e8931655351b4e', 'discrim': '0', 'username': 'apophislegende'}], 'entries': [{'id': '928329400666173520', 'avatar': 'f470b5c6ad3cb033a7e8931655351b4e', 'discrim': '0', 'username': 'apophislegende'}], 'giveaway': {'num_winners': 1, 'host': {'id': '928329400666173520', 'avatar': 'f470b5c6ad3cb033a7e8931655351b4e', 'discrim': '0', 'username': 'apophislegende'}, 'end': 1736541903, 'id': '1327377650523701288', 'prize': 'T1 950'}}
+💾 Tentative de sauvegarde dans T1.json...
+✅ Données sauvegardées pour : T1.json
+✅ Données sauvegardées avec succès dans T1.json
+📊 Données actuelles dans la base :
+- Serveur : T1
+- Nombre de jeux : 3
+- Utilisateurs : 1
+- Hôtes : 1
+🚀 Envoi des données au serveur Flask...
+✅ Données sauvegardées pour data
+127.0.0.1 - - [10/Jan/2025 20:45:03] "POST /update_data HTTP/1.1" 200 -
+✅ Données envoyées à Flask avec succès : {'message': 'Données mises à jour avec succès'}
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : 🎉 Les données du giveaway ont été enregistrées !
+👤 Auteur : Diamond Board#2618 (ID : 1291805139430146099)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+📝 Serveur détecté pour VIP : T1
+🔄 Mise à jour des statuts VIP pour le serveur T1 en cours...
+🔄 Lecture des données pour le serveur : T1...
+✅ Mise à jour des statuts VIP pour le serveur T1.json terminée.

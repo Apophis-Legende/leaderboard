@@ -1,0 +1,23 @@
+s.
+172.31.196.57 - - [10/Jan/2025 20:42:29] "GET /static/styles.css HTTP/1.1" 304 -
+172.31.196.57 - - [10/Jan/2025 20:42:29] "GET /static/background.jpg HTTP/1.1" 304 -
+172.31.196.57 - - [10/Jan/2025 20:42:29] "GET /static/banner.png HTTP/1.1" 304 -
+🔍 Requête pour le fichier JSON : T1.json
+🔍 Tentative de connexion à la base de données Replit...
+✅ Connexion à la base de données Replit réussie
+✅ Données chargées: {'serveur': 'T1', 'nombre_de_jeux': 1, 'mises_totales_avant_commission': '10000 jetons', 'gains_totaux': '9500 jetons', 'commission_totale': '500 jetons', 'utilisateurs': {'928329400666173520': {'username': 'apophislegende', 'total_wins': '9500 jetons', 'total_losses': '0 jetons', 'total_bets': '10000 jetons', 'participation': 1}}, 'hôtes': {'928329400666173520': {'username': 'apophislegende', 'total_bets': '10000 jetons', 'total_commission': '500 jetons', 'total_giveaways': 1}}, 'croupiers': {}}
+172.31.196.57 - - [10/Jan/2025 20:42:30] "GET /api/leaderboard?server=Tiliwan1&t=1736541749407 HTTP/1.1" 200 -
+[2025-01-10 20:42:30,148] ERROR in app: Exception on /api/check_forbidden [GET]
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/runner/workspace/main.py", line 104, in check_forbidden
+    forbidden_users = load_forbidden_vip_users()
+NameError: name 'load_forbidden_vip_users' is not defined
+172.31.196.57 - - [10/Jan/2025 20:42:30] "GET /api/check_forbidden?user_id=928329400666173520 HTTP/1.1" 500 -
