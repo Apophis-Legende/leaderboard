@@ -763,25 +763,6 @@ async def reset_all(interaction: discord.Interaction):
 
     await interaction.followup.send("✅ Réinitialisation complète effectuée :\n- Rôles VIP supprimés\n- Fichiers JSON réinitialisés")
 
-@bot.tree.command(name="modify_vip_tier", description="Modifie la valeur d'un palier VIP")
-@is_admin()
-@is_in_guild()
-@app_commands.describe(
-    tier="Numéro du palier VIP (1, 2 ou 3)",
-    value="Nouvelle valeur pour le palier"
-)
-async def modify_vip_tier(interaction: discord.Interaction, tier: int, value: int):
-    """Modifie la valeur d'un palier VIP."""
-    if tier not in [1, 2, 3]:
-        await interaction.response.send_message("❌ Le palier VIP doit être 1, 2 ou 3.")
-        return
-
-    from vip import update_vip_tier, VIP_TIERS
-    if update_vip_tier(tier, value):
-        await interaction.response.send_message(f"✅ Palier VIP {tier} mis à jour à {value} jetons.\nPaliers actuels : {VIP_TIERS}")
-    else:
-        await interaction.response.send_message("❌ Erreur lors de la mise à jour du palier VIP.")
-
 @bot.tree.command(name="host_info", description="Affiche les informations d'un hôte")
 @is_admin()
 @is_in_guild()
