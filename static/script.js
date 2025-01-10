@@ -7,31 +7,32 @@ function loadServerData(server) {
             // Mise à jour du nom du serveur
             document.getElementById('current-server-name').textContent = server;
             
-            // Extraction et calcul de la redistribution VIP
-            const commissionStr = data.commission_totale || "0 jetons";
-            const totalCommission = parseInt(commissionStr.split(' ')[0]) || 0;
-            const redistributionTotal = Math.floor(totalCommission / 2); // 50% du total
+            // Extraction de la commission totale depuis les données
+            let totalCommission = 0;
+            if (data.commission_totale) {
+                totalCommission = parseInt(data.commission_totale.toString().split(' ')[0]);
+            }
+            
+            // Calcul de la redistribution (50% de la commission totale)
+            const redistribution = Math.floor(totalCommission * 0.5);
             
             // Calcul des parts VIP
-            const vip1Share = Math.floor(redistributionTotal * 0.20); // 20%
-            const vip2Share = Math.floor(redistributionTotal * 0.30); // 30%
-            const vip3Share = Math.floor(redistributionTotal * 0.50); // 50%
+            const vip1Share = Math.floor(redistribution * 0.20);
+            const vip2Share = Math.floor(redistribution * 0.30);
+            const vip3Share = Math.floor(redistribution * 0.50);
             
-            // Mise à jour de l'affichage
-            document.getElementById('vip1-share').textContent = vip1Share;
-            document.getElementById('vip2-share').textContent = vip2Share;
-            document.getElementById('vip3-share').textContent = vip3Share;
-            document.getElementById('total-commission').textContent = totalCommission;
+            // Mise à jour de l'affichage des parts VIP
+            document.getElementById('vip1-share').textContent = `${vip1Share} jetons`;
+            document.getElementById('vip2-share').textContent = `${vip2Share} jetons`;
+            document.getElementById('vip3-share').textContent = `${vip3Share} jetons`;
+            document.getElementById('total-commission').textContent = `${totalCommission} jetons`;
             
             // Mise à jour du tableau
             updateLeaderboard(data);
         })
-        .catch(error => {
-            console.error('Erreur:', error);
-        });
+        .catch(error => console.error('Erreur:', error));
 }
 
-// Mise à jour du tableau des joueurs
 function updateLeaderboard(data) {
     const tbody = document.getElementById('leaderboard-body');
     tbody.innerHTML = '';
@@ -40,20 +41,16 @@ function updateLeaderboard(data) {
     Object.entries(users).forEach(([userId, userData]) => {
         const row = document.createElement('tr');
         
-        // Nom d'utilisateur
         const nameCell = document.createElement('td');
         nameCell.textContent = userData.username;
         
-        // Bénéfice
         const benefitCell = document.createElement('td');
         const benefit = calculateBenefit(userData.total_wins, userData.total_bets);
         benefitCell.textContent = formatKamas(benefit);
         
-        // Mises totales
         const betsCell = document.createElement('td');
         betsCell.textContent = formatKamas(userData.total_bets);
         
-        // Niveau VIP
         const vipCell = document.createElement('td');
         vipCell.textContent = calculateVipLevel(userData.total_bets);
         
@@ -65,14 +62,12 @@ function updateLeaderboard(data) {
     });
 }
 
-// Calcul du bénéfice
 function calculateBenefit(wins, bets) {
     const winAmount = parseInt(wins?.split(' ')[0]) || 0;
     const betAmount = parseInt(bets?.split(' ')[0]) || 0;
     return `${winAmount - betAmount} jetons`;
 }
 
-// Formatage des kamas
 function formatKamas(jetons) {
     const amount = parseInt(jetons?.split(' ')[0]) || 0;
     const kamas = amount * 10000;
@@ -82,7 +77,6 @@ function formatKamas(jetons) {
     return `${(kamas / 1000).toFixed(0)}K`;
 }
 
-// Calcul du niveau VIP
 function calculateVipLevel(totalBets) {
     const bets = parseInt(totalBets?.split(' ')[0]) || 0;
     if (bets >= 20000) return 'VIP 3';
@@ -91,7 +85,6 @@ function calculateVipLevel(totalBets) {
     return '---';
 }
 
-// Écouteur d'événements pour le changement de serveur
 document.getElementById('server-select').addEventListener('change', function() {
     loadServerData(this.value);
 });
