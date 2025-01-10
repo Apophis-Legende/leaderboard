@@ -47,9 +47,9 @@ select {
     max-width: 300px;
     margin-bottom: 20px;
     border-radius: 5px;
-    background-color: #2f3136; /* Couleur sombre pour le menu, comme Discord */
-    color: white; /* Texte blanc dans le menu */
-    border: 1px solid #7289da; /* Bordure bleue pour le menu */
+    background-color: #1c3f34; /* Vert foncé */
+    color: white; /* Texte blanc */
+    border: 1px solid #68d391; /* Bordure verte claire */
 }
 
 /* Style du tableau */
@@ -57,18 +57,18 @@ table {
     width: 90%;
     border-collapse: collapse;
     margin-top: 20px;
-    background-color: #2f3136; /* Fond sombre pour le tableau */
+    background-color: #1a202c; /* Bleu marine */
     max-width: 1000px;
     border-radius: 5px; /* Coins arrondis pour le tableau */
-    border: 1px solid #7289da; /* Bordure bleue */
+    border: 1px solid #4299e1; /* Bordure bleue ciel */
     color: white; /* Texte blanc */
     overflow: hidden; /* Assure que les coins arrondis fonctionnent */
 }
 
 /* En-têtes de tableau */
 th {
-    background-color: #23272a; /* Couleur légèrement plus sombre pour l'en-tête */
-    color: #7289da; /* Texte en bleu pour l'en-tête */
+    background-color: #2b6cb0; /* Bleu profond */
+    color: white; /* Texte blanc */
     padding: 10px;
     text-align: left;
 }
@@ -76,16 +76,20 @@ th {
 /* Cellules de tableau */
 td {
     padding: 10px;
-    border: 1px solid #7289da; /* Bordure bleue pour les cellules */
+    border: 1px solid #4299e1; /* Bordure bleue ciel */
 }
 
 /* Alternance des lignes */
 tr:nth-child(even) {
-    background-color: #3a3f47; /* Fond plus clair pour les lignes paires */
+    background-color: #3b6978; /* Bleu-gris harmonieux */
+}
+
+tr:nth-child(odd) {
+    background-color: #4a90e2; /* Bleu clair cohérent */
 }
 
 tr:hover {
-    background-color: #434b52; /* Surbrillance au survol */
+    background-color: #48bb78; /* Vert vif */
     cursor: pointer; /* Change le curseur au survol */
     transition: background-color 0.3s ease; /* Animation fluide */
 }
