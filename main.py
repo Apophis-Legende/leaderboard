@@ -126,7 +126,7 @@ def get_leaderboard():
         print("✅ Connexion à la base de données Replit réussie")
             
         # Charger depuis Replit db avec vérification
-        data = db.get(file_name, {
+        data = dict(db.get(file_name, {
             "serveur": server,
             "nombre_de_jeux": 0,
             "mises_totales_avant_commission": "0 jetons", 
@@ -135,10 +135,10 @@ def get_leaderboard():
             "utilisateurs": {},
             "hôtes": {},
             "croupiers": {}
-        })
+        }))
         print(f"✅ Données chargées: {data}")
 
-        response = jsonify(data)
+        response = jsonify(dict(data))
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '0'
