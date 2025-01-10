@@ -62,9 +62,9 @@ def update_data():
 
 def load_json(filename, default_data=None):
     """Charge un fichier JSON ou retourne les données par défaut si le fichier n'existe pas."""
-    absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
-    if os.path.exists(absolute_path):
-        with open(absolute_path, "r", encoding="utf-8") as file:
+    filepath = os.path.join("json_files", filename)  # Dossier dédié pour les fichiers JSON
+    if os.path.exists(filepath):
+        with open(filepath, "r", encoding="utf-8") as file:
             return json.load(file)
     return default_data or {}
 
@@ -143,12 +143,10 @@ def is_in_guild():
     return app_commands.check(predicate)
 
 def run_flask():
-    # Configuration pour la production
-    from waitress import serve
-    print("🚀 Démarrage du serveur de production...")
-    serve(app, host='0.0.0.0', port=3000)
+    # Assurez-vous que Flask écoute sur 0.0.0.0 pour permettre l'accès externe
+    app.run(host='0.0.0.0', port=3000, debug=False)
 
-# Charger les données depuis le fichier JSON avec le chemin absolu
+# Charger les données depuis le fichier JSON
 data = load_json("data.json", default_data={})
 
 # Extraire les données des utilisateurs
@@ -202,60 +200,23 @@ async def send_data_to_flask(data):
         print(f"❌ Erreur lors de la mise à jour des données : {e}")
         raise
 
-def verifier_et_initialiser_fichiers_json(mapping_files):
-    """Vérifie et initialise les fichiers JSON s'ils n'existent pas."""
-    initial_data = {
-        "serveur": "",
-        "nombre_de_jeux": 0,
-        "mises_totales_avant_commission": "0 jetons",
-        "gains_totaux": "0 jetons",
-        "commission_totale": "0 jetons",
-        "utilisateurs": {},
-        "hôtes": {},
-        "croupiers": {}
-    }
-    
-    for server, filename in mapping_files.items():
-        if not os.path.exists(filename):
-            data = initial_data.copy()
-            data["serveur"] = server
-            with open(filename, 'w', encoding='utf-8') as f:
-                json.dump(data, f, indent=4, ensure_ascii=False)
-            print(f"✅ Fichier {filename} créé et initialisé")
-
 @bot.event
 async def on_ready():
     print(f"✅ Bot connecté en tant que : {bot.user}")
     ensure_forbidden_users_file_exists()
+    print(f"✅ Bot connecté en tant que : {bot.user}")
     print(f"✅ ID du bot : {bot.user.id}")
-    
-    # Vérifier et créer les fichiers JSON s'ils n'existent pas
-    for server, filename in MAPPING_SERVER_FILE.items():
-        absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
-        if not os.path.exists(absolute_path):
-            initial_data = {
-                "serveur": server,
-                "nombre_de_jeux": 0,
-                "mises_totales_avant_commission": "0 jetons",
-                "gains_totaux": "0 jetons",
-                "commission_totale": "0 jetons",
-                "utilisateurs": {},
-                "hôtes": {},
-                "croupiers": {}
-            }
-            with open(absolute_path, 'w', encoding='utf-8') as f:
-                json.dump(initial_data, f, indent=4, ensure_ascii=False)
-            print(f"✅ Fichier {filename} créé avec succès")
-
-    # Vérifier et initialiser les fichiers JSON
-    verifier_et_initialiser_fichiers_json(MAPPING_SERVER_FILE)
-    print("✅ Vérification et initialisation des fichiers JSON terminées.")
 
     try:
         synced = await bot.tree.sync()
         print(f"✅ Commandes slash synchronisées : {len(synced)}")
     except Exception as e:
         print(f"❌ Erreur lors de la synchronisation des commandes slash : {e}")
+
+    # Vérifier et initialiser les fichiers JSON
+    verifier_et_initialiser_fichiers_json(MAPPING_SERVER_FILE)
+
+    print("✅ Vérification et initialisation des fichiers JSON terminées.")
 
 async def send_data_to_flask(data):
     """Envoie des données JSON au serveur Flask."""
