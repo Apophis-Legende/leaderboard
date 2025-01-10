@@ -1,0 +1,42 @@
+📂 Contenu de Replit DB :
+🔑 assigned_roles.json
+📄 {'users': ObservedDict(value={})}
+🔑 data
+📄 {'server': 'T1', 'gain_after_commission': 950.0, 'total_bet_before_commission': 1000, 'commission_total': 50.0}
+🔑 data.json
+📄 {'server': 'T2', 'gain_after_commission': 190.0, 'total_bet_before_commission': 200, 'commission_total': 10.0}
+🔑 E1.json
+📄 {'serveur': 'E1', 'nombre_de_jeux': 0, 'mises_totales_avant_commission': '0 jetons', 'gains_totaux': '0 jetons', 'commission_totale': '0 jetons', 'utilisateurs': ObservedDict(value={}), 'hôtes': ObservedDict(value={}), 'croupiers': ObservedDict(value={})}
+🔑 H1.json
+📄 {'serveur': 'H1', 'nombre_de_jeux': 0, 'mises_totales_avant_commission': '0 jetons', 'gains_totaux': '0 jetons', 'commission_totale': '0 jetons', 'utilisateurs': ObservedDict(value={}), 'hôtes': ObservedDict(value={}), 'croupiers': ObservedDict(value={})}
+🔑 O1.json
+📄 {'serveur': 'O1', 'nombre_de_jeux': 0, 'mises_totales_avant_commission': '0 jetons', 'gains_totaux': '0 jetons', 'commission_totale': '0 jetons', 'utilisateurs': ObservedDict(value={}), 'hôtes': ObservedDict(value={}), 'croupiers': ObservedDict(value={})}
+🔑 T1
+📄 {'serveur': 'T1', 'nombre_de_jeux': 0, 'mises_totales_avant_commission': '0 jetons', 'gains_totaux': '0 jetons', 'commission_totale': '0 jetons', 'utilisateurs': ObservedDict(value={}), 'hôtes': ObservedDict(value={}), 'croupiers': ObservedDict(value={})}
+🔑 T1.json
+📄 {'serveur': 'T1', 'nombre_de_jeux': 3, 'mises_totales_avant_commission': '12000 jetons', 'gains_totaux': '11400 jetons', 'commission_totale': '600 jetons', 'utilisateurs': ObservedDict(value={'928329400666173520': ObservedDict(value={'username': 'apophislegende', 'total_wins': '11400 jetons', 'total_losses': '0 jetons', 'total_bets': '12000 jetons', 'participation': 3})}), 'hôtes': ObservedDict(value={'928329400666173520': ObservedDict(value={'username': 'apophislegende', 'total_bets': '12000 jetons', 'total_commission': '600 jetons', 'total_giveaways': 3})}), 'croupiers': ObservedDict(value={})}
+🔑 T2.json
+📄 {'serveur': 'T2', 'nombre_de_jeux': 0, 'mises_totales_avant_commission': '0 jetons', 'gains_totaux': '0 jetons', 'commission_totale': '0 jetons', 'utilisateurs': ObservedDict(value={}), 'hôtes': ObservedDict(value={}), 'croupiers': ObservedDict(value={})}
+2025-01-10 20:46:39 INFO     discord.client logging in using static token
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:3000
+ * Running on http://172.31.196.57:3000
+Press CTRL+C to quit
+2025-01-10 20:46:39 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: 7a75261e66aaf114125f7cebf88763e2).
+172.31.196.57 - - [10/Jan/2025 20:46:41] "GET / HTTP/1.1" 200 -
+172.31.196.57 - - [10/Jan/2025 20:46:41] "GET /static/styles.css HTTP/1.1" 304 -
+✅ Commandes slash synchronisées : 9 commandes.
+172.31.196.57 - - [10/Jan/2025 20:46:42] "GET /static/background.jpg HTTP/1.1" 304 -
+172.31.196.57 - - [10/Jan/2025 20:46:42] "GET /static/banner.png HTTP/1.1" 304 -
+🔍 Requête pour le fichier JSON : T1.json
+🔍 Tentative de connexion à la base de données Replit...
+✅ Connexion à la base de données Replit réussie
+✅ Données chargées: {'serveur': 'T1', 'nombre_de_jeux': 3, 'mises_totales_avant_commission': '12000 jetons', 'gains_totaux': '11400 jetons', 'commission_totale': '600 jetons', 'utilisateurs': {'928329400666173520': {'username': 'apophislegende', 'total_wins': '11400 jetons', 'total_losses': '0 jetons', 'total_bets': '12000 jetons', 'participation': 3}}, 'hôtes': {'928329400666173520': {'username': 'apophislegende', 'total_bets': '12000 jetons', 'total_commission': '600 jetons', 'total_giveaways': 3}}, 'croupiers': {}}
+172.31.196.57 - - [10/Jan/2025 20:46:43] "GET /api/leaderboard?server=Tiliwan1&t=1736542002405 HTTP/1.1" 200 -
+172.31.196.57 - - [10/Jan/2025 20:46:43] "GET /api/check_forbidden?user_id=928329400666173520 HTTP/1.1" 200 -
+🔍 Requête VIP reçue - Serveur: Tiliwan1, User ID: 928329400666173520
+Erreur VIP: Server T1 non trouvé dans le mapping
+172.31.196.57 - - [10/Jan/2025 20:46:43] "GET /api/vip_status?user_id=928329400666173520&server=Tiliwan1 HTTP/1.1" 200 -
