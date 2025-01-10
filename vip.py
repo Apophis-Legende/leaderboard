@@ -2,6 +2,7 @@ import discord
 import json
 import os
 from discord import TextChannel, Guild
+from replit import db
 
 NOTIFICATION_CHANNEL_ID = 1323220160253001761
 
