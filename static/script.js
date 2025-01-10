@@ -9,13 +9,11 @@ function loadServerData(server) {
             fetch(`/api/vip_status?server=${server}&user_id=0`)
                 .then(response => response.json())
                 .then(vipData => {
-                    if (vipData && typeof vipData === 'object') {
-                        document.getElementById('vip1-share').textContent = vipData.vip1 || '0 jetons';
-                        document.getElementById('vip2-share').textContent = vipData.vip2 || '0 jetons';
-                        document.getElementById('vip3-share').textContent = vipData.vip3 || '0 jetons';
-                        document.getElementById('total-commission').textContent = 
-                            `${parseInt(vipData.vip1 || 0) + parseInt(vipData.vip2 || 0) + parseInt(vipData.vip3 || 0)} jetons`;
-                    }
+                    document.getElementById('vip1-share').textContent = vipData.vip1;
+                    document.getElementById('vip2-share').textContent = vipData.vip2;
+                    document.getElementById('vip3-share').textContent = vipData.vip3;
+                    const total = parseInt(vipData.vip1) + parseInt(vipData.vip2) + parseInt(vipData.vip3);
+                    document.getElementById('total-commission').textContent = `${total} jetons`;
                 })
                 .catch(error => {
                     console.error('Erreur VIP:', error);
