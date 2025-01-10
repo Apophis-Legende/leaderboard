@@ -121,23 +121,35 @@ async def assign_vip_role(member, server_name, vip_tier, guild: discord.Guild):
 
 async def check_vip_status(file_name, channel: discord.TextChannel):
     """
-    Vérifie et met à jour les statuts VIP pour les utilisateurs d'un fichier JSON,
+    Vérifie et met à jour les statuts VIP pour les utilisateurs depuis Replit DB,
     et attribue les rôles VIP sur Discord.
     """
-    print(f"🔄 Lecture des données pour le fichier JSON : {file_name}...")
+    from replit import db
+    server_name = file_name.replace('.json', '')
+    print(f"🔄 Lecture des données pour le serveur : {server_name}...")
 
-    if not os.path.exists(file_name):
-        print(f"❌ Le fichier {file_name} n'existe pas. Création d'un fichier vide.")
-        with open(file_name, "w", encoding="utf-8") as f:
-            json.dump({"utilisateurs": {}}, f, indent=4, ensure_ascii=False)
+    try:
+        server_data = db.get(server_name)
+        if not server_data:
+            print(f"📝 Initialisation des données pour {server_name}")
+            server_data = {
+                "serveur": server_name,
+                "nombre_de_jeux": 0,
+                "mises_totales_avant_commission": "0 jetons",
+                "gains_totaux": "0 jetons",
+                "commission_totale": "0 jetons",
+                "utilisateurs": {},
+                "hôtes": {},
+                "croupiers": {}
+            }
+            db[server_name] = server_data
 
-    server_data = load_server_json(file_name)
-    users = server_data.get("utilisateurs", {})
-    print(f"🔍 Utilisateurs trouvés : {users}")
+        users = server_data.get("utilisateurs", {})
+        print(f"🔍 Utilisateurs trouvés : {users}")
 
-    if not users:
-        await channel.send(f"⚠️ Aucun utilisateur trouvé pour le serveur {file_name}.")
-        return
+        if not users:
+            print(f"ℹ️ Aucun utilisateur trouvé pour le serveur {server_name}")
+            return
 
     for user_id, user_data in users.items():
         print(f"🔍 Utilisateur {user_id} : {user_data}")
