@@ -6,7 +6,7 @@ import os
 import json
 import requests
 from logique import process_giveaway_data, load_json, save_json
-from data_manager import load_json, save_json, extract_user_data
+from data_manager import load_json, save_json, extract_user_data, list_all_data
 from discord.ui import View, Select
 from vip import check_vip_status, MAPPING_SERVER_FILE, FORBIDDEN_ROLES, ensure_forbidden_users_file_exists, load_assigned_roles
 from discord import app_commands
@@ -23,6 +23,9 @@ intents.messages = True
 intents.guilds = True
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+# Afficher le contenu de la DB
+list_all_data()
 
 def get_json_file_from_message(server_name):
     """
