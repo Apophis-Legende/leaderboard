@@ -55,7 +55,8 @@ def calculate_vip_tier(total_bets):
 def get_highest_vip(user_id, server):
     """Get highest VIP level for user"""
     try:
-        MAPPING_SERVER_FILE = {
+        # Mapping direct des serveurs
+        file_mapping = {
             "Tiliwan1": "T1.json",
             "Tiliwan2": "T2.json",
             "Oshimo": "O1.json",
@@ -63,15 +64,38 @@ def get_highest_vip(user_id, server):
             "Euro": "E1.json"
         }
         
-        file_path = MAPPING_SERVER_FILE.get(server)
-        if not file_path:
-            print(f"Erreur VIP: Server {server} non trouvé dans le mapping")
-            return {
-                'vip1': "0 jetons",
-                'vip2': "0 jetons",
-                'vip3': "0 jetons",
-                'total': "0 jetons"
-            }
+        # Obtenir le bon fichier JSON
+        file_name = file_mapping.get(server)
+        if not file_name:
+            print(f"❌ Serveur non reconnu: {server}")
+            return {'vip1': '0 jetons', 'vip2': '0 jetons', 'vip3': '0 jetons', 'total': '0 jetons'}
+
+        print(f"📂 Lecture du fichier: {file_name}")
+            
+        # Lire le fichier JSON
+        with open(file_name, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            
+        # Obtenir la commission totale
+        commission_str = data.get('commission_totale', '0 jetons')
+        commission_totale = int(commission_str.split()[0])
+        print(f"💰 Commission totale: {commission_totale} jetons")
+            
+        # Calculer la redistribution (50% de la commission totale)
+        redistribution = commission_totale // 2
+        print(f"🔄 Montant à redistribuer: {redistribution} jetons")
+            
+        # Calculer les parts VIP
+        vip1 = int(redistribution * 0.2)  # 20% pour VIP 1
+        vip2 = int(redistribution * 0.3)  # 30% pour VIP 2
+        vip3 = int(redistribution * 0.5)  # 50% pour VIP 3
+            
+        return {
+            'vip1': f"{vip1} jetons",
+            'vip2': f"{vip2} jetons",
+            'vip3': f"{vip3} jetons",
+            'total': f"{commission_totale} jetons"
+        }
             
         with open(file_path, 'r') as f:
             data = json.load(f)
