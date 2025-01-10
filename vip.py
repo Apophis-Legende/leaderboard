@@ -277,3 +277,62 @@ def load_assigned_roles():
     except json.JSONDecodeError:
         print(f"❌ Erreur de format dans le fichier {file_name}. Réinitialisation.")
         return {"users": {}}
+# Taux de redistribution par palier VIP (en pourcentage)
+VIP_REDISTRIBUTION_RATES = {
+    1: 20,  # 20% pour VIP 1
+    2: 30,  # 30% pour VIP 2
+    3: 50   # 50% pour VIP 3
+}
+
+def calculate_vip_redistribution(server_file):
+    """
+    Calcule la redistribution des commissions pour les VIP d'un serveur.
+    Redistribue 50% des commissions totales selon les paliers VIP.
+    """
+    try:
+        with open(server_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            
+        # Extraire la commission totale
+        total_commission = int(data.get('commission_totale', '0 jetons').split()[0])
+        montant_a_redistribuer = total_commission * 0.5  # 50% de la commission totale
+        
+        # Récupérer tous les utilisateurs VIP
+        utilisateurs = data.get('utilisateurs', {})
+        vip_users = {
+            user_id: {
+                'tier': calculate_vip_tier(int(user_data['total_bets'].split()[0])),
+                'username': user_data['username']
+            }
+            for user_id, user_data in utilisateurs.items()
+            if calculate_vip_tier(int(user_data['total_bets'].split()[0]))
+        }
+        
+        # Calculer la redistribution par palier
+        redistribution = {1: [], 2: [], 3: []}
+        for user_id, user_data in vip_users.items():
+            tier = user_data['tier']
+            if tier:
+                redistribution[tier].append({
+                    'user_id': user_id,
+                    'username': user_data['username']
+                })
+        
+        # Calculer les montants par utilisateur
+        resultats = {}
+        for tier, users in redistribution.items():
+            if users:
+                montant_tier = (montant_a_redistribuer * VIP_REDISTRIBUTION_RATES[tier] / 100)
+                montant_par_user = montant_tier / len(users)
+                for user in users:
+                    resultats[user['user_id']] = {
+                        'username': user['username'],
+                        'tier': tier,
+                        'montant': int(montant_par_user)
+                    }
+        
+        return resultats
+        
+    except Exception as e:
+        print(f"❌ Erreur lors du calcul de la redistribution VIP : {e}")
+        return {}
