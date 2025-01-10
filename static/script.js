@@ -71,8 +71,8 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 document.getElementById('current-server-name').textContent = server;
                 
-                // Extraire la commission totale du fichier JSON
-                const totalCommission = parseInt(data.commission_totale?.split(' ')[0] || 0);
+                // Extraire la commission totale du fichier JSON et s'assurer qu'elle est correctement parsée
+                const totalCommission = parseInt(data.commission_totale.toString().split(' ')[0] || 0);
                 document.getElementById('total-commission').textContent = totalCommission + " jetons";
                 
                 // Calculer 50% de la commission totale pour la redistribution
