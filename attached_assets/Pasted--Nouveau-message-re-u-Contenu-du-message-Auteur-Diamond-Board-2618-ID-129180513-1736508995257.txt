@@ -1,0 +1,34 @@
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : 
+👤 Auteur : Diamond Board#2618 (ID : 1291805139430146099)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+✅ Fichier sauvegardé : /home/runner/workspace/T1.json
+2025-01-10 11:36:02 ERROR    discord.app_commands.tree Ignoring exception in command 'delete_giveaway'
+Traceback (most recent call last):
+  File "/home/runner/workspace/main.py", line 564, in delete_giveaway_command
+    await interaction.response.send_message("✅ Giveaway supprimé avec succès.", ephemeral=True)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/interactions.py", line 827, in send_message
+    raise InteractionResponded(self._parent)
+discord.errors.InteractionResponded: This interaction has already been responded to before
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/app_commands/commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+  File "/home/runner/workspace/main.py", line 566, in delete_giveaway_command
+    await interaction.response.send_message(f"❌ Une erreur est survenue : {e}", ephemeral=True)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/interactions.py", line 827, in send_message
+    raise InteractionResponded(self._parent)
+discord.errors.InteractionResponded: This interaction has already been responded to before
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/app_commands/tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/app_commands/commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/app_commands/commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'delete_giveaway' raised an exception: InteractionResponded: This interaction has already been responded to before
