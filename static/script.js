@@ -1,3 +1,18 @@
+// Constantes VIP
+const VIP_STYLES = {
+    VIP1: 'color: #68d391; font-weight: bold;',
+    VIP2: 'color: #4299e1; font-weight: bold;',
+    VIP3: 'color: #f6ad55; font-weight: bold;'
+};
+
+const VIP_TIERS = {
+    1: 4000,  // 4000 jetons
+    2: 10000, // 10000 jetons
+    3: 20000  // 20000 jetons
+};
+
+const KAMAS_PER_JETON = 10000;
+
 // Fonction pour charger les données du serveur
 function loadServerData(server) {
     fetch(`/api/leaderboard?server=${server}`)
