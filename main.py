@@ -143,8 +143,8 @@ def is_in_guild():
     return app_commands.check(predicate)
 
 def run_flask():
-    # Assurez-vous que Flask écoute sur 0.0.0.0 pour permettre l'accès externe
-    app.run(host='0.0.0.0', port=3000, debug=False)
+    # Configuration for production
+    app.run(host='0.0.0.0', port=3000, debug=False, threaded=True)
 
 # Charger les données depuis le fichier JSON
 data = load_json("data.json", default_data={})
