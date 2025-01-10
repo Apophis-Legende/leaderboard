@@ -3,13 +3,18 @@ from replit import db
 
 def load_json(filename, default_data=None):
     """
-    Charge les données depuis Replit DB
+    Charge les données depuis Replit DB avec une valeur par défaut
     """
+    if default_data is None:
+        default_data = {}
     try:
-        return db[filename] if filename in db else (default_data or {})
+        if filename in db:
+            return db[filename]
+        db[filename] = default_data
+        return default_data
     except Exception as e:
         print(f"❌ Erreur lors du chargement des données {filename}: {e}")
-        return default_data or {}
+        return default_data
 
 def save_json(filename, data):
     """
