@@ -79,6 +79,7 @@ def get_vip_status():
     from format_utils import get_highest_vip
     user_id = request.args.get('user_id')
     server = request.args.get('server')
+    print(f"🔍 Requête VIP reçue - Serveur: {server}, User ID: {user_id}")
     server_code = server.replace("Tiliwan1", "T1").replace("Tiliwan2", "T2").replace("Oshimo", "O1").replace("Herdegrize", "H1").replace("Euro", "E1")
     vip_data = get_highest_vip(user_id, server_code)
     return jsonify(vip_data)

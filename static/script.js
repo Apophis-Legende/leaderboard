@@ -6,9 +6,14 @@ function loadServerData(server) {
             document.getElementById('current-server-name').textContent = server;
 
             // Récupération et calcul des VIP
+            console.log(`Fetching VIP data for server: ${server}`);
             fetch(`/api/vip_status?server=${server}&user_id=0`)
-                .then(response => response.json())
+                .then(response => {
+                    console.log('VIP Response status:', response.status);
+                    return response.json();
+                })
                 .then(vipData => {
+                    console.log('VIP Data received:', vipData);
                     document.getElementById('vip1-share').textContent = vipData.vip1;
                     document.getElementById('vip2-share').textContent = vipData.vip2;
                     document.getElementById('vip3-share').textContent = vipData.vip3;
