@@ -560,10 +560,14 @@ async def add_giveaway(interaction: discord.Interaction, link: str):
 @is_in_guild()  # Bloque l'accès en DM
 async def delete_giveaway_command(interaction: discord.Interaction, link: str):
     try:
+        await interaction.response.defer(ephemeral=True)
         await delete_giveaway(interaction, link)
-        await interaction.response.send_message("✅ Giveaway supprimé avec succès.", ephemeral=True)
+        await interaction.followup.send("✅ Giveaway supprimé avec succès.", ephemeral=True)
     except Exception as e:
-        await interaction.response.send_message(f"❌ Une erreur est survenue : {e}", ephemeral=True)
+        if not interaction.response.is_done():
+            await interaction.response.send_message(f"❌ Une erreur est survenue : {e}", ephemeral=True)
+        else:
+            await interaction.followup.send(f"❌ Une erreur est survenue : {e}", ephemeral=True)
 
 
 @bot.tree.command(name="update_vip", description="Met à jour les statuts VIP pour un serveur donné.")
