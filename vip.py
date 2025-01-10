@@ -79,6 +79,14 @@ async def assign_vip_role(member, server_name, vip_tier, guild: discord.Guild):
     et envoie une notification dans un salon dédié.
     """
     print(f"🔍 Attribution du rôle VIP pour {member.name} (ID : {member.id})")
+    
+    # Vérifier si l'utilisateur est interdit
+    with open("forbidden_vip_users.json", "r") as f:
+        forbidden_users = json.load(f)
+        if str(member.id) in forbidden_users:
+            print(f"🚫 Utilisateur {member.name} interdit de VIP")
+            return
+            
     role_name = VIP_ROLE_MAPPING.get(vip_tier, {}).get(server_name, None)
 
     if role_name:

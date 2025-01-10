@@ -15,24 +15,23 @@ SERVER_MAPPING = {
 
 def get_highest_vip(user_id, server):
     try:
-        # Convertir le nom du serveur
-        server_code = SERVER_MAPPING.get(server)
-        if not server_code:
-            print(f"❌ Serveur {server} non trouvé dans le mapping")
-            return {"error": "Serveur non reconnu"}
-
         # Charger les données depuis la DB
-        data = db.get(f"{server_code}.json")
-        if not data:
-            return {"error": "Aucune donnée trouvée"}
+        server_data = db.get(f"{server}.json")
+        if not server_data:
+            print(f"❌ Aucune donnée trouvée pour {server}")
+            return {"vip_level": 0}
 
         # Vérifier si l'utilisateur existe
-        user_data = data.get("utilisateurs", {}).get(user_id)
+        users = server_data.get("utilisateurs", {})
+        user_data = users.get(str(user_id))
+        
         if not user_data:
-            return {"error": "Utilisateur non trouvé"}
+            print(f"❌ Utilisateur {user_id} non trouvé dans {server}")
+            return {"vip_level": 0}
 
         # Calculer le niveau VIP basé sur les mises totales
-        total_bets = int(user_data["total_bets"].split(" ")[0])
+        total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
+        print(f"💰 Mises totales pour {user_id}: {total_bets} jetons")
 
         if total_bets >= 20000:
             return {"vip_level": 3}
@@ -44,8 +43,8 @@ def get_highest_vip(user_id, server):
             return {"vip_level": 0}
 
     except Exception as e:
-        print(f"Erreur VIP: {e}")
-        return {"error": str(e)}
+        print(f"❌ Erreur VIP: {e}")
+        return {"vip_level": 0}
 
 import json
 from vip import calculate_vip_tier
