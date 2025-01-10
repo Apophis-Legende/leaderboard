@@ -39,14 +39,47 @@ def calculate_host_stats(host_id):
 
 def format_host_card(stats):
     """Formate les statistiques de l'hôte en carte ASCII."""
-    return f"""```
+    cards = []
+    
+    # Carte des stats totales
+    total_card = f"""```
 ╔══════════════════════════════════════════
-║             Carte de l'Hôte              
+║           Stats Totales Hôte             
 ╠══════════════════════════════════════════
 ║ 👤 {stats['username']}
 ║ 💰 Commission Totale: {format_kamas(f"{stats['total_commission']} jetons")}
 ║ 🎲 Mises Totales: {format_kamas(f"{stats['total_bets']} jetons")}
 ║ 🎮 Giveaways Organisés: {stats['total_giveaways']}
 ║ 💸 Commission générée : {format_kamas(f"{stats['commission_from_participation']} jetons")}
-╚══════════════════════════════════════════
-```"""
+╚══════════════════════════════════════════```"""
+    cards.append(total_card)
+
+    # Cartes par serveur
+    server_names = {
+        'T1': 'Tiliwan 1',
+        'T2': 'Tiliwan 2',
+        'O1': 'Oshimo',
+        'H1': 'Herdegrize',
+        'E1': 'Euro'
+    }
+
+    for server_file in ['T1.json', 'T2.json', 'O1.json', 'H1.json', 'E1.json']:
+        try:
+            with open(server_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                if stats['username'] in [host_data.get('username') for host_data in data.get('hôtes', {}).values()]:
+                    host_data = next(hd for hd in data['hôtes'].values() if hd.get('username') == stats['username'])
+                    server_name = server_names[server_file.replace('.json', '')]
+                    server_card = f"""```
+╔══════════════════════════════════════════
+║              {server_name}                
+╠══════════════════════════════════════════
+║ 💰 Commission: {format_kamas(host_data['total_commission'])}
+║ 🎲 Mises: {format_kamas(host_data['total_bets'])}
+║ 🎮 Giveaways: {host_data.get('total_giveaways', 0)}
+╚══════════════════════════════════════════```"""
+                    cards.append(server_card)
+        except Exception as e:
+            continue
+
+    return "\n".join(cards)
