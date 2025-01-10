@@ -17,23 +17,28 @@ MAPPING_SERVER_FILE = {
 # Verrou pour éviter les conflits d'accès simultané aux fichiers JSON
 file_lock = Lock()
 
+from replit import db
+
 def load_json(filename):
     """
-    Charge un fichier JSON en toute sécurité.
+    Charge les données depuis Replit DB.
     """
-    with file_lock:
-        if not os.path.exists(filename):
-            return None
-        with open(filename, "r", encoding="utf-8") as file:
-            return json.load(file)
+    try:
+        return db[filename] if filename in db else None
+    except Exception as e:
+        print(f"❌ Erreur lors du chargement des données {filename}: {e}")
+        return None
 
 def save_json(filename, data):
     """
-    Sauvegarde des données dans un fichier JSON en toute sécurité.
+    Sauvegarde les données dans Replit DB.
     """
-    with file_lock:
-        with open(filename, "w", encoding="utf-8") as file:
-            json.dump(data, file, indent=4, ensure_ascii=False)
+    try:
+        db[filename] = data
+        print(f"✅ Données sauvegardées pour : {filename}")
+    except Exception as e:
+        print(f"❌ Erreur lors de la sauvegarde des données {filename}: {e}")
+        raise
 
 def format_amount(amount):
     """

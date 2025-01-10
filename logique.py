@@ -14,24 +14,28 @@ MAPPING_SERVER_FILE = {
     "E1": "E1.json"
 }
 
+from replit import db
+
 def load_json(filename, default_data=None):
     """
-    Charge un fichier JSON ou retourne les données par défaut si le fichier n'existe pas.
+    Charge les données depuis Replit DB.
     """
-    absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
-    if os.path.exists(absolute_path):
-        with open(absolute_path, "r", encoding="utf-8") as file:
-            return json.load(file)
-    return default_data or {}
+    try:
+        return db[filename] if filename in db else (default_data or {})
+    except Exception as e:
+        print(f"❌ Erreur lors du chargement des données {filename}: {e}")
+        return default_data or {}
 
 def save_json(filename, data):
     """
-    Sauvegarde des données dans un fichier JSON.
+    Sauvegarde les données dans Replit DB.
     """
-    absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
-    with open(absolute_path, "w", encoding="utf-8") as file:
-        json.dump(data, file, ensure_ascii=False, indent=4)
-    print(f"✅ Fichier sauvegardé : {absolute_path}")
+    try:
+        db[filename] = data
+        print(f"✅ Données sauvegardées pour : {filename}")
+    except Exception as e:
+        print(f"❌ Erreur lors de la sauvegarde des données {filename}: {e}")
+        raise
 
 def convert_amount_to_float(amount_str):
     """

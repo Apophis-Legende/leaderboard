@@ -1,10 +1,9 @@
-import json
-import os
+
 from replit import db
 
 def load_json(filename, default_data=None):
     """
-    Charge les données depuis Repl DB
+    Charge les données depuis Replit DB
     """
     try:
         return db[filename] if filename in db else (default_data or {})
@@ -14,7 +13,7 @@ def load_json(filename, default_data=None):
 
 def save_json(filename, data):
     """
-    Sauvegarde les données dans Repl DB
+    Sauvegarde les données dans Replit DB
     """
     try:
         db[filename] = data
@@ -25,7 +24,7 @@ def save_json(filename, data):
 
 def extract_user_data(data):
     """
-    Extrait les données des utilisateurs du fichier JSON.
+    Extrait les données des utilisateurs
     """
     users = data.get("utilisateurs", {})
     user_info = []
