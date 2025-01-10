@@ -1,6 +1,5 @@
 import json
 import os
-
 from replit import db
 
 def load_json(filename, default_data=None):
