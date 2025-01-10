@@ -1,172 +1,64 @@
-import json
-import os
-import requests
 import discord
 from discord.ext import commands
-from threading import Lock
+from replit import db
+import requests
 
-# MAPPING_SERVER_FILE défini pour correspondre aux fichiers JSON par serveur
 MAPPING_SERVER_FILE = {
-    "T1": "T1.json",
-    "T2": "T2.json",
-    "O1": "O1.json",
-    "H1": "H1.json",
-    "E1": "E1.json"
+    "T1": "T1",
+    "T2": "T2", 
+    "O1": "O1",
+    "H1": "H1",
+    "E1": "E1"
 }
 
-# Verrou pour éviter les conflits d'accès simultané aux fichiers JSON
-file_lock = Lock()
-
-from replit import db
-
-def load_json(filename):
-    """
-    Charge les données depuis Replit DB.
-    """
-    try:
-        return db[filename] if filename in db else None
-    except Exception as e:
-        print(f"❌ Erreur lors du chargement des données {filename}: {e}")
-        return None
-
-def save_json(filename, data):
-    """
-    Sauvegarde les données dans Replit DB.
-    """
-    try:
-        db[filename] = data
-        print(f"✅ Données sauvegardées pour : {filename}")
-    except Exception as e:
-        print(f"❌ Erreur lors de la sauvegarde des données {filename}: {e}")
-        raise
-
-def format_amount(amount):
-    """
-    Convertit un float en une chaîne au format "123 jetons".
-    """
-    return f"{int(amount)} jetons"
-
-def convert_amount_to_int(amount_str):
-    """
-    Convertit une chaîne au format "123 jetons" en un entier.
-    """
-    return int(amount_str.split(" ")[0])
-
-@commands.has_permissions(administrator=True)
 async def delete_giveaway(interaction: discord.Interaction, link: str):
-    """
-    Commande pour supprimer les données d'un giveaway à partir d'un lien donné.
-    """
     try:
-        # Marquer l'interaction comme différée
-        if not interaction.response.is_done():
-            await interaction.response.defer()
+        await interaction.response.defer()
 
-        # Étape 1 : Télécharger et analyser le JSON
-        try:
-            response = requests.get(link, timeout=10)  # Timeout pour éviter les blocages
-            response.raise_for_status()  # Vérifie les erreurs HTTP
-            giveaway_data = response.json()
-        except requests.exceptions.RequestException as e:
-            if not interaction.response.is_done():
-                await interaction.response.send_message(f"⚠️ Erreur réseau : {e}", ephemeral=True)
-            else:
-                await interaction.followup.send(f"⚠️ Erreur réseau : {e}", ephemeral=True)
-            return
-        except json.JSONDecodeError:
-            if not interaction.response.is_done():
-                await interaction.response.send_message("⚠️ Les données téléchargées ne sont pas au format JSON valide.", ephemeral=True)
-            else:
-                await interaction.followup.send("⚠️ Les données téléchargées ne sont pas au format JSON valide.", ephemeral=True)
-            return
-
-        # Étape 2 : Extraire les informations nécessaires
+        # Extraire les données du giveaway
+        response = requests.get(link)
+        giveaway_data = response.json()
         prize = giveaway_data.get("giveaway", {}).get("prize", "")
-        if not prize:
-            if not interaction.response.is_done():
-                await interaction.response.send_message("⚠️ Le lien ne contient pas les informations nécessaires.", ephemeral=True)
-            else:
-                await interaction.followup.send("⚠️ Le lien ne contient pas les informations nécessaires.", ephemeral=True)
-            return
 
         server = prize.split()[0]
-        filename = MAPPING_SERVER_FILE.get(server)
-        if not filename:
-            if not interaction.response.is_done():
-                await interaction.response.send_message(f"⚠️ Le serveur {server} n'est pas pris en charge.", ephemeral=True)
-            else:
-                await interaction.followup.send(f"⚠️ Le serveur {server} n'est pas pris en charge.", ephemeral=True)
+        server_name = MAPPING_SERVER_FILE.get(server)
+
+        if not server_name:
+            await interaction.followup.send(f"⚠️ Serveur {server} non reconnu", ephemeral=True)
             return
 
-        # Étape 3 : Charger les données du serveur
-        server_data = load_json(filename)
-        if not server_data:
-            if not interaction.response.is_done():
-                await interaction.response.send_message(f"⚠️ Le fichier {filename} est introuvable ou vide.", ephemeral=True)
-            else:
-                await interaction.followup.send(f"⚠️ Le fichier {filename} est introuvable ou vide.", ephemeral=True)
+        # Charger les données actuelles
+        data = db.get(server_name)
+        if not data:
+            await interaction.followup.send("❌ Données non trouvées", ephemeral=True)
             return
 
-        # Étape 4 : Traiter les données du giveaway
+        # Mise à jour des données...
         winners = giveaway_data.get("winners", [])
         entries = giveaway_data.get("entries", [])
-        gain_after_commission = int(prize.split()[1])
-        total_bet_before_commission = int(gain_after_commission / 0.95)
-        commission_total = total_bet_before_commission - gain_after_commission
+        gain = int(prize.split()[1])
+        bet = int(gain / 0.95)
+        commission = bet - gain
 
+        # Mettre à jour utilisateurs
         for winner in winners:
             user_id = winner["id"]
-            if user_id in server_data["utilisateurs"]:
-                user = server_data["utilisateurs"][user_id]
-                user["total_wins"] = format_amount(convert_amount_to_int(user["total_wins"]) - gain_after_commission)
-                user["total_bets"] = format_amount(convert_amount_to_int(user["total_bets"]) - total_bet_before_commission / len(entries))
+            if user_id in data["utilisateurs"]:
+                user = data["utilisateurs"][user_id] 
+                user["total_wins"] = str(int(user["total_wins"].split()[0]) - gain) + " jetons"
+                user["total_bets"] = str(int(user["total_bets"].split()[0]) - bet//len(entries)) + " jetons"
                 user["participation"] = max(0, user["participation"] - 1)
 
-        for entry in entries:
-            if entry["id"] not in [winner["id"] for winner in winners]:
-                user_id = entry["id"]
-                if user_id in server_data["utilisateurs"]:
-                    user = server_data["utilisateurs"][user_id]
-                    user["total_losses"] = format_amount(convert_amount_to_int(user["total_losses"]) - total_bet_before_commission / len(entries))
-                    user["total_bets"] = format_amount(convert_amount_to_int(user["total_bets"]) - total_bet_before_commission / len(entries))
-                    user["participation"] = max(0, user["participation"] - 1)
+        # Mettre à jour les données globales        
+        data["nombre_de_jeux"] = max(0, data["nombre_de_jeux"] - 1)
+        data["mises_totales_avant_commission"] = str(int(data["mises_totales_avant_commission"].split()[0]) - bet) + " jetons"
+        data["gains_totaux"] = str(int(data["gains_totaux"].split()[0]) - gain) + " jetons"
+        data["commission_totale"] = str(int(data["commission_totale"].split()[0]) - commission) + " jetons"
 
-        # Mise à jour des hôtes et croupiers
-        host_id = giveaway_data["giveaway"]["host"]["id"]
-        if host_id in server_data["hôtes"]:
-            host = server_data["hôtes"][host_id]
-            host["total_bets"] = format_amount(convert_amount_to_int(host["total_bets"]) - total_bet_before_commission)
-            host["total_commission"] = format_amount(convert_amount_to_int(host["total_commission"]) - commission_total)
+        # Sauvegarder
+        db[server_name] = data
 
-        if host_id in server_data["croupiers"]:
-            croupier = server_data["croupiers"][host_id]
-            croupier["total_giveaways"] = max(0, croupier["total_giveaways"] - 1)
-            croupier["total_kamas_managed"] = format_amount(convert_amount_to_int(croupier["total_kamas_managed"]) - total_bet_before_commission)
-            croupier["total_commission"] = format_amount(convert_amount_to_int(croupier["total_commission"]) - commission_total)
-
-        # Mise à jour globale
-        server_data["nombre_de_jeux"] = max(0, server_data["nombre_de_jeux"] - 1)
-        server_data["mises_totales_avant_commission"] = format_amount(
-            convert_amount_to_int(server_data["mises_totales_avant_commission"]) - total_bet_before_commission
-        )
-        server_data["gains_totaux"] = format_amount(
-            convert_amount_to_int(server_data["gains_totaux"]) - gain_after_commission
-        )
-        server_data["commission_totale"] = format_amount(
-            convert_amount_to_int(server_data["commission_totale"]) - commission_total
-        )
-
-        # Étape 5 : Sauvegarder les données mises à jour
-        save_json(filename, server_data)
-        if not interaction.response.is_done():
-            await interaction.response.send_message(f"✅ Les données associées au giveaway ont été supprimées dans {filename}.", ephemeral=True)
-        else:
-            await interaction.followup.send(f"✅ Les données associées au giveaway ont été supprimées dans {filename}.", ephemeral=True)
+        await interaction.followup.send("✅ Giveaway supprimé avec succès", ephemeral=True)
 
     except Exception as e:
-        # Gestion des erreurs
-        error_message = f"❌ Une erreur est survenue : {str(e)}"
-        if not interaction.response.is_done():
-            await interaction.response.send_message(error_message, ephemeral=True)
-        else:
-            await interaction.followup.send(error_message, ephemeral=True)
+        await interaction.followup.send(f"❌ Erreur: {str(e)}", ephemeral=True)

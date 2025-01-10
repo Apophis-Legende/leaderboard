@@ -1,31 +1,31 @@
 import os
 import json
 import requests
+from replit import db
 
-# Mapping des serveurs vers les fichiers JSON
 MAPPING_SERVER_FILE = {
-    "T1": "T1.json",
-    "T2": "T2.json",
-    "O1": "O1.json",
-    "H1": "H1.json",
-    "E1": "E1.json"
+    "T1": "T1",
+    "T2": "T2",
+    "O1": "O1",
+    "H1": "H1", 
+    "E1": "E1"
 }
 
-# Charger un fichier JSON local
-def load_json(filename, default_data=None):
-    try:
-        absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
-        with open(absolute_path, "r", encoding="utf-8") as file:
-            return json.load(file)
-    except FileNotFoundError:
-        return default_data or {}
+# Charger un fichier JSON local (not used, replaced by db.get)
+#def load_json(filename, default_data=None):
+#    try:
+#        absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+#        with open(absolute_path, "r", encoding="utf-8") as file:
+#            return json.load(file)
+#    except FileNotFoundError:
+#        return default_data or {}
 
-# Sauvegarder un fichier JSON local
-def save_json(filename, data):
-    absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
-    with open(absolute_path, "w", encoding="utf-8") as file:
-        json.dump(data, file, ensure_ascii=False, indent=4)
-    print(f"✅ Fichier sauvegardé : {absolute_path}")
+# Sauvegarder un fichier JSON local (not used, replaced by db.set)
+#def save_json(filename, data):
+#    absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+#    with open(absolute_path, "w", encoding="utf-8") as file:
+#        json.dump(data, file, ensure_ascii=False, indent=4)
+#    print(f"✅ Fichier sauvegardé : {absolute_path}")
 
 # Convertir un montant "123 jetons" en entier
 def convert_amount_to_int(amount_str):
@@ -55,21 +55,23 @@ def process_giveaway(link, new_prize):
         commission_total = total_bet_before_commission - gain_after_commission
 
         # Trouver le fichier JSON correspondant au serveur
-        filename = MAPPING_SERVER_FILE.get(server)
-        if not filename:
+        server_name = MAPPING_SERVER_FILE.get(server)
+        if not server_name:
             raise Exception(f"Le serveur `{server}` n'est pas pris en charge.")
 
         # Charger ou initialiser les données locales
-        server_data = load_json(filename, {
-            "serveur": server,
-            "nombre_de_jeux": 0,
-            "mises_totales_avant_commission": "0 jetons",
-            "gains_totaux": "0 jetons",
-            "commission_totale": "0 jetons",
-            "utilisateurs": {},
-            "hôtes": {},
-            "croupiers": {}
-        })
+        server_data = db.get(server_name)
+        if not server_data:
+            server_data = {
+                "serveur": server,
+                "nombre_de_jeux": 0,
+                "mises_totales_avant_commission": "0 jetons",
+                "gains_totaux": "0 jetons",
+                "commission_totale": "0 jetons",
+                "utilisateurs": {},
+                "hôtes": {},
+                "croupiers": {}
+            }
 
         # Étape 3 : Mettre à jour les utilisateurs
         winners = giveaway_data.get("winners", [])
@@ -150,8 +152,8 @@ def process_giveaway(link, new_prize):
         )
 
         # Étape 6 : Sauvegarder les données locales
-        save_json(filename, server_data)
-        return f"✅ Données transformées et sauvegardées dans `{filename}`."
+        db[server_name] = server_data
+        return f"✅ Données transformées et sauvegardées dans `{server_name}`."
 
     except Exception as e:
         return f"❌ Une erreur est survenue : {str(e)}"
