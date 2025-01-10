@@ -123,6 +123,17 @@ def get_vip_status():
     vip_data = get_highest_vip(user_id, server_code)
     return jsonify(vip_data)
 
+@app.route('/api/vip_commissions', methods=["GET"])
+def get_vip_commissions():
+    """API pour obtenir les commissions VIP d'un serveur"""
+    from commission_calculator import calculate_vip_commissions
+    server = request.args.get('server')
+    if not server:
+        return jsonify({"error": "Paramètre 'server' manquant"}), 400
+    
+    commissions = calculate_vip_commissions(server)
+    return jsonify(commissions)
+
 @app.route('/api/leaderboard', methods=["GET"])
 def get_leaderboard():
     """API pour fournir les données JSON à la page."""
