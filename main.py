@@ -86,41 +86,34 @@ def get_leaderboard():
     """API pour fournir les données JSON à la page."""
     server = request.args.get('server')
 
-    # Correspondance entre les noms des serveurs et les fichiers JSON
-    server_file_mapping = {
-        "Tiliwan1": "T1.json",
-        "Tiliwan2": "T2.json",
-        "Oshimo": "O1.json",
-        "Herdegrize": "H1.json",
-        "Euro": "E1.json"
-    }
-
-    # Récupérer le nom du serveur depuis les paramètres de la requête
-
     if not server:
         return jsonify({"error": "Paramètre 'server' manquant dans la requête."}), 400
 
-    # Vérifiez si le serveur existe dans le mapping
-    file_name = server_file_mapping.get(server)
+    file_name = MAPPING_SERVER_FILE.get(server.replace("Tiliwan1", "T1").replace("Tiliwan2", "T2").replace("Oshimo", "O1"))
     if not file_name:
         return jsonify({"error": f"Serveur '{server}' non reconnu."}), 404
 
     print(f"🔍 Requête pour le fichier JSON : {file_name}")
 
     try:
-        # Vérifiez si le fichier existe
         if not os.path.exists(file_name):
             print(f"❌ Fichier introuvable : {file_name}")
-            return jsonify({"error": f"Fichier JSON '{file_name}' introuvable."}), 404
+            return jsonify({
+                "serveur": server,
+                "nombre_de_jeux": 0,
+                "mises_totales_avant_commission": "0 jetons",
+                "gains_totaux": "0 jetons",
+                "commission_totale": "0 jetons",
+                "utilisateurs": {},
+                "hôtes": {},
+                "croupiers": {}
+            })
 
-        # Charger les données depuis le fichier JSON
         with open(file_name, "r", encoding="utf-8") as f:
             data = json.load(f)
+            print(f"✅ Données chargées: {data}")
 
-        if not data:
-            return jsonify({"error": f"Le fichier '{file_name}' est vide ou mal formaté."}), 404
-
-        response = app.make_response(jsonify(data)) # Fixed: Added jsonify(data) as argument
+        response = jsonify(data)
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '0'
