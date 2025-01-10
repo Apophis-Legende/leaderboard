@@ -61,9 +61,9 @@ def get_highest_vip(user_id, server):
         if not os.path.exists(file_path):
             print(f"❌ Erreur VIP: Fichier {file_path} non trouvé")
             return {
-                'vip1': "0 jetons",
-                'vip2': "0 jetons",
-                'vip3': "0 jetons"
+                'vip1': "0K",
+                'vip2': "0K",
+                'vip3': "0K"
             }
 
         with open(file_path, 'r') as f:
@@ -74,17 +74,23 @@ def get_highest_vip(user_id, server):
             commission_totale = int(commission_totale_str.split(' ')[0])
             redistribution = commission_totale // 2  # 50% de la commission totale
 
-            # Calculer les parts VIP avec plus de précision
+            # Calculer les parts VIP en jetons
             vip1_share = int(redistribution * 0.20)  # 20% pour VIP 1
             vip2_share = int(redistribution * 0.30)  # 30% pour VIP 2
             vip3_share = int(redistribution * 0.50)  # 50% pour VIP 3
 
-            print(f"📊 Parts VIP calculées: VIP1={vip1_share}, VIP2={vip2_share}, VIP3={vip3_share}")
+            # Convertir en kamas (1 jeton = 10k kamas)
+            vip1_kamas = vip1_share * 10000
+            vip2_kamas = vip2_share * 10000
+            vip3_kamas = vip3_share * 10000
 
+            print(f"📊 Parts VIP calculées (kamas): VIP1={vip1_kamas}, VIP2={vip2_kamas}, VIP3={vip3_kamas}")
+
+            # Format en K/M Kamas
             return {
-                'vip1': format_kamas(f"{vip1_share} jetons"),
-                'vip2': format_kamas(f"{vip2_share} jetons"),
-                'vip3': format_kamas(f"{vip3_share} jetons")
+                'vip1': f"{vip1_kamas//1000}K" if vip1_kamas < 1000000 else f"{vip1_kamas/1000000:.1f}M",
+                'vip2': f"{vip2_kamas//1000}K" if vip2_kamas < 1000000 else f"{vip2_kamas/1000000:.1f}M",
+                'vip3': f"{vip3_kamas//1000}K" if vip3_kamas < 1000000 else f"{vip3_kamas/1000000:.1f}M"
             }
     except Exception as e:
         print(f"Erreur VIP: {e}")
