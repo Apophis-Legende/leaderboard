@@ -105,6 +105,19 @@ function calculateVipLevel(totalBets) {
     return '---';
 }
 
+function calculateVipValue(amount) {
+    try {
+        const value = parseInt(amount.split(' ')[0]) || 0;
+        const kamas = value * 10000;
+        if (kamas >= 1000000) {
+            return `${(kamas/1000000).toFixed(1)}M`;
+        }
+        return `${Math.floor(kamas/1000)}K`;
+    } catch {
+        return '0K';
+    }
+}
+
 document.getElementById('server-select').addEventListener('change', function() {
     loadServerData(this.value);
 });
