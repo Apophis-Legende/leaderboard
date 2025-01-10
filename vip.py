@@ -276,28 +276,25 @@ def add_forbidden_user(user_id, member, role_name, reason="Non spécifiée"):
 
 def save_assigned_roles(data):
     """
-    Sauvegarde les données des utilisateurs dans le fichier assigned_roles.json.
+    Sauvegarde les données des utilisateurs dans Replit DB.
     """
-    file_name = "assigned_roles.json"
-    with open(file_name, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
-    print(f"✅ Données des rôles attribués sauvegardées dans {file_name}.")
+    from replit import db
+    db["assigned_roles.json"] = data
+    print("✅ Données des rôles attribués sauvegardées dans la DB.")
 
 
 def load_assigned_roles():
     """
-    Charge les données des utilisateurs depuis le fichier assigned_roles.json.
+    Charge les données des utilisateurs depuis Replit DB.
     """
-    file_name = "assigned_roles.json"
-    if not os.path.exists(file_name):
-        print(f"📁 Le fichier {file_name} n'existe pas. Création en cours...")
-        with open(file_name, "w", encoding="utf-8") as f:
-            json.dump({"users": {}}, f, indent=4, ensure_ascii=False)
-        return {"users": {}}
-
+    from replit import db
     try:
-        with open(file_name, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except json.JSONDecodeError:
-        print(f"❌ Erreur de format dans le fichier {file_name}. Réinitialisation.")
+        data = db.get("assigned_roles.json")
+        if data is None:
+            print("📁 Initialisation des données des rôles...")
+            data = {"users": {}}
+            db["assigned_roles.json"] = data
+        return data
+    except Exception as e:
+        print(f"❌ Erreur lors du chargement des rôles: {e}")
         return {"users": {}}
