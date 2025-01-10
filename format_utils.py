@@ -58,11 +58,17 @@ def get_highest_vip(user_id, server):
         file_path = MAPPING_SERVER_FILE.get(server)
         if not file_path:
             print(f"Erreur VIP: Server {server} non trouvé dans le mapping")
-            return "---"
+            return {
+                'vip1': "0 jetons",
+                'vip2': "0 jetons",
+                'vip3': "0 jetons",
+                'total': "0 jetons"
+            }
             
         with open(file_path, 'r') as f:
             data = json.load(f)
-            commission_totale = int(data.get('commission_totale', '0 jetons').split(' ')[0])
+            commission_str = data.get('commission_totale', '0 jetons')
+            commission_totale = int(commission_str.split(' ')[0])
             redistribution = commission_totale // 2  # 50% de la commission totale
             
             # Calculer les parts VIP
