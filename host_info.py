@@ -24,8 +24,7 @@ def calculate_host_stats(host_id):
                     total_stats['username'] = host_data['username']
                     total_stats['total_commission'] += int(host_data['total_commission'].split()[0])
                     total_stats['total_bets'] += int(host_data['total_bets'].split()[0])
-                    if 'total_giveaways' in data['croupiers'].get(host_id, {}):
-                        total_stats['total_giveaways'] += data['croupiers'][host_id]['total_giveaways']
+                    total_stats['total_giveaways'] += host_data.get('total_giveaways', 0)
                 
                 # Commission générée par ses participations
                 if host_id in data.get('utilisateurs', {}):
