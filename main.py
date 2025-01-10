@@ -118,10 +118,12 @@ def get_leaderboard():
 
     try:
         from replit import db
+        print(f"🔍 Tentative de connexion à la base de données Replit...")
         # Vérification explicite de la connexion à la base de données
         if not db:
             print("❌ Erreur: Impossible de se connecter à la base de données Replit")
             return jsonify({"error": "Erreur de connexion à la base de données"}), 500
+        print("✅ Connexion à la base de données Replit réussie")
             
         # Charger depuis Replit db avec vérification
         data = db.get(file_name, {
