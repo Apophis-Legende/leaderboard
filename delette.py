@@ -1,8 +1,11 @@
 import json
 import os
 import requests
+import discord
+from discord.ext import commands
+from threading import Lock
 
-# MAPPING_SERVER_FILE doit être défini ici ou importé depuis un fichier global
+# MAPPING_SERVER_FILE défini pour correspondre aux fichiers JSON par serveur
 MAPPING_SERVER_FILE = {
     "T1": "T1.json",
     "T2": "T2.json",
@@ -11,28 +14,26 @@ MAPPING_SERVER_FILE = {
     "E1": "E1.json"
 }
 
+# Verrou pour éviter les conflits d'accès simultané aux fichiers JSON
+file_lock = Lock()
+
 def load_json(filename):
     """
-    Charge un fichier JSON ou retourne None si le fichier est introuvable ou corrompu.
+    Charge un fichier JSON en toute sécurité.
     """
-    try:
+    with file_lock:
         if not os.path.exists(filename):
-            print(f"❌ Le fichier {filename} n'existe pas.")
             return None
         with open(filename, "r", encoding="utf-8") as file:
-            data = json.load(file)
-            if not data:
-                print(f"⚠️ Le fichier {filename} est vide.")
-                return None
-            return data
-    except json.JSONDecodeError:
-        print(f"❌ Erreur : le fichier {filename} est corrompu.")
-        return None
+            return json.load(file)
 
 def save_json(filename, data):
-  """Sauvegarde des données dans un fichier JSON."""
-  with open(filename, "w", encoding="utf-8") as file:
-      json.dump(data, file, indent=4, ensure_ascii=False)
+    """
+    Sauvegarde des données dans un fichier JSON en toute sécurité.
+    """
+    with file_lock:
+        with open(filename, "w", encoding="utf-8") as file:
+            json.dump(data, file, indent=4, ensure_ascii=False)
 
 def format_amount(amount):
     """
@@ -46,81 +47,62 @@ def convert_amount_to_int(amount_str):
     """
     return int(amount_str.split(" ")[0])
 
-
-def delete_giveaway_data(giveaway_id, server_data):
-  """
-  Supprime les données associées à un giveaway spécifique depuis un fichier JSON.
-  """
-  try:
-      utilisateurs = server_data.get("utilisateurs", {})
-      hôtes = server_data.get("hôtes", {})
-      croupiers = server_data.get("croupiers", {})
-      total_bets = int(server_data["mises_totales_avant_commission"].split()[0])
-      total_gains = int(server_data["gains_totaux"].split()[0])
-      total_commission = int(server_data["commission_totale"].split()[0])
-
-      # Parcourir les utilisateurs et ajuster leurs statistiques
-      for user_id, user_data in utilisateurs.items():
-          if user_id == giveaway_id:  # Comparer avec l'ID du giveaway
-              bets = int(user_data["total_bets"].split()[0])
-              wins = int(user_data["total_wins"].split()[0])
-              losses = int(user_data["total_losses"].split()[0])
-
-              # Soustraire les valeurs
-              total_bets -= bets
-              total_gains -= wins
-              total_commission -= losses
-
-              # Supprimer l'utilisateur
-              del utilisateurs[user_id]
-              break
-
-      # Supprimer les données de l'hôte et du croupier
-      hôtes.pop(giveaway_id, None)
-      croupiers.pop(giveaway_id, None)
-
-      # Mettre à jour les totaux
-      server_data["mises_totales_avant_commission"] = f"{total_bets} jetons"
-      server_data["gains_totaux"] = f"{total_gains} jetons"
-      server_data["commission_totale"] = f"{total_commission} jetons"
-      server_data["nombre_de_jeux"] -= 1
-
-      return True
-  except Exception as e:
-      print(f"❌ Erreur lors de la suppression des données : {e}")
-      return False
-
-
-async def delete_giveaway(interaction, link):
+@commands.has_permissions(administrator=True)
+async def delete_giveaway(interaction: discord.Interaction, link: str):
+    """
+    Commande pour supprimer les données d'un giveaway à partir d'un lien donné.
+    """
     try:
-        await interaction.response.defer()
+        # Marquer l'interaction comme différée
+        if not interaction.response.is_done():
+            await interaction.response.defer()
 
         # Étape 1 : Télécharger et analyser le JSON
-        response = requests.get(link)
-        if response.status_code != 200:
-            await interaction.followup.send("⚠️ Impossible de récupérer les données depuis le lien fourni.")
+        try:
+            response = requests.get(link, timeout=10)  # Timeout pour éviter les blocages
+            response.raise_for_status()  # Vérifie les erreurs HTTP
+            giveaway_data = response.json()
+        except requests.exceptions.RequestException as e:
+            if not interaction.response.is_done():
+                await interaction.response.send_message(f"⚠️ Erreur réseau : {e}", ephemeral=True)
+            else:
+                await interaction.followup.send(f"⚠️ Erreur réseau : {e}", ephemeral=True)
+            return
+        except json.JSONDecodeError:
+            if not interaction.response.is_done():
+                await interaction.response.send_message("⚠️ Les données téléchargées ne sont pas au format JSON valide.", ephemeral=True)
+            else:
+                await interaction.followup.send("⚠️ Les données téléchargées ne sont pas au format JSON valide.", ephemeral=True)
             return
 
-        giveaway_data = response.json()
+        # Étape 2 : Extraire les informations nécessaires
         prize = giveaway_data.get("giveaway", {}).get("prize", "")
         if not prize:
-            await interaction.followup.send("⚠️ Le lien ne contient pas les informations nécessaires.")
+            if not interaction.response.is_done():
+                await interaction.response.send_message("⚠️ Le lien ne contient pas les informations nécessaires.", ephemeral=True)
+            else:
+                await interaction.followup.send("⚠️ Le lien ne contient pas les informations nécessaires.", ephemeral=True)
             return
 
-        # Identifier le serveur et le fichier JSON
         server = prize.split()[0]
         filename = MAPPING_SERVER_FILE.get(server)
         if not filename:
-            await interaction.followup.send(f"⚠️ Le serveur {server} n'est pas pris en charge.")
+            if not interaction.response.is_done():
+                await interaction.response.send_message(f"⚠️ Le serveur {server} n'est pas pris en charge.", ephemeral=True)
+            else:
+                await interaction.followup.send(f"⚠️ Le serveur {server} n'est pas pris en charge.", ephemeral=True)
             return
 
-        # Charger les données JSON
+        # Étape 3 : Charger les données du serveur
         server_data = load_json(filename)
         if not server_data:
-            await interaction.followup.send(f"⚠️ Le fichier {filename} est introuvable ou vide.")
+            if not interaction.response.is_done():
+                await interaction.response.send_message(f"⚠️ Le fichier {filename} est introuvable ou vide.", ephemeral=True)
+            else:
+                await interaction.followup.send(f"⚠️ Le fichier {filename} est introuvable ou vide.", ephemeral=True)
             return
 
-        # Suppression des données
+        # Étape 4 : Traiter les données du giveaway
         winners = giveaway_data.get("winners", [])
         entries = giveaway_data.get("entries", [])
         gain_after_commission = int(prize.split()[1])
@@ -169,10 +151,17 @@ async def delete_giveaway(interaction, link):
             convert_amount_to_int(server_data["commission_totale"]) - commission_total
         )
 
-        # Sauvegarder les données
+        # Étape 5 : Sauvegarder les données mises à jour
         save_json(filename, server_data)
-        await interaction.followup.send(f"✅ Les données associées au giveaway ont été supprimées dans {filename}.")
+        if not interaction.response.is_done():
+            await interaction.response.send_message(f"✅ Les données associées au giveaway ont été supprimées dans {filename}.", ephemeral=True)
+        else:
+            await interaction.followup.send(f"✅ Les données associées au giveaway ont été supprimées dans {filename}.", ephemeral=True)
 
     except Exception as e:
-        print(f"❌ Erreur : {e}")
-        await interaction.followup.send(f"❌ Une erreur est survenue : {e}")
+        # Gestion des erreurs
+        error_message = f"❌ Une erreur est survenue : {str(e)}"
+        if not interaction.response.is_done():
+            await interaction.response.send_message(error_message, ephemeral=True)
+        else:
+            await interaction.followup.send(error_message, ephemeral=True)

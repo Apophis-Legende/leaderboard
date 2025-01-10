@@ -563,21 +563,34 @@ async def add_giveaway(interaction: discord.Interaction, link: str):
 @is_in_guild()  # Bloque l'accès en DM
 async def delete_giveaway_command(interaction: discord.Interaction, link: str):
     try:
-        await interaction.response.defer(ephemeral=True)
-        await delete_giveaway(interaction, link)
+        # Marquer l'interaction comme différée
         if not interaction.response.is_done():
-                await interaction.response.send_message("✅ Giveaway supprimé avec succès.", ephemeral=True)
-            else:
-                await interaction.followup.send("✅ Giveaway supprimé avec succès.", ephemeral=True)
+            await interaction.response.defer(ephemeral=True)
+
+        # Appeler la fonction pour supprimer le giveaway
+        await delete_giveaway(interaction, link)
+
+        # Vérifier si une réponse a été envoyée
+        if not interaction.response.is_done():
+            await interaction.response.send_message("✅ Giveaway supprimé avec succès.", ephemeral=True)
+        else:
+            await interaction.followup.send("✅ Giveaway supprimé avec succès.", ephemeral=True)
+
     except Exception as e:
+        # Gérer les erreurs
         error_message = f"❌ Une erreur est survenue : {str(e)}"
         try:
+            # Vérifier si une réponse a été envoyée
             if not interaction.response.is_done():
                 await interaction.response.send_message(error_message, ephemeral=True)
             else:
                 await interaction.followup.send(error_message, ephemeral=True)
         except discord.errors.InteractionResponded:
+            # Gérer les cas où l'interaction a déjà une réponse
             print(f"Interaction déjà répondue : {error_message}")
+
+
+
 
 
 @bot.tree.command(name="update_vip", description="Met à jour les statuts VIP pour un serveur donné.")

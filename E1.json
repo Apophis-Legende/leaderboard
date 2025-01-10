@@ -1,39 +1,10 @@
 {
     "serveur": "E1",
-    "nombre_de_jeux": 2,
-    "mises_totales_avant_commission": "589 jetons",
-    "gains_totaux": "560 jetons",
-    "commission_totale": "29 jetons",
-    "utilisateurs": {
-        "1229717382554058762": {
-            "username": "clzgapiidor",
-            "total_wins": "380 jetons",
-            "total_losses": "94 jetons",
-            "total_bets": "294 jetons",
-            "participation": 2
-        },
-        "701096460577669281": {
-            "username": "clecetuu",
-            "total_wins": "180 jetons",
-            "total_losses": "200 jetons",
-            "total_bets": "294 jetons",
-            "participation": 2
-        }
-    },
-    "hôtes": {
-        "1229717382554058762": {
-            "username": "clzgapiidor",
-            "total_bets": "589 jetons",
-            "total_commission": "29 jetons",
-            "total_giveaways": 1
-        }
-    },
-    "croupiers": {
-        "1229717382554058762": {
-            "username": "clzgapiidor",
-            "total_giveaways": 1,
-            "total_kamas_managed": "400 jetons",
-            "total_commission": "20 jetons"
-        }
-    }
+    "nombre_de_jeux": 0,
+    "mises_totales_avant_commission": "0 jetons",
+    "gains_totaux": "0 jetons",
+    "commission_totale": "0 jetons",
+    "utilisateurs": {},
+    "hôtes": {},
+    "croupiers": {}
 }
