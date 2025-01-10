@@ -67,52 +67,23 @@ def get_highest_vip(user_id, server):
     """Get highest VIP level for user"""
     try:
         file_path = f"{server}.json"
-        print(f"🔍 Loading VIP data from: {file_path}")
-
         if not os.path.exists(file_path):
             print(f"❌ Erreur VIP: Fichier {file_path} non trouvé")
-            return {
-                'vip1': "0K",
-                'vip2': "0K",
-                'vip3': "0K"
-            }
+            return {"vip": 0}
 
         with open(file_path, 'r') as f:
             data = json.load(f)
-            print(f"✅ Données chargées: {data}")
-            commission_totale_str = data.get('commission_totale', '0 jetons')
-            print(f"💰 Commission totale: {commission_totale_str}")
-            commission_totale = int(commission_totale_str.split(' ')[0]) if isinstance(commission_totale_str, str) else 0
-            redistribution = commission_totale * 0.5  # 50% de la commission totale
+            users = data.get("utilisateurs", {})
+            user_data = users.get(str(user_id), {})
+            total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
+            
+            # Déterminer le plus haut niveau VIP
+            highest_vip = 0
+            for tier, threshold in sorted(VIP_TIERS.items()):
+                if total_bets >= threshold:
+                    highest_vip = tier
 
-            # Calculer les parts VIP en jetons
-            vip1_share = int(redistribution * 0.20)  # 20% pour VIP 1
-            vip2_share = int(redistribution * 0.30)  # 30% pour VIP 2
-            vip3_share = int(redistribution * 0.50)  # 50% pour VIP 3
-            print(f"Parts VIP (jetons): VIP1={vip1_share}, VIP2={vip2_share}, VIP3={vip3_share}")
-
-            # Convertir en kamas (1 jeton = 10k kamas)
-            vip1_kamas = vip1_share * 10000
-            vip2_kamas = vip2_share * 10000
-            vip3_kamas = vip3_share * 10000
-
-            print(f"📊 Parts VIP calculées (kamas): VIP1={vip1_kamas}, VIP2={vip2_kamas}, VIP3={vip3_kamas}")
-
-            # Format en K/M Kamas
-            return {
-                'vip1': {
-                    'amount': f"{vip1_kamas//1000}K" if vip1_kamas < 1000000 else f"{vip1_kamas/1000000:.1f}M",
-                    'style': 'color: #68d391; font-weight: bold;'
-                },
-                'vip2': {
-                    'amount': f"{vip2_kamas//1000}K" if vip2_kamas < 1000000 else f"{vip2_kamas/1000000:.1f}M",
-                    'style': 'color: #4299e1; font-weight: bold;'
-                },
-                'vip3': {
-                    'amount': f"{vip3_kamas//1000}K" if vip3_kamas < 1000000 else f"{vip3_kamas/1000000:.1f}M",
-                    'style': 'color: #f6ad55; font-weight: bold;'
-                }
-            }
+            return {"vip": highest_vip}
     except Exception as e:
         print(f"Erreur VIP: {e}")
         return {
