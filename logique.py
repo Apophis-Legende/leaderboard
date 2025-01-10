@@ -5,6 +5,7 @@ import re
 from discord.ui import View, Select, Button, Modal, TextInput
 from discord import Interaction
 import asyncio
+from replit import db
 
 MAPPING_SERVER_FILE = {
     "T1": "T1.json",
