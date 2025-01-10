@@ -121,13 +121,11 @@ def load_json(filename, default_data=None):
             return json.load(file)
     return default_data or {}
 
-def save_json(filename, data):
-    """
-    Sauvegarde des données dans un fichier JSON.
-    """
-    with open(filename, "w", encoding="utf-8") as file:
-        json.dump(data, file, ensure_ascii=False, indent=4)
-    print(f"✅ Fichier sauvegardé : {filename}")
+def save_json(file_name, server_data):
+    absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), file_name)
+    with open(absolute_path, "w", encoding="utf-8") as f:
+        json.dump(server_data, f, indent=4, ensure_ascii=False)
+    print(f"✅ Données sauvegardées dans : {absolute_path}")
 
 def convert_amount_to_float(amount_str):
     """
