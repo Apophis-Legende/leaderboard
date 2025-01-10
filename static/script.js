@@ -18,10 +18,20 @@ function loadServerData(server) {
                 .then(vipData => {
                     console.log('VIP Data received:', vipData);
                     console.log('VIP Data received:', vipData);
-                    document.getElementById('vip1-share').textContent = vipData.vip1;
-                    document.getElementById('vip2-share').textContent = vipData.vip2;
-                    document.getElementById('vip3-share').textContent = vipData.vip3;
-                    document.getElementById('total-commission').textContent = vipData.vip1 + ' + ' + vipData.vip2 + ' + ' + vipData.vip3;
+                    const vip1El = document.getElementById('vip1-share');
+                    const vip2El = document.getElementById('vip2-share');
+                    const vip3El = document.getElementById('vip3-share');
+                    
+                    vip1El.textContent = vipData.vip1.amount;
+                    vip2El.textContent = vipData.vip2.amount;
+                    vip3El.textContent = vipData.vip3.amount;
+                    
+                    vip1El.style.cssText = vipData.vip1.style;
+                    vip2El.style.cssText = vipData.vip2.style;
+                    vip3El.style.cssText = vipData.vip3.style;
+                    
+                    document.getElementById('total-commission').textContent = 
+                        vipData.vip1.amount + ' + ' + vipData.vip2.amount + ' + ' + vipData.vip3.amount;
                 })
                 .catch(error => {
                     console.error('Erreur VIP:', error);

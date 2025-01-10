@@ -88,9 +88,18 @@ def get_highest_vip(user_id, server):
 
             # Format en K/M Kamas
             return {
-                'vip1': f"{vip1_kamas//1000}K" if vip1_kamas < 1000000 else f"{vip1_kamas/1000000:.1f}M",
-                'vip2': f"{vip2_kamas//1000}K" if vip2_kamas < 1000000 else f"{vip2_kamas/1000000:.1f}M",
-                'vip3': f"{vip3_kamas//1000}K" if vip3_kamas < 1000000 else f"{vip3_kamas/1000000:.1f}M"
+                'vip1': {
+                    'amount': f"{vip1_kamas//1000}K" if vip1_kamas < 1000000 else f"{vip1_kamas/1000000:.1f}M",
+                    'style': 'color: #68d391; font-weight: bold;'
+                },
+                'vip2': {
+                    'amount': f"{vip2_kamas//1000}K" if vip2_kamas < 1000000 else f"{vip2_kamas/1000000:.1f}M",
+                    'style': 'color: #4299e1; font-weight: bold;'
+                },
+                'vip3': {
+                    'amount': f"{vip3_kamas//1000}K" if vip3_kamas < 1000000 else f"{vip3_kamas/1000000:.1f}M",
+                    'style': 'color: #f6ad55; font-weight: bold;'
+                }
             }
     except Exception as e:
         print(f"Erreur VIP: {e}")
