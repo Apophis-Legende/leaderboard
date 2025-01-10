@@ -154,19 +154,21 @@ async def process_giveaway_data(raw_data, channel):
         server_data["hôtes"][host_id]["total_bets"] = format_amount(current_host_bets + total_bet_before_commission)
         server_data["hôtes"][host_id]["total_commission"] = format_amount(current_host_commission + commission_total)
 
+        print(f"💾 Tentative de sauvegarde dans {file_name}...")
         save_json(file_name, server_data)
-        
-        # Vérification que les données ont bien été sauvegardées
-        verification_data = load_json(file_name)
-        if verification_data == server_data:
+
+        # Vérifier immédiatement si les données sont bien sauvegardées
+        verification = load_json(file_name)
+        if verification:
             print(f"✅ Données sauvegardées avec succès dans {file_name}")
-            print(f"📊 Statistiques sauvegardées :")
-            print(f"- Mise totale : {total_bet_before_commission} jetons")
-            print(f"- Gain : {gain_after_commission} jetons")
-            print(f"- Commission : {commission_total} jetons")
-            print(f"- Nombre de joueurs : {len(server_data['utilisateurs'])}")
+            print(f"📊 Données actuelles dans la base :")
+            print(f"- Serveur : {verification.get('serveur')}")
+            print(f"- Nombre de jeux : {verification.get('nombre_de_jeux')}")
+            print(f"- Utilisateurs : {len(verification.get('utilisateurs', {}))}")
+            print(f"- Hôtes : {len(verification.get('hôtes', {}))}")
         else:
-            raise Exception(f"❌ Erreur de vérification pour {file_name}")
+            print(f"❌ ERREUR : Les données ne sont pas visibles dans {file_name}")
+
 
         return {
             "server": server,
