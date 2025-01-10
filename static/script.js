@@ -1,91 +1,63 @@
-
 // Fonction pour charger les données du serveur
 function loadServerData(server) {
     fetch(`/api/leaderboard?server=${server}`)
         .then(response => response.json())
         .then(data => {
-            // Mise à jour du nom du serveur
             document.getElementById('current-server-name').textContent = server;
-            
-            // Extraction de la commission totale depuis les données
-            let totalCommission = 0;
-            if (data.commission_totale) {
-                const commissionStr = data.commission_totale.toString();
-                totalCommission = parseInt(commissionStr.split(' ')[0]);
-            }
-            
-            // Calcul de la redistribution (50% de la commission totale)
-            const redistribution = Math.floor(totalCommission * 0.5);
-            
-            // Calcul des parts VIP
-            const vip1Share = Math.floor(redistribution * 0.20);
-            const vip2Share = Math.floor(redistribution * 0.30);
-            const vip3Share = Math.floor(redistribution * 0.50);
-            
-            console.log('Commission totale:', totalCommission);
-            console.log('Redistribution:', redistribution);
-            console.log('Parts VIP:', vip1Share, vip2Share, vip3Share);
-            
-            // Mise à jour de l'affichage des parts VIP
-            document.getElementById('vip1-share').textContent = `${vip1Share} jetons`;
-            document.getElementById('vip2-share').textContent = `${vip2Share} jetons`;
-            document.getElementById('vip3-share').textContent = `${vip3Share} jetons`;
-            document.getElementById('total-commission').textContent = `${totalCommission} jetons`;
-            
-            // Appel API pour récupérer les données VIP
+
+            // Récupération et calcul des VIP
             fetch(`/api/vip_status?server=${server}&user_id=0`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Erreur réseau');
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(vipData => {
-                    console.log('Données VIP reçues:', vipData);
                     if (vipData && typeof vipData === 'object') {
                         document.getElementById('vip1-share').textContent = vipData.vip1 || '0 jetons';
                         document.getElementById('vip2-share').textContent = vipData.vip2 || '0 jetons';
                         document.getElementById('vip3-share').textContent = vipData.vip3 || '0 jetons';
-                        document.getElementById('total-commission').textContent = vipData.total || '0 jetons';
+                        document.getElementById('total-commission').textContent = 
+                            `${parseInt(vipData.vip1 || 0) + parseInt(vipData.vip2 || 0) + parseInt(vipData.vip3 || 0)} jetons`;
                     }
                 })
                 .catch(error => {
                     console.error('Erreur VIP:', error);
-                    // Valeurs par défaut en cas d'erreur
-                    document.getElementById('vip1-share').textContent = '0 jetons';
-                    document.getElementById('vip2-share').textContent = '0 jetons';
-                    document.getElementById('vip3-share').textContent = '0 jetons';
-                    document.getElementById('total-commission').textContent = '0 jetons';
+                    resetVipDisplays();
                 });
-                .catch(error => console.error('Erreur VIP:', error));
-            
-            // Mise à jour du tableau
+
             updateLeaderboard(data);
         })
-        .catch(error => console.error('Erreur:', error));
+        .catch(error => {
+            console.error('Erreur:', error);
+            resetVipDisplays();
+        });
+}
+
+function resetVipDisplays() {
+    document.getElementById('vip1-share').textContent = '0 jetons';
+    document.getElementById('vip2-share').textContent = '0 jetons';
+    document.getElementById('vip3-share').textContent = '0 jetons';
+    document.getElementById('total-commission').textContent = '0 jetons';
 }
 
 function updateLeaderboard(data) {
     const tbody = document.getElementById('leaderboard-body');
     tbody.innerHTML = '';
-    
+
     const users = data.utilisateurs || {};
     Object.entries(users).forEach(([userId, userData]) => {
         const row = document.createElement('tr');
-        
+
         const nameCell = document.createElement('td');
         nameCell.textContent = userData.username;
-        
+
         const benefitCell = document.createElement('td');
         const benefit = calculateBenefit(userData.total_wins, userData.total_bets);
         benefitCell.textContent = formatKamas(benefit);
-        
+
         const betsCell = document.createElement('td');
         betsCell.textContent = formatKamas(userData.total_bets);
-        
+
         const vipCell = document.createElement('td');
         vipCell.textContent = calculateVipLevel(userData.total_bets);
-        
+
         row.appendChild(nameCell);
         row.appendChild(benefitCell);
         row.appendChild(betsCell);
