@@ -1,0 +1,41 @@
+2025-01-10 11:44:02 INFO     discord.client logging in using static token
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:3000
+ * Running on http://172.31.196.81:3000
+Press CTRL+C to quit
+2025-01-10 11:44:03 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: 1cb544af3cbad33955c54d795f6fd4bc).
+172.31.196.81 - - [10/Jan/2025 11:44:03] "GET / HTTP/1.1" 200 -
+172.31.196.81 - - [10/Jan/2025 11:44:03] "GET /static/styles.css HTTP/1.1" 304 -
+🔍 Requête pour le fichier JSON : T1.json
+✅ Données chargées: {'serveur': 'T1', 'nombre_de_jeux': 1, 'mises_totales_avant_commission': '1000 jetons', 'gains_totaux': '950 jetons', 'commission_totale': '50 jetons', 'utilisateurs': {'928329400666173520': {'username': 'apophislegende', 'total_wins': '950 jetons', 'total_losses': '0 jetons', 'total_bets': '1000 jetons', 'participation': 1}}, 'hôtes': {'928329400666173520': {'username': 'apophislegende', 'total_bets': '1000 jetons', 'total_commission': '50 jetons', 'total_giveaways': 2}}, 'croupiers': {}}
+172.31.196.81 - - [10/Jan/2025 11:44:04] "GET /api/leaderboard?server=Tiliwan1&t=1736509444065 HTTP/1.1" 200 -
+172.31.196.81 - - [10/Jan/2025 11:44:04] "GET /api/check_forbidden?user_id=928329400666173520 HTTP/1.1" 404 -
+✅ Commandes slash synchronisées : 9 commandes.
+🔍 Requête pour le fichier JSON : T1.json
+✅ Données chargées: {'serveur': 'T1', 'nombre_de_jeux': 1, 'mises_totales_avant_commission': '1000 jetons', 'gains_totaux': '950 jetons', 'commission_totale': '50 jetons', 'utilisateurs': {'928329400666173520': {'username': 'apophislegende', 'total_wins': '950 jetons', 'total_losses': '0 jetons', 'total_bets': '1000 jetons', 'participation': 1}}, 'hôtes': {'928329400666173520': {'username': 'apophislegende', 'total_bets': '1000 jetons', 'total_commission': '50 jetons', 'total_giveaways': 2}}, 'croupiers': {}}
+172.31.196.81 - - [10/Jan/2025 11:44:34] "GET /api/leaderboard?server=Tiliwan1&t=1736509474043 HTTP/1.1" 200 -
+172.31.196.81 - - [10/Jan/2025 11:44:34] "GET /api/check_forbidden?user_id=928329400666173520 HTTP/1.1" 404 -
+172.31.196.81 - - [10/Jan/2025 11:44:40] "GET / HTTP/1.1" 200 -
+172.31.196.81 - - [10/Jan/2025 11:44:42] "GET /static/styles.css HTTP/1.1" 200 -
+172.31.196.81 - - [10/Jan/2025 11:44:44] "GET /static/background.jpg HTTP/1.1" 200 -
+172.31.196.81 - - [10/Jan/2025 11:44:44] "GET /static/banner.png HTTP/1.1" 200 -
+🔍 Requête pour le fichier JSON : T1.json
+✅ Données chargées: {'serveur': 'T1', 'nombre_de_jeux': 1, 'mises_totales_avant_commission': '1000 jetons', 'gains_totaux': '950 jetons', 'commission_totale': '50 jetons', 'utilisateurs': {'928329400666173520': {'username': 'apophislegende', 'total_wins': '950 jetons', 'total_losses': '0 jetons', 'total_bets': '1000 jetons', 'participation': 1}}, 'hôtes': {'928329400666173520': {'username': 'apophislegende', 'total_bets': '1000 jetons', 'total_commission': '50 jetons', 'total_giveaways': 2}}, 'croupiers': {}}
+172.31.196.81 - - [10/Jan/2025 11:44:45] "GET /api/leaderboard?server=Tiliwan1&t=1736509484983 HTTP/1.1" 200 -
+172.31.196.81 - - [10/Jan/2025 11:44:47] "GET /api/check_forbidden?user_id=928329400666173520 HTTP/1.1" 404 -
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : Trkl bro te prend ps la tête non plus
+👤 Auteur : clikclikboom_ (ID : 1164911677632950394)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+🔍 Requête pour le fichier JSON : T1.json
+✅ Données chargées: {'serveur': 'T1', 'nombre_de_jeux': 1, 'mises_totales_avant_commission': '1000 jetons', 'gains_totaux': '950 jetons', 'commission_totale': '50 jetons', 'utilisateurs': {'928329400666173520': {'username': 'apophislegende', 'total_wins': '950 jetons', 'total_losses': '0 jetons', 'total_bets': '1000 jetons', 'participation': 1}}, 'hôtes': {'928329400666173520': {'username': 'apophislegende', 'total_bets': '1000 jetons', 'total_commission': '50 jetons', 'total_giveaways': 2}}, 'croupiers': {}}
+172.31.196.81 - - [10/Jan/2025 11:45:04] "GET /api/leaderboard?server=Tiliwan1&t=1736509504039 HTTP/1.1" 200 -
+172.31.196.81 - - [10/Jan/2025 11:45:04] "GET /api/check_forbidden?user_id=928329400666173520 HTTP/1.1" 404 -
+🔍 Requête pour le fichier JSON : T1.json
+✅ Données chargées: {'serveur': 'T1', 'nombre_de_jeux': 1, 'mises_totales_avant_commission': '1000 jetons', 'gains_totaux': '950 jetons', 'commission_totale': '50 jetons', 'utilisateurs': {'928329400666173520': {'username': 'apophislegende', 'total_wins': '950 jetons', 'total_losses': '0 jetons', 'total_bets': '1000 jetons', 'participation': 1}}, 'hôtes': {'928329400666173520': {'username': 'apophislegende', 'total_bets': '1000 jetons', 'total_commission': '50 jetons', 'total_giveaways': 2}}, 'croupiers': {}}
+172.31.196.81 - - [10/Jan/2025 11:45:14] "GET /api/leaderboard?server=Tiliwan1&t=1736509514057 HTTP/1.1" 200 -
+172.31.196.81 - - [10/Jan/2025 11:45:14] "GET /api/check_forbidden?user_id=928329400666173520 HTTP/1.1" 404 -
