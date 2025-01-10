@@ -99,22 +99,18 @@ def get_leaderboard():
     print(f"🔍 Requête pour le fichier JSON : {file_name}")
 
     try:
-        if not os.path.exists(file_name):
-            print(f"❌ Fichier introuvable : {file_name}")
-            return jsonify({
-                "serveur": server,
-                "nombre_de_jeux": 0,
-                "mises_totales_avant_commission": "0 jetons",
-                "gains_totaux": "0 jetons",
-                "commission_totale": "0 jetons",
-                "utilisateurs": {},
-                "hôtes": {},
-                "croupiers": {}
-            })
-
-        with open(file_name, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            print(f"✅ Données chargées: {data}")
+        # Charger depuis Replit db
+        data = db[file_name] if file_name in db else {
+            "serveur": server,
+            "nombre_de_jeux": 0,
+            "mises_totales_avant_commission": "0 jetons", 
+            "gains_totaux": "0 jetons",
+            "commission_totale": "0 jetons",
+            "utilisateurs": {},
+            "hôtes": {},
+            "croupiers": {}
+        }
+        print(f"✅ Données chargées: {data}")
 
         response = jsonify(data)
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
