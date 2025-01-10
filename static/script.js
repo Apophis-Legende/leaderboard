@@ -25,21 +25,29 @@ document.addEventListener("DOMContentLoaded", function () {
         tbody.innerHTML = ""; // Vide le tableau existant
 
         if (data.utilisateurs && Object.keys(data.utilisateurs).length > 0) {
-            Object.values(data.utilisateurs).forEach((user) => {
-                let vipDisplay = '---';
-                if (user.vip_tier) {
-                    vipDisplay = `VIP ${user.vip_tier}`;
-                }
-                const row = `
-                    <tr>
-                        <td>${user.username || "Inconnu"}</td>
-                        <td>${user.total_wins || 0}</td>
-                        <td>${user.total_losses || 0}</td>
-                        <td>${user.total_bets || 0}</td>
-                        <td>${user.participation || 0}</td>
-                        <td>${vipDisplay}</td>
-                    </tr>`;
-                tbody.innerHTML += row;
+            Object.entries(data.utilisateurs).forEach(([userId, user]) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.username || "Inconnu"}</td>
+                    <td>${user.total_wins || 0}</td>
+                    <td>${user.total_losses || 0}</td>
+                    <td>${user.total_bets || 0}</td>
+                    <td>${user.participation || 0}</td>
+                    <td id="vip-${userId}">Chargement...</td>
+                `;
+                tbody.appendChild(row);
+                
+                // Charger le statut VIP
+                fetch(`/api/vip_status?user_id=${userId}&server=${currentServer}`)
+                    .then(response => response.json())
+                    .then(vipData => {
+                        const vipCell = document.getElementById(`vip-${userId}`);
+                        vipCell.textContent = vipData.vipLevel ? `VIP ${vipData.vipLevel}` : '---';
+                    })
+                    .catch(() => {
+                        const vipCell = document.getElementById(`vip-${userId}`);
+                        vipCell.textContent = '---';
+                    });
             });
         } else {
             tbody.innerHTML = '<tr><td colspan="5">Aucune donnée disponible</td></tr>';
