@@ -67,17 +67,24 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.forbidden) {
-                        return '---';
+                        return 'Utilisateur interdit';
                     }
                     // Si non interdit, récupère le statut VIP
                     return fetch(`/api/vip_status?user_id=${userId}&server=${server}`)
-                        .then(response => response.json())
-                        .then(vipData => {
-                            return vipData.vipLevel ? `VIP ${vipData.vipLevel}` : '';
+                        .then(response => response.json()) // Parse le JSON
+                        .then(data => {
+                            if (data.vip_level) {
+                                return `VIP ${data.vip_level}`;
+                            }
+                            return 'Pas de niveau VIP trouvé.';
                         });
                 })
-                .catch(() => '---');
+                .catch(error => {
+                    console.error('Erreur lors de la récupération des données :', error);
+                    return 'Statut VIP indisponible.';
+                });
         }
+
 
         function fetchLeaderboardData() {
             // Appeler l'API Flask pour obtenir les données du leaderboard
