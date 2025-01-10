@@ -71,12 +71,9 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 document.getElementById('current-server-name').textContent = server;
                 
-                // Extraire la commission totale du fichier JSON et s'assurer qu'elle est correctement parsée
-                let totalCommission = 0;
-                if (data.commission_totale) {
-                    const commissionStr = data.commission_totale.toString();
-                    totalCommission = parseInt(commissionStr.split(' ')[0]);
-                }
+                // Extraire la commission totale du fichier JSON
+                const commissionStr = data.commission_totale || "0 jetons";
+                const totalCommission = parseInt(commissionStr.replace(/[^0-9]/g, ''));
                 
                 document.getElementById('total-commission').textContent = totalCommission + " jetons";
                 
