@@ -52,6 +52,17 @@ def calculate_vip_tier(total_bets):
             return tier
     return None
 
+def format_vip_value(amount):
+    """Format VIP values with proper styling"""
+    try:
+        value = int(amount.split(' ')[0])
+        kamas = value * 10000
+        if kamas >= 1000000:
+            return f"{kamas/1000000:.1f}M"
+        return f"{kamas//1000}K"
+    except:
+        return "0K"
+
 def get_highest_vip(user_id, server):
     """Get highest VIP level for user"""
     try:
