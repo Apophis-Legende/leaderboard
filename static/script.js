@@ -32,6 +32,16 @@ function loadServerData(server) {
             document.getElementById('vip3-share').textContent = `${vip3Share} jetons`;
             document.getElementById('total-commission').textContent = `${totalCommission} jetons`;
             
+            // Appel API pour récupérer les données VIP
+            fetch(`/api/vip_status?server=${server}&user_id=0`)
+                .then(response => response.json())
+                .then(vipData => {
+                    document.getElementById('vip1-share').textContent = vipData.vip1;
+                    document.getElementById('vip2-share').textContent = vipData.vip2;
+                    document.getElementById('vip3-share').textContent = vipData.vip3;
+                })
+                .catch(error => console.error('Erreur VIP:', error));
+            
             // Mise à jour du tableau
             updateLeaderboard(data);
         })
