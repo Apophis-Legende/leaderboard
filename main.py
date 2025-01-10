@@ -722,27 +722,35 @@ async def remove_forbidden_user(interaction: discord.Interaction, user_id: str):
 @is_in_guild()
 async def reset_all(interaction: discord.Interaction):
     """Réinitialise les données VIP et tous les fichiers JSON"""
-    await interaction.response.defer()
+    try:
+        await interaction.response.defer()
 
-    # 1. Réinitialisation des rôles VIP
-    guild = interaction.guild
-    data = load_assigned_roles()
-    users = data.get("users", {})
+        # 1. Réinitialisation des rôles VIP
+        guild = interaction.guild
+        
+        # Chemins absolus pour les fichiers
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        assigned_roles_path = os.path.join(script_dir, "assigned_roles.json")
+        
+        if os.path.exists(assigned_roles_path):
+            with open(assigned_roles_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                users = data.get("users", {})
 
-    if users:
-        for user_id, user_data in users.items():
-            try:
-                member = await guild.fetch_member(int(user_id))
-                roles_to_remove = [discord.utils.get(guild.roles, name=role) for role in user_data["roles"]]
-                roles_to_remove = [role for role in roles_to_remove if role is not None]
+            for user_id, user_data in users.items():
+                try:
+                    member = await guild.fetch_member(int(user_id))
+                    roles_to_remove = [discord.utils.get(guild.roles, name=role) for role in user_data["roles"]]
+                    roles_to_remove = [role for role in roles_to_remove if role is not None]
 
-                if roles_to_remove:
-                    await member.remove_roles(*roles_to_remove)
-                    print(f"✅ Rôles retirés pour {member.name} : {', '.join([role.name for role in roles_to_remove])}")
-            except discord.NotFound:
-                print(f"❌ Membre introuvable avec l'ID {user_id}")
-            except Exception as e:
-                print(f"❌Erreur pour l'utilisateur {user_id} : {e}")
+                    if roles_to_remove:
+                        await member.remove_roles(*roles_to_remove)
+                        print(f"✅ Rôles retirés pour {member.name}")
+                except discord.NotFound:
+                    print(f"❌ Membre introuvable avec l'ID {user_id}")
+                except Exception as e:
+                    print(f"❌ Erreur pour l'utilisateur {user_id} : {e}")
+                    continue
 
     # Supprimer assigned_roles.json
     if os.path.exists("assigned_roles.json"):
@@ -753,29 +761,42 @@ async def reset_all(interaction: discord.Interaction):
             print(f"❌ Erreur lors de la suppression de assigned_roles.json : {e}")
 
     # 2. Réinitialisation des fichiers JSON des serveurs
-    initial_data = {
-        "serveur": "",
-        "nombre_de_jeux": 0,
-        "mises_totales_avant_commission": "0 jetons",
-        "gains_totaux": "0 jetons",
-        "commission_totale": "0 jetons",
-        "utilisateurs": {},
-        "hôtes": {},
-        "croupiers": {}
-    }
+        initial_data = {
+            "serveur": "",
+            "nombre_de_jeux": 0,
+            "mises_totales_avant_commission": "0 jetons",
+            "gains_totaux": "0 jetons",
+            "commission_totale": "0 jetons",
+            "utilisateurs": {},
+            "hôtes": {},
+            "croupiers": {}
+        }
 
-    files = ["T1.json", "T2.json", "O1.json", "H1.json", "E1.json"]
-    for file in files:
+        files = ["T1.json", "T2.json", "O1.json", "H1.json", "E1.json"]
+        for file in files:
+            try:
+                file_path = os.path.join(script_dir, file)
+                data = initial_data.copy()
+                data["serveur"] = file.replace(".json", "")
+                with open(file_path, "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=4, ensure_ascii=False)
+                print(f"✅ {file} réinitialisé")
+            except Exception as e:
+                print(f"❌ Erreur pour {file}: {e}")
+                continue
+
+        # Suppression du fichier assigned_roles.json
         try:
-            data = initial_data.copy()
-            data["serveur"] = file.replace(".json", "")
-            with open(file, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=4, ensure_ascii=False)
-            print(f"✅ {file} réinitialisé")
+            if os.path.exists(assigned_roles_path):
+                os.remove(assigned_roles_path)
+                print("✅ Fichier assigned_roles.json supprimé")
         except Exception as e:
-            print(f"❌ Erreur pour {file}: {e}")
+            print(f"❌ Erreur lors de la suppression de assigned_roles.json : {e}")
 
-    await interaction.followup.send("✅ Réinitialisation complète effectuée :\n- Rôles VIP supprimés\n- Fichiers JSON réinitialisés")
+        await interaction.followup.send("✅ Réinitialisation complète effectuée :\n- Rôles VIP supprimés\n- Fichiers JSON réinitialisés")
+    except Exception as e:
+        print(f"❌ Erreur générale : {e}")
+        await interaction.followup.send(f"❌ Une erreur est survenue lors de la réinitialisation : {str(e)}")
 
 @bot.tree.command(name="host_info", description="Affiche les informations d'un hôte")
 @is_admin()
