@@ -226,6 +226,24 @@ async def on_ready():
     print(f"✅ Bot connecté en tant que : {bot.user}")
     ensure_forbidden_users_file_exists()
     print(f"✅ ID du bot : {bot.user.id}")
+    
+    # Vérifier et créer les fichiers JSON s'ils n'existent pas
+    for server, filename in MAPPING_SERVER_FILE.items():
+        absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+        if not os.path.exists(absolute_path):
+            initial_data = {
+                "serveur": server,
+                "nombre_de_jeux": 0,
+                "mises_totales_avant_commission": "0 jetons",
+                "gains_totaux": "0 jetons",
+                "commission_totale": "0 jetons",
+                "utilisateurs": {},
+                "hôtes": {},
+                "croupiers": {}
+            }
+            with open(absolute_path, 'w', encoding='utf-8') as f:
+                json.dump(initial_data, f, indent=4, ensure_ascii=False)
+            print(f"✅ Fichier {filename} créé avec succès")
 
     # Vérifier et initialiser les fichiers JSON
     verifier_et_initialiser_fichiers_json(MAPPING_SERVER_FILE)

@@ -116,9 +116,14 @@ def load_json(filename, default_data=None):
     """
     Charge un fichier JSON ou retourne les données par défaut si le fichier n'existe pas.
     """
-    if os.path.exists(filename):
-        with open(filename, "r", encoding="utf-8") as file:
-            return json.load(file)
+    absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+    print(f"🔍 Tentative de lecture du fichier : {absolute_path}")
+    if os.path.exists(absolute_path):
+        with open(absolute_path, "r", encoding="utf-8") as file:
+            data = json.load(file)
+            print(f"✅ Fichier chargé avec succès : {filename}")
+            return data
+    print(f"⚠️ Fichier non trouvé, utilisation des données par défaut : {filename}")
     return default_data or {}
 
 def save_json(file_name, server_data):
