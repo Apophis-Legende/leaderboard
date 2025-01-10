@@ -71,7 +71,7 @@ def get_highest_vip(user_id, server):
             print(f"✅ Données chargées: {data}")
             commission_totale_str = data.get('commission_totale', '0 jetons')
             print(f"💰 Commission totale: {commission_totale_str}")
-            commission_totale = int(commission_totale_str.split(' ')[0])
+            commission_totale = int(commission_totale_str.split(' ')[0]) if isinstance(commission_totale_str, str) else 0
             redistribution = commission_totale // 2  # 50% de la commission totale
 
             # Calculer les parts VIP en jetons
