@@ -13,12 +13,17 @@ def load_json(filename, default_data=None):
 
 def save_json(filename, data):
     """
-    Sauvegarde des données dans un fichier JSON.
+    Sauvegarde des données dans un fichier JSON avec gestion d'erreurs.
     """
-    absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
-    with open(absolute_path, "w", encoding="utf-8") as file:
-        json.dump(data, file, ensure_ascii=False, indent=4)
-    print(f"✅ Fichier sauvegardé : {absolute_path}")
+    try:
+        absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+        os.makedirs(os.path.dirname(absolute_path), exist_ok=True)
+        with open(absolute_path, "w", encoding="utf-8") as file:
+            json.dump(data, file, ensure_ascii=False, indent=4)
+        print(f"✅ Fichier sauvegardé : {absolute_path}")
+    except Exception as e:
+        print(f"❌ Erreur lors de la sauvegarde du fichier {filename}: {e}")
+        raise
 
 def extract_user_data(data):
     """
