@@ -200,23 +200,42 @@ async def send_data_to_flask(data):
         print(f"❌ Erreur lors de la mise à jour des données : {e}")
         raise
 
+def verifier_et_initialiser_fichiers_json(mapping_files):
+    """Vérifie et initialise les fichiers JSON s'ils n'existent pas."""
+    initial_data = {
+        "serveur": "",
+        "nombre_de_jeux": 0,
+        "mises_totales_avant_commission": "0 jetons",
+        "gains_totaux": "0 jetons",
+        "commission_totale": "0 jetons",
+        "utilisateurs": {},
+        "hôtes": {},
+        "croupiers": {}
+    }
+    
+    for server, filename in mapping_files.items():
+        if not os.path.exists(filename):
+            data = initial_data.copy()
+            data["serveur"] = server
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=4, ensure_ascii=False)
+            print(f"✅ Fichier {filename} créé et initialisé")
+
 @bot.event
 async def on_ready():
     print(f"✅ Bot connecté en tant que : {bot.user}")
     ensure_forbidden_users_file_exists()
-    print(f"✅ Bot connecté en tant que : {bot.user}")
     print(f"✅ ID du bot : {bot.user.id}")
+
+    # Vérifier et initialiser les fichiers JSON
+    verifier_et_initialiser_fichiers_json(MAPPING_SERVER_FILE)
+    print("✅ Vérification et initialisation des fichiers JSON terminées.")
 
     try:
         synced = await bot.tree.sync()
         print(f"✅ Commandes slash synchronisées : {len(synced)}")
     except Exception as e:
         print(f"❌ Erreur lors de la synchronisation des commandes slash : {e}")
-
-    # Vérifier et initialiser les fichiers JSON
-    verifier_et_initialiser_fichiers_json(MAPPING_SERVER_FILE)
-
-    print("✅ Vérification et initialisation des fichiers JSON terminées.")
 
 async def send_data_to_flask(data):
     """Envoie des données JSON au serveur Flask."""
