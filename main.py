@@ -632,9 +632,6 @@ async def delete_giveaway_command(interaction: discord.Interaction, link: str):
             print(f"Interaction déjà répondue : {error_message}")
 
 
-
-
-
 @bot.tree.command(name="update_vip", description="Met à jour les statuts VIP pour un serveur donné.")
 @is_admin()  # Restriction aux administrateurs
 @is_in_guild()  # Bloque l'accès en DM
@@ -654,26 +651,19 @@ async def update_vip(interaction: discord.Interaction, server: str):
     await interaction.followup.send(f"🔄 Mise à jour des statuts VIP pour le serveur **{server}** en cours...")
     await check_vip_status(server_name, interaction.channel)
 
-@bot.tree.command(name="add_forbidden_user", description="Ajoute un membre interdit au fichier JSON.")
+@bot.tree.command(name="add_forbidden_user", description="Ajoute un membre interdit dans Replit DB.")
 @is_admin()  # Restriction aux administrateurs
 @is_in_guild()  # Bloque l'accès en DM
 @app_commands.describe(user_id="ID du membre à interdire", reason="Raison pour laquelle ce membre est interdit.")
 async def add_forbidden_user(interaction: discord.Interaction, user_id: str, reason: str):
-    """
-    Ajoute un membre interdit dans le fichier JSON, avec son username et ses rôles.
-    """
-    file_name = "forbidden_vip_users.json"
+    await interaction.response.defer()  # Indique à Discord que la commande est en cours de traitement
 
-    # Charger les membres interdits existants
-    if os.path.exists(file_name):
-        with open(file_name, "r", encoding="utf-8") as f:
-            forbidden_users = json.load(f)
-    else:
-        forbidden_users = {}
+    from replit import db  # Importer Replit DB
+    forbidden_users = db.get("forbidden_vip_users", {})
 
     # Vérifier si l'utilisateur est déjà dans la liste
     if user_id in forbidden_users:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             f"⚠️ L'utilisateur avec l'ID `{user_id}` est déjà dans la liste des interdits."
         )
         return
@@ -684,7 +674,7 @@ async def add_forbidden_user(interaction: discord.Interaction, user_id: str, rea
         # Utilisez fetch_member pour garantir que l'utilisateur est récupéré
         member = await guild.fetch_member(int(user_id))
     except discord.NotFound:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             f"⚠️ Impossible de trouver un membre avec l'ID `{user_id}` dans cette guilde."
         )
         return
@@ -699,31 +689,28 @@ async def add_forbidden_user(interaction: discord.Interaction, user_id: str, rea
         "reason": reason
     }
 
-    # Sauvegarder la liste mise à jour
-    with open(file_name, "w", encoding="utf-8") as f:
-        json.dump(forbidden_users, f, indent=4, ensure_ascii=False)
+    # Sauvegarder les données dans Replit DB
+    db["forbidden_vip_users"] = forbidden_users
 
-    # Réponse au succès
-    await interaction.response.send_message(
+    # Réponse finale
+    await interaction.followup.send(
         f"✅ L'utilisateur `{member.name}` avec l'ID `{user_id}` a été ajouté à la liste des interdits.\n"
         f"📋 Rôles : {', '.join(roles)}\n"
         f"❓ Raison : {reason}"
     )
 
-@bot.tree.command(name="list_forbidden_users", description="Affiche la liste des membres interdits.")
+
+@bot.tree.command(name="list_forbidden_users", description="Affiche la liste des membres interdits dans Replit DB.")
 @is_admin()  # Restriction aux administrateurs
 @is_in_guild()  # Bloque l'accès en DM
 async def list_forbidden_users(interaction: discord.Interaction):
     """
-    Liste les membres interdits dans le fichier JSON.
+    Liste les membres interdits dans Replit DB.
     """
-    file_name = "forbidden_vip_users.json"
+    from replit import db  # Importer Replit DB
+    forbidden_users = db.get("forbidden_vip_users", {})  # Charger les utilisateurs interdits existants
 
-    # Charger les membres interdits
-    if os.path.exists(file_name):
-        with open(file_name, "r", encoding="utf-8") as f:
-            forbidden_users = json.load(f)
-    else:
+    if not forbidden_users:
         await interaction.response.send_message("⚠️ Aucun membre interdit trouvé.")
         return
 
@@ -731,39 +718,36 @@ async def list_forbidden_users(interaction: discord.Interaction):
     response = "🔒 **Liste des membres interdits :**\n"
     for user_id, data in forbidden_users.items():
         reason = data.get("reason", "Non spécifiée")
-        response += f"- ID : `{user_id}` | Raison : {reason}\n"
+        roles = ", ".join(data.get("roles", []))
+        response += f"- **{data['username']}** (ID : `{user_id}`)\n  Rôles : {roles}\n  Raison : {reason}\n\n"
 
     await interaction.response.send_message(response[:2000])  # Discord limite les messages à 2000 caractères.
 
-@bot.tree.command(name="remove_forbidden_user", description="Supprime un membre de la liste des interdits.")
+
+@bot.tree.command(name="remove_forbidden_user", description="Supprime un membre de la liste des interdits dans Replit DB.")
 @is_admin()  # Restriction aux administrateurs
 @is_in_guild()  # Bloque l'accès en DM
 @app_commands.describe(user_id="ID du membre à retirer de la liste des interdits.")
 async def remove_forbidden_user(interaction: discord.Interaction, user_id: str):
     """
-    Supprime un membre de la liste des interdits.
+    Supprime un membre de la liste des interdits dans Replit DB.
     """
-    file_name = "forbidden_vip_users.json"
+    from replit import db  # Importer Replit DB
+    forbidden_users = db.get("forbidden_vip_users", {})  # Charger les utilisateurs interdits existants
 
-    # Charger les membres interdits
-    if os.path.exists(file_name):
-        with open(file_name, "r", encoding="utf-8") as f:
-            forbidden_users = json.load(f)
-    else:
-        await interaction.response.send_message("⚠️ Aucun membre interdit trouvé.")
-        return
-
-    # Supprimer l'utilisateur
+    # Vérifier si l'utilisateur est dans la liste
     if user_id in forbidden_users:
-        del forbidden_users[user_id]
-        with open(file_name, "w", encoding="utf-8") as f:
-            json.dump(forbidden_users, f, indent=4, ensure_ascii=False)
+        del forbidden_users[user_id]  # Supprimer l'utilisateur
+        db["forbidden_vip_users"] = forbidden_users  # Sauvegarder les modifications
 
         await interaction.response.send_message(
             f"✅ L'utilisateur avec l'ID `{user_id}` a été retiré de la liste des interdits."
         )
     else:
-        await interaction.response.send_message(f"⚠️ Aucun utilisateur avec l'ID `{user_id}` trouvé dans la liste des interdits.")
+        await interaction.response.send_message(
+            f"⚠️ Aucun utilisateur avec l'ID `{user_id}` trouvé dans la liste des interdits."
+        )
+
 
 @bot.tree.command(name="reset_all", description="Réinitialise les données VIP et toutes les données")
 @is_admin()
