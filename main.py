@@ -62,10 +62,9 @@ def update_data():
 
 def load_json(filename, default_data=None):
     """Charge un fichier JSON ou retourne les données par défaut si le fichier n'existe pas."""
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    absolute_path = os.path.join(script_dir, filename)
-    if os.path.exists(absolute_path):
-        with open(absolute_path, "r", encoding="utf-8") as file:
+    filepath = os.path.join("json_files", filename)  # Dossier dédié pour les fichiers JSON
+    if os.path.exists(filepath):
+        with open(filepath, "r", encoding="utf-8") as file:
             return json.load(file)
     return default_data or {}
 
@@ -74,68 +73,50 @@ def index():
     """Route pour afficher la page HTML."""
     return render_template('index.html')
 
-@app.route('/api/check_forbidden')
-def check_forbidden():
-    """Vérifie si un utilisateur est dans la liste des interdits."""
-    user_id = request.args.get('user_id')
-
-    # Charger la liste des utilisateurs interdits
-    try:
-        with open('forbidden_vip_users.json', 'r', encoding='utf-8') as f:
-            forbidden_users = json.load(f)
-            is_forbidden = user_id in forbidden_users
-            return jsonify({"forbidden": is_forbidden})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
 @app.route('/api/vip_status', methods=["GET"])
 def get_vip_status():
     """API pour obtenir le statut VIP d'un utilisateur"""
     from format_utils import get_highest_vip
     user_id = request.args.get('user_id')
     server = request.args.get('server')
-    return get_highest_vip(user_id, server)
+    print(f"🔍 Requête VIP reçue - Serveur: {server}, User ID: {user_id}")
+    server_code = server.replace("Tiliwan1", "T1").replace("Tiliwan2", "T2").replace("Oshimo", "O1").replace("Herdegrize", "H1").replace("Euro", "E1")
+    vip_data = get_highest_vip(user_id, server_code)
+    return jsonify(vip_data)
 
 @app.route('/api/leaderboard', methods=["GET"])
 def get_leaderboard():
     """API pour fournir les données JSON à la page."""
     server = request.args.get('server')
 
-    # Correspondance entre les noms des serveurs et les fichiers JSON
-    server_file_mapping = {
-        "Tiliwan1": "T1.json",
-        "Tiliwan2": "T2.json",
-        "Oshimo": "O1.json",
-        "Herdegrize": "H1.json",
-        "Euro": "E1.json"
-    }
-
-    # Récupérer le nom du serveur depuis les paramètres de la requête
-
     if not server:
         return jsonify({"error": "Paramètre 'server' manquant dans la requête."}), 400
 
-    # Vérifiez si le serveur existe dans le mapping
-    file_name = server_file_mapping.get(server)
+    file_name = MAPPING_SERVER_FILE.get(server.replace("Tiliwan1", "T1").replace("Tiliwan2", "T2").replace("Oshimo", "O1"))
     if not file_name:
         return jsonify({"error": f"Serveur '{server}' non reconnu."}), 404
 
     print(f"🔍 Requête pour le fichier JSON : {file_name}")
 
     try:
-        # Vérifiez si le fichier existe
         if not os.path.exists(file_name):
             print(f"❌ Fichier introuvable : {file_name}")
-            return jsonify({"error": f"Fichier JSON '{file_name}' introuvable."}), 404
+            return jsonify({
+                "serveur": server,
+                "nombre_de_jeux": 0,
+                "mises_totales_avant_commission": "0 jetons",
+                "gains_totaux": "0 jetons",
+                "commission_totale": "0 jetons",
+                "utilisateurs": {},
+                "hôtes": {},
+                "croupiers": {}
+            })
 
-        # Charger les données depuis le fichier JSON
         with open(file_name, "r", encoding="utf-8") as f:
             data = json.load(f)
+            print(f"✅ Données chargées: {data}")
 
-        if not data:
-            return jsonify({"error": f"Le fichier '{file_name}' est vide ou mal formaté."}), 404
-
-        response = app.make_response(jsonify(data)) # Fixed: Added jsonify(data) as argument
+        response = jsonify(data)
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '0'
@@ -582,10 +563,14 @@ async def add_giveaway(interaction: discord.Interaction, link: str):
 @is_in_guild()  # Bloque l'accès en DM
 async def delete_giveaway_command(interaction: discord.Interaction, link: str):
     try:
+        await interaction.response.defer(ephemeral=True)
         await delete_giveaway(interaction, link)
-        await interaction.response.send_message("✅ Giveaway supprimé avec succès.", ephemeral=True)
+        await interaction.followup.send("✅ Giveaway supprimé avec succès.", ephemeral=True)
     except Exception as e:
-        await interaction.response.send_message(f"❌ Une erreur est survenue : {e}", ephemeral=True)
+        if not interaction.response.is_done():
+            await interaction.response.send_message(f"❌ Une erreur est survenue : {e}", ephemeral=True)
+        else:
+            await interaction.followup.send(f"❌ Une erreur est survenue : {e}", ephemeral=True)
 
 
 @bot.tree.command(name="update_vip", description="Met à jour les statuts VIP pour un serveur donné.")
@@ -615,8 +600,7 @@ async def add_forbidden_user(interaction: discord.Interaction, user_id: str, rea
     """
     Ajoute un membre interdit dans le fichier JSON, avec son username et ses rôles.
     """
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    file_name = os.path.join(script_dir, "forbidden_vip_users.json")
+    file_name = "forbidden_vip_users.json"
 
     # Charger les membres interdits existants
     if os.path.exists(file_name):
@@ -671,8 +655,7 @@ async def list_forbidden_users(interaction: discord.Interaction):
     """
     Liste les membres interdits dans le fichier JSON.
     """
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    file_name = os.path.join(script_dir, "forbidden_vip_users.json")
+    file_name = "forbidden_vip_users.json"
 
     # Charger les membres interdits
     if os.path.exists(file_name):
@@ -698,8 +681,7 @@ async def remove_forbidden_user(interaction: discord.Interaction, user_id: str):
     """
     Supprime un membre de la liste des interdits.
     """
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    file_name = os.path.join(script_dir, "forbidden_vip_users.json")
+    file_name = "forbidden_vip_users.json"
 
     # Charger les membres interdits
     if os.path.exists(file_name):
@@ -725,82 +707,61 @@ async def remove_forbidden_user(interaction: discord.Interaction, user_id: str):
 @is_admin()
 @is_in_guild()
 async def reset_all(interaction: discord.Interaction):
-    """Réinitialise lesdonnées VIP et tous les fichiers JSON"""
-    try:
-        await interaction.response.defer()
+    """Réinitialise les données VIP et tous les fichiers JSON"""
+    await interaction.response.defer()
 
-        # 1. Réinitialisation des rôles VIP
-        guild = interaction.guild
+    # 1. Réinitialisation des rôles VIP
+    guild = interaction.guild
+    data = load_assigned_roles()
+    users = data.get("users", {})
 
-        # Chemins absolus pour les fichiers
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        assigned_roles_path = os.path.join(script_dir, "assigned_roles.json")
-
-        if os.path.exists(assigned_roles_path):
-            with open(assigned_roles_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                users = data.get("users", {})
-
-            for user_id, user_data in users.items():
-                try:
-                    member = await guild.fetch_member(int(user_id))
-                    roles_to_remove = [discord.utils.get(guild.roles, name=role) for role in user_data["roles"]]
-                    roles_to_remove = [role for role in roles_to_remove if role is not None]
-
-                    if roles_to_remove:
-                        await member.remove_roles(*roles_to_remove)
-                        print(f"✅ Rôles retirés pour {member.name}")
-                except discord.NotFound:
-                    print(f"❌ Membre introuvable avec l'ID {user_id}")
-                except Exception as e:
-                    print(f"❌ Erreur pour l'utilisateur {user_id} : {e}")
-                    continue
-
-        # Supprimer assigned_roles.json
-        if os.path.exists("assigned_roles.json"):
+    if users:
+        for user_id, user_data in users.items():
             try:
-                os.remove("assigned_roles.json")
-                print("✅ Fichier assigned_roles.json supprimé")
+                member = await guild.fetch_member(int(user_id))
+                roles_to_remove = [discord.utils.get(guild.roles, name=role) for role in user_data["roles"]]
+                roles_to_remove = [role for role in roles_to_remove if role is not None]
+
+                if roles_to_remove:
+                    await member.remove_roles(*roles_to_remove)
+                    print(f"✅ Rôles retirés pour {member.name} : {', '.join([role.name for role in roles_to_remove])}")
+            except discord.NotFound:
+                print(f"❌ Membre introuvable avec l'ID {user_id}")
             except Exception as e:
-                print(f"❌ Erreur lors de la suppression de assigned_roles.json : {e}")
+                print(f"❌Erreur pour l'utilisateur {user_id} : {e}")
 
-        # 2. Réinitialisation des fichiers JSON des serveurs
-        initial_data = {
-            "serveur": "",
-            "nombre_de_jeux": 0,
-            "mises_totales_avant_commission": "0 jetons",
-            "gains_totaux": "0 jetons",
-            "commission_totale": "0 jetons",
-            "utilisateurs": {},
-            "hôtes": {},
-            "croupiers": {}
-        }
-
-        files = ["T1.json", "T2.json", "O1.json", "H1.json", "E1.json"]
-        for file in files:
-            try:
-                file_path = os.path.join(script_dir, file)
-                data = initial_data.copy()
-                data["serveur"] = file.replace(".json", "")
-                with open(file_path, "w", encoding="utf-8") as f:
-                    json.dump(data, f, indent=4, ensure_ascii=False)
-                print(f"✅ {file} réinitialisé")
-            except Exception as e:
-                print(f"❌ Erreur pour {file}: {e}")
-                continue
-
-        # Suppression du fichier assigned_roles.json
+    # Supprimer assigned_roles.json
+    if os.path.exists("assigned_roles.json"):
         try:
-            if os.path.exists(assigned_roles_path):
-                os.remove(assigned_roles_path)
-                print("✅ Fichier assigned_roles.json supprimé")
+            os.remove("assigned_roles.json")
+            print("✅ Fichier assigned_roles.json supprimé")
         except Exception as e:
             print(f"❌ Erreur lors de la suppression de assigned_roles.json : {e}")
 
-        await interaction.followup.send("✅ Réinitialisation complète effectuée :\n- Rôles VIP supprimés\n- Fichiers JSON réinitialisés")
-    except Exception as e:
-        print(f"❌ Erreur générale : {e}")
-        await interaction.followup.send(f"❌ Une erreur est survenue lors de la réinitialisation : {str(e)}")
+    # 2. Réinitialisation des fichiers JSON des serveurs
+    initial_data = {
+        "serveur": "",
+        "nombre_de_jeux": 0,
+        "mises_totales_avant_commission": "0 jetons",
+        "gains_totaux": "0 jetons",
+        "commission_totale": "0 jetons",
+        "utilisateurs": {},
+        "hôtes": {},
+        "croupiers": {}
+    }
+
+    files = ["T1.json", "T2.json", "O1.json", "H1.json", "E1.json"]
+    for file in files:
+        try:
+            data = initial_data.copy()
+            data["serveur"] = file.replace(".json", "")
+            with open(file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=4, ensure_ascii=False)
+            print(f"✅ {file} réinitialisé")
+        except Exception as e:
+            print(f"❌ Erreur pour {file}: {e}")
+
+    await interaction.followup.send("✅ Réinitialisation complète effectuée :\n- Rôles VIP supprimés\n- Fichiers JSON réinitialisés")
 
 @bot.tree.command(name="host_info", description="Affiche les informations d'un hôte")
 @is_admin()
@@ -827,13 +788,3 @@ def run_bot():
 if __name__ == "__main__":
     threading.Thread(target=run_flask).start()  # Lancer Flask dans un thread
     run_bot()  # Lancer le bot Discord
-
-def save_json(filename, data):
-    """
-    Sauvegarde des données dans un fichier JSON.
-    """
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    absolute_path = os.path.join(script_dir, filename)
-    with open(absolute_path, "w", encoding="utf-8") as file:
-        json.dump(data, file, ensure_ascii=False, indent=4)
-    print(f"✅ Fichier sauvegardé : {absolute_path}")
