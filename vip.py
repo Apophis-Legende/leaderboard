@@ -137,9 +137,10 @@ async def check_vip_status(file_name, channel: discord.TextChannel):
     print(f"🔄 Lecture des données pour le serveur : {server_name}...")
 
     try:
-        server_data = db.get(server_name)
+        key = f"{server_name}.json"
+        server_data = db[key]
         if not server_data:
-            print(f"📝 Initialisation des données pour {server_name}")
+            print(f"📝 Initialisation des données pour {key}")
             server_data = {
                 "serveur": server_name,
                 "nombre_de_jeux": 0,
@@ -150,9 +151,8 @@ async def check_vip_status(file_name, channel: discord.TextChannel):
                 "hôtes": {},
                 "croupiers": {}
             }
-            db[server_name] = server_data
-    except Exception as e:
-        print(f"❌ Une erreur est survenue : {e}")
+            db[key] = server_data
+        print(f"✅ Données chargées: {server_data}")
 
 
         users = server_data.get("utilisateurs", {})
