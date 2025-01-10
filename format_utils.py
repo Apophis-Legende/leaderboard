@@ -1,6 +1,6 @@
+
 import json
-import os
-from vip import MAPPING_SERVER_FILE
+from vip import calculate_vip_tier
 
 # Mapping des niveaux VIP et seuils
 VIP_TIERS = {
@@ -9,21 +9,21 @@ VIP_TIERS = {
     3: 20000  # 20000 jetons
 }
 
-# Mapping des fichiers serveur (This is now in vip.py)
-# MAPPING_SERVER_FILE = {
-#     "Tiliwan1": "T1.json",
-#     "Tiliwan2": "T2.json",
-#     "Oshimo": "O1.json",
-#     "Herdegrize": "H1.json",
-#     "Euro": "E1.json"
-# }
+# Mapping des fichiers serveur
+MAPPING_SERVER_FILE = {
+    "Tiliwan1": "T1.json",
+    "Tiliwan2": "T2.json",
+    "Oshimo": "O1.json",
+    "Herdegrize": "H1.json",
+    "Euro": "E1.json"
+}
 
 def format_kamas(jetons_amount):
     """Convert jetons to kamas format"""
     try:
         amount = int(jetons_amount.split(' ')[0])
         kamas = amount * 10000  # 1 jeton = 10k kamas
-
+        
         if kamas >= 1000000:
             millions = kamas/1000000
             whole = int(millions)
@@ -52,42 +52,22 @@ def calculate_vip_tier(total_bets):
             return tier
     return None
 
-def format_vip_value(amount):
-    """Format VIP values with proper styling"""
-    try:
-        value = int(amount.split(' ')[0])
-        kamas = value * 10000
-        if kamas >= 1000000:
-            return f"{kamas/1000000:.1f}M"
-        return f"{kamas//1000}K"
-    except:
-        return "0K"
-
 def get_highest_vip(user_id, server):
     """Get highest VIP level for user"""
     try:
-        file_path = f"{server}.json"
-        if not os.path.exists(file_path):
-            print(f"❌ Erreur VIP: Fichier {file_path} non trouvé")
-            return {"vip": 0}
-
+        file_path = MAPPING_SERVER_FILE.get(server)
+        if not file_path:
+            print(f"Erreur VIP: Server {server} non trouvé dans le mapping")
+            return "---"
+            
         with open(file_path, 'r') as f:
             data = json.load(f)
-            users = data.get("utilisateurs", {})
-            user_data = users.get(str(user_id), {})
-            total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
-            
-            # Déterminer le plus haut niveau VIP
-            highest_vip = 0
-            for tier, threshold in sorted(VIP_TIERS.items()):
-                if total_bets >= threshold:
-                    highest_vip = tier
-
-            return {"vip": highest_vip}
+            if str(user_id) in data.get('utilisateurs', {}):
+                user_data = data['utilisateurs'][str(user_id)]
+                total_bets = int(user_data.get('total_bets', '0 jetons').split(' ')[0])
+                
+                vip_tier = calculate_vip_tier(total_bets)
+                return f"VIP {vip_tier}" if vip_tier else "---"
     except Exception as e:
         print(f"Erreur VIP: {e}")
-        return {
-            'vip1': "0 jetons",
-            'vip2': "0 jetons",
-            'vip3': "0 jetons"
-        }
+    return "---"
