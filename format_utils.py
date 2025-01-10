@@ -54,8 +54,9 @@ def calculate_vip_tier(total_bets):
 def get_highest_vip(user_id, server):
     """Get highest VIP level for user"""
     try:
-        server_code = server.replace("Tiliwan1", "T1").replace("Tiliwan2", "T2").replace("Oshimo", "O1").replace("Herdegrize", "H1").replace("Euro", "E1")
-        file_path = MAPPING_SERVER_FILE.get(server_code)
+        # Use the server code directly since it's already in the correct format
+        file_path = f"{server}.json"
+        print(f"Loading VIP data from: {file_path}")
 
         if not file_path:
             print(f"Erreur VIP: Server {server} non trouvé dans le mapping")

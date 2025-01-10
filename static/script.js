@@ -10,9 +10,13 @@ function loadServerData(server) {
             fetch(`/api/vip_status?server=${server}&user_id=0`)
                 .then(response => {
                     console.log('VIP Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
                     return response.json();
                 })
                 .then(vipData => {
+                    console.log('VIP Data received:', vipData);
                     console.log('VIP Data received:', vipData);
                     document.getElementById('vip1-share').textContent = vipData.vip1;
                     document.getElementById('vip2-share').textContent = vipData.vip2;
