@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+from data_manager import load_json, save_json
 
 # Mapping des serveurs vers les fichiers JSON
 MAPPING_SERVER_FILE = {
@@ -11,21 +12,6 @@ MAPPING_SERVER_FILE = {
     "E1": "E1.json"
 }
 
-# Charger un fichier JSON local
-def load_json(filename, default_data=None):
-    try:
-        absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
-        with open(absolute_path, "r", encoding="utf-8") as file:
-            return json.load(file)
-    except FileNotFoundError:
-        return default_data or {}
-
-# Sauvegarder un fichier JSON local
-def save_json(filename, data):
-    absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
-    with open(absolute_path, "w", encoding="utf-8") as file:
-        json.dump(data, file, ensure_ascii=False, indent=4)
-    print(f"✅ Fichier sauvegardé : {absolute_path}")
 
 # Convertir un montant "123 jetons" en entier
 def convert_amount_to_int(amount_str):

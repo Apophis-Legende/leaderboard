@@ -15,24 +15,7 @@ MAPPING_SERVER_FILE = {
     "E1": "E1.json"
 }
 
-def load_json(filename, default_data=None):
-    """
-    Charge un fichier JSON ou retourne les données par défaut si le fichier n'existe pas.
-    """
-    absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
-    if os.path.exists(absolute_path):
-        with open(absolute_path, "r", encoding="utf-8") as file:
-            return json.load(file)
-    return default_data or {}
-
-def save_json(filename, data):
-    """
-    Sauvegarde des données dans un fichier JSON.
-    """
-    absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
-    with open(absolute_path, "w", encoding="utf-8") as file:
-        json.dump(data, file, ensure_ascii=False, indent=4)
-    print(f"✅ Fichier sauvegardé : {absolute_path}")
+from data_manager import load_json, save_json
 
 def convert_amount_to_float(amount_str):
     """
