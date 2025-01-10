@@ -6,12 +6,24 @@ def load_json(filename, default_data=None):
     Charge les données depuis Replit DB avec une valeur par défaut
     """
     if default_data is None:
-        default_data = {}
+        default_data = {
+            "serveur": filename.replace('.json', ''),
+            "nombre_de_jeux": 0,
+            "mises_totales_avant_commission": "0 jetons",
+            "gains_totaux": "0 jetons", 
+            "commission_totale": "0 jetons",
+            "utilisateurs": {},
+            "hôtes": {},
+            "croupiers": {}
+        }
     try:
-        if filename in db:
-            return db[filename]
-        db[filename] = default_data
-        return default_data
+        print(f"🔄 Chargement des données pour {filename}...")
+        data = db.get(filename)
+        if data is None:
+            print(f"📝 Création des données initiales pour {filename}")
+            db[filename] = default_data
+            return default_data
+        return data
     except Exception as e:
         print(f"❌ Erreur lors du chargement des données {filename}: {e}")
         return default_data
