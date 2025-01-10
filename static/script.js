@@ -26,6 +26,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (data.utilisateurs && Object.keys(data.utilisateurs).length > 0) {
             Object.values(data.utilisateurs).forEach((user) => {
+                let vipDisplay = '---';
+                if (user.vip_tier) {
+                    vipDisplay = `VIP ${user.vip_tier}`;
+                }
                 const row = `
                     <tr>
                         <td>${user.username || "Inconnu"}</td>
@@ -33,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <td>${user.total_losses || 0}</td>
                         <td>${user.total_bets || 0}</td>
                         <td>${user.participation || 0}</td>
+                        <td>${vipDisplay}</td>
                     </tr>`;
                 tbody.innerHTML += row;
             });
