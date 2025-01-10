@@ -152,9 +152,9 @@ async def check_vip_status(file_name, channel: discord.TextChannel):
             return
             
         for user_id, user_data in users.items():
-        print(f"🔍 Utilisateur {user_id} : {user_data}")
+            print(f"🔍 Utilisateur {user_id} : {user_data}")
 
-        # Extraire la mise totale
+            # Extraire la mise totale
         try:
             total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
         except ValueError:
