@@ -786,7 +786,16 @@ async def host_info(interaction: discord.Interaction, user_id: str):
 
 # Lancer le bot Discord
 def run_bot():
-    bot.run(os.getenv("TOKEN"))
+    while True:
+        try:
+            bot.run(os.getenv("TOKEN"))
+        except discord.errors.HTTPException as e:
+            if e.status == 429:  # Rate limit error
+                print(f"Rate limit hit. Waiting 30 seconds before retrying...")
+                import time
+                time.sleep(30)
+                continue
+            raise e
 
 # Exécuter Flask et Discord en parallèle
 if __name__ == "__main__":
