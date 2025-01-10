@@ -37,6 +37,13 @@ VIP_TIERS = {
     3: 20000
 }
 
+def update_vip_tier(tier: int, value: int) -> bool:
+    """Met à jour la valeur d'un palier VIP."""
+    if tier in VIP_TIERS:
+        VIP_TIERS[tier] = value
+        return True
+    return False
+
 # Liste des ID des rôles interdits de recevoir un VIP
 FORBIDDEN_ROLES = [
     1163157667674603582,  # ID du rôle "Croupiers"
