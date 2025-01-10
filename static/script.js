@@ -1,160 +1,59 @@
-// Constantes VIP
-const VIP_STYLES = {
-    VIP1: 'color: #68d391; font-weight: bold;',
-    VIP2: 'color: #4299e1; font-weight: bold;',
-    VIP3: 'color: #f6ad55; font-weight: bold;'
-};
-
-const VIP_TIERS = {
-    1: 4000,  // 4000 jetons
-    2: 10000, // 10000 jetons
-    3: 20000  // 20000 jetons
-};
-
-const KAMAS_PER_JETON = 10000;
-
-// Fonction pour charger les données du serveur
-function loadServerData(server) {
-    fetch(`/api/leaderboard?server=${server}`)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('current-server-name').textContent = server;
-
-            // Récupération et calcul des VIP
-            console.log(`Fetching VIP data for server: ${server}`);
-            fetch(`/api/vip_status?server=${server}&user_id=0`)
-                .then(response => {
-                    console.log('VIP Response status:', response.status);
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(vipData => {
-                    console.log('VIP Data received:', vipData);
-                    console.log('VIP Data received:', vipData);
-                    const vip1El = document.getElementById('vip1-share');
-                    const vip2El = document.getElementById('vip2-share');
-                    const vip3El = document.getElementById('vip3-share');
-
-                    vip1El.textContent = vipData.vip1.amount || "0K";
-                    vip2El.textContent = vipData.vip2.amount || "0K";
-                    vip3El.textContent = vipData.vip3.amount || "0K";
-
-                    vip1El.style.cssText = vipData.vip1.style || 'color: #68d391; font-weight: bold;';
-                    vip2El.style.cssText = vipData.vip2.style || 'color: #4299e1; font-weight: bold;';
-                    vip3El.style.cssText = vipData.vip3.style || 'color: #f6ad55; font-weight: bold;';
-
-                    document.getElementById('total-commission').textContent = 
-                        vipData.vip1.amount + ' + ' + vipData.vip2.amount + ' + ' + vipData.vip3.amount;
-                })
-                .catch(error => {
-                    console.error('Erreur VIP:', error);
-                    resetVipDisplays();
-                });
-
-            updateLeaderboard(data);
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            resetVipDisplays();
-        });
-}
-
-function resetVipDisplays() {
-    document.getElementById('vip1-share').textContent = '0 jetons';
-    document.getElementById('vip2-share').textContent = '0 jetons';
-    document.getElementById('vip3-share').textContent = '0 jetons';
-    document.getElementById('total-commission').textContent = '0 jetons';
-}
-
-function updateLeaderboard(data) {
-    const tbody = document.getElementById('leaderboard-body');
-    tbody.innerHTML = '';
-
-    const users = data.utilisateurs || {};
-    Object.entries(users).forEach(([userId, userData]) => {
-        const row = document.createElement('tr');
-
-        const nameCell = document.createElement('td');
-        nameCell.textContent = userData.username;
-
-        const benefitCell = document.createElement('td');
-        const benefit = calculateBenefit(userData.total_wins, userData.total_bets);
-        benefitCell.textContent = formatKamas(benefit);
-
-        const betsCell = document.createElement('td');
-        betsCell.textContent = formatKamas(userData.total_bets);
-
-        const vipCell = document.createElement('td');
-        vipCell.textContent = calculateVipLevel(userData.total_bets);
-
-        row.appendChild(nameCell);
-        row.appendChild(benefitCell);
-        row.appendChild(betsCell);
-        row.appendChild(vipCell);
-        tbody.appendChild(row);
-    });
-}
-
-function calculateBenefit(wins, bets) {
-    const winAmount = parseInt(wins?.split(' ')[0]) || 0;
-    const betAmount = parseInt(bets?.split(' ')[0]) || 0;
-    return `${winAmount - betAmount} jetons`;
-}
-
-function formatKamas(jetons) {
-    const amount = parseInt(jetons?.split(' ')[0]) || 0;
-    const kamas = amount * 10000;
-    if (kamas >= 1000000) {
-        return `${(kamas / 1000000).toFixed(1)}M`;
+document.addEventListener("DOMContentLoaded", function () {
+    // Fonction pour charger les données du leaderboard via l'API Flask
+    function loadLeaderboardData(server) {
+        console.log(`🔄 Chargement des données pour le serveur : ${server}`);
+        fetch(`/api/leaderboard?server=${server}`)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Erreur API : ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log("📥 Données reçues :", data);
+                updateLeaderboardTable(data);
+            })
+            .catch((error) => {
+                console.error("❌ Erreur lors de la récupération des données :", error);
+                displayErrorMessage("Erreur lors du chargement des données. Veuillez réessayer.");
+            });
     }
-    return `${(kamas / 1000).toFixed(0)}K`;
-}
 
-function calculateVipLevel(totalBets) {
-    const bets = parseInt(totalBets?.split(' ')[0]) || 0;
-    if (bets >= 20000) return 'VIP 3';
-    if (bets >= 10000) return 'VIP 2';
-    if (bets >= 4000) return 'VIP 1';
-    return '---';
-}
+    // Met à jour le tableau avec les données reçues
+    function updateLeaderboardTable(data) {
+        const tbody = document.getElementById("leaderboard-body");
+        tbody.innerHTML = ""; // Vide le tableau existant
 
-function calculateVipValue(amount) {
-    try {
-        const value = parseInt(amount.split(' ')[0]) || 0;
-        const kamas = value * 10000;
-        if (kamas >= 1000000) {
-            return `${(kamas/1000000).toFixed(1)}M`;
+        if (data.utilisateurs && Object.keys(data.utilisateurs).length > 0) {
+            Object.values(data.utilisateurs).forEach((user) => {
+                const row = `
+                    <tr>
+                        <td>${user.username || "Inconnu"}</td>
+                        <td>${user.total_wins || 0}</td>
+                        <td>${user.total_losses || 0}</td>
+                        <td>${user.total_bets || 0}</td>
+                        <td>${user.participation || 0}</td>
+                    </tr>`;
+                tbody.innerHTML += row;
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5">Aucune donnée disponible</td></tr>';
         }
-        return `${Math.floor(kamas/1000)}K`;
-    } catch {
-        return '0K';
     }
-}
 
-document.getElementById('server-select').addEventListener('change', function() {
-    loadServerData(this.value);
+    // Affiche un message d'erreur dans le tableau
+    function displayErrorMessage(message) {
+        const tbody = document.getElementById("leaderboard-body");
+        tbody.innerHTML = `<tr><td colspan="5" class="error">${message}</td></tr>`;
+    }
+
+    // Gestionnaire d'événements pour le menu déroulant
+    document.getElementById("server-select").addEventListener("change", function () {
+        const server = this.value;
+        loadLeaderboardData(server);
+    });
+
+    // Charger les données pour le serveur par défaut au démarrage
+    const defaultServer = document.getElementById("server-select").value;
+    loadLeaderboardData(defaultServer);
 });
-
-// Chargement initial
-loadServerData(document.getElementById('server-select').value);
-
-function getHighestVip(userId, server) {
-    return fetch(`/api/vip_status?user_id=${userId}&server=${server}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            const tier = Math.max(
-                data.vip1 ? 1 : 0,
-                data.vip2 ? 2 : 0,
-                data.vip3 ? 3 : 0
-            );
-            return tier > 0 ? `VIP ${tier}` : '---';
-        })
-        .catch(() => '---');
-}
