@@ -153,19 +153,28 @@ async def check_vip_status(file_name, channel: discord.TextChannel):
             
         for user_id, user_data in users.items():
             print(f"🔍 Utilisateur {user_id} : {user_data}")
+            try:
+                # Extraire la mise totale
+                total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
+                
+                # Calculer le palier VIP
+                new_vip_tier = calculate_vip_tier(total_bets)
 
-            # Extraire la mise totale
-        try:
-            total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
-        except ValueError:
-            print(f"❌ Erreur de format pour les mises de l'utilisateur {user_id}. Ignoré.")
-            continue
-
-        # Calculer le palier VIP
-        new_vip_tier = calculate_vip_tier(total_bets)
-
-        if new_vip_tier:
-            # Vérifiez que le membre est présent dans le serveur
+                if new_vip_tier:
+                    # Vérifiez que le membre est présent dans le serveur
+                    try:
+                        member = await channel.guild.fetch_member(int(user_id))
+                        # Assigner le rôle VIP en fonction du serveur et du niveau VIP
+                        server_name = file_name.split('.')[0]  # Extrait "T1" de "T1.json"
+                        await assign_vip_role(member, server_name, new_vip_tier, channel.guild)
+                    except discord.NotFound:
+                        print(f"❌ Le membre {user_id} n'a pas pu être trouvé.")
+                        continue
+            except ValueError:
+                print(f"❌ Erreur de format pour les mises de l'utilisateur {user_id}. Ignoré.")
+                continue
+    except Exception as e:
+        print(f"❌ Erreur lors du traitement des données : {e}")
             try:
                 member = await channel.guild.fetch_member(int(user_id))
             except discord.NotFound:
