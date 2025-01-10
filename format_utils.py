@@ -76,7 +76,11 @@ def get_highest_vip(user_id, server):
         with open(file_path, 'r') as f:
             data = json.load(f)
             commission_str = data.get('commission_totale', '0 jetons')
-            commission_totale = int(commission_str.split(' ')[0])
+            try:
+                commission_totale = int(commission_str.split(' ')[0])
+            except (ValueError, IndexError):
+                print(f"Erreur de conversion commission: {commission_str}")
+                commission_totale = 0
             redistribution = commission_totale // 2  # 50% de la commission totale
             
             # Calculer les parts VIP

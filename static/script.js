@@ -34,12 +34,29 @@ function loadServerData(server) {
             
             // Appel API pour récupérer les données VIP
             fetch(`/api/vip_status?server=${server}&user_id=0`)
-                .then(response => response.json())
-                .then(vipData => {
-                    document.getElementById('vip1-share').textContent = vipData.vip1;
-                    document.getElementById('vip2-share').textContent = vipData.vip2;
-                    document.getElementById('vip3-share').textContent = vipData.vip3;
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur réseau');
+                    }
+                    return response.json();
                 })
+                .then(vipData => {
+                    console.log('Données VIP reçues:', vipData);
+                    if (vipData && typeof vipData === 'object') {
+                        document.getElementById('vip1-share').textContent = vipData.vip1 || '0 jetons';
+                        document.getElementById('vip2-share').textContent = vipData.vip2 || '0 jetons';
+                        document.getElementById('vip3-share').textContent = vipData.vip3 || '0 jetons';
+                        document.getElementById('total-commission').textContent = vipData.total || '0 jetons';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur VIP:', error);
+                    // Valeurs par défaut en cas d'erreur
+                    document.getElementById('vip1-share').textContent = '0 jetons';
+                    document.getElementById('vip2-share').textContent = '0 jetons';
+                    document.getElementById('vip3-share').textContent = '0 jetons';
+                    document.getElementById('total-commission').textContent = '0 jetons';
+                });
                 .catch(error => console.error('Erreur VIP:', error));
             
             // Mise à jour du tableau
