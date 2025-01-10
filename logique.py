@@ -155,11 +155,18 @@ async def process_giveaway_data(raw_data, channel):
         server_data["hôtes"][host_id]["total_commission"] = format_amount(current_host_commission + commission_total)
 
         save_json(file_name, server_data)
-        print(f"✅ Données sauvegardées pour le serveur {server} dans {file_name}")
-        print(f"📊 Statistiques mises à jour :")
-        print(f"- Mise totale : {total_bet_before_commission} jetons")
-        print(f"- Gain : {gain_after_commission} jetons")
-        print(f"- Commission : {commission_total} jetons")
+        
+        # Vérification que les données ont bien été sauvegardées
+        verification_data = load_json(file_name)
+        if verification_data == server_data:
+            print(f"✅ Données sauvegardées avec succès dans {file_name}")
+            print(f"📊 Statistiques sauvegardées :")
+            print(f"- Mise totale : {total_bet_before_commission} jetons")
+            print(f"- Gain : {gain_after_commission} jetons")
+            print(f"- Commission : {commission_total} jetons")
+            print(f"- Nombre de joueurs : {len(server_data['utilisateurs'])}")
+        else:
+            raise Exception(f"❌ Erreur de vérification pour {file_name}")
 
         return {
             "server": server,
