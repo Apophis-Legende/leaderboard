@@ -50,8 +50,11 @@ async def process_giveaway_data(raw_data, channel):
     Traite les données brutes d'un giveaway et met à jour le fichier JSON du serveur concerné.
     """
     try:
+        print("🔄 Début du traitement des données giveaway")
         if "giveaway" not in raw_data or "winners" not in raw_data or "entries" not in raw_data:
             raise KeyError("Les clés 'giveaway', 'winners' ou 'entries' sont manquantes dans les données.")
+        
+        script_dir = os.path.dirname(os.path.abspath(__file__))
 
         giveaway_info = raw_data["giveaway"]
         prize = giveaway_info["prize"]
@@ -61,7 +64,9 @@ async def process_giveaway_data(raw_data, channel):
         commission_total = total_bet_before_commission - gain_after_commission
 
         file_name = f"{server}.json"
-        server_data = load_json(file_name, {
+        absolute_path = os.path.join(script_dir, file_name)
+        print(f"📂 Chemin du fichier : {absolute_path}")
+        server_data = load_json(absolute_path, {
             "serveur": server,
             "nombre_de_jeux": 0,
             "mises_totales_avant_commission": "0 jetons",
@@ -149,8 +154,13 @@ async def process_giveaway_data(raw_data, channel):
         server_data["hôtes"][host_id]["total_bets"] = format_amount(current_host_bets + total_bet_before_commission)
         server_data["hôtes"][host_id]["total_commission"] = format_amount(current_host_commission + commission_total)
 
-        save_json(file_name, server_data)
-        print(f"✅ Données sauvegardées pour le serveur {server} dans {file_name}.")
+        try:
+            save_json(absolute_path, server_data)
+            print(f"✅ Données sauvegardées pour le serveur {server} dans {absolute_path}")
+            await channel.send(f"✅ Données sauvegardées avec succès pour le serveur {server}")
+        except Exception as save_error:
+            print(f"❌ Erreur lors de la sauvegarde : {save_error}")
+            await channel.send(f"❌ Erreur lors de la sauvegarde des données : {save_error}")
 
         return {
             "server": server,
