@@ -154,14 +154,13 @@ async def check_vip_status(file_name, channel: discord.TextChannel):
             db[key] = server_data
         print(f"✅ Données chargées: {server_data}")
 
-
         users = server_data.get("utilisateurs", {})
         print(f"🔍 Utilisateurs trouvés : {users}")
 
         if not users:
             print(f"ℹ️ Aucun utilisateur trouvé pour le serveur {server_name}")
             return
-            
+
         for user_id, user_data in users.items():
             print(f"🔍 Utilisateur {user_id} : {user_data}")
             try:
@@ -172,25 +171,19 @@ async def check_vip_status(file_name, channel: discord.TextChannel):
                 new_vip_tier = calculate_vip_tier(total_bets)
 
                 if new_vip_tier:
-                    # Vérifiez que le membre est présent dans le serveur
                     try:
+                        # Vérifiez que le membre est présent dans le serveur
                         member = await channel.guild.fetch_member(int(user_id))
                         # Assigner le rôle VIP en fonction du serveur et du niveau VIP
                         server_name = file_name.split('.')[0]  # Extrait "T1" de "T1.json"
                         await assign_vip_role(member, server_name, new_vip_tier, channel.guild)
                     except discord.NotFound:
                         print(f"❌ Le membre {user_id} n'a pas pu être trouvé.")
-                        continue  # Correct ici car dans une boucle for
             except ValueError:
                 print(f"❌ Erreur de format pour les mises de l'utilisateur {user_id}. Ignoré.")
                 continue
-
-
-            
-            # Assigner le rôle VIP en fonction du serveur et du niveau VIP
-            server_name = file_name.split('.')[0]  # Extrait "T1" de "T1.json"
-            await assign_vip_role(member, server_name, new_vip_tier, channel.guild)
-
+    except Exception as e:
+        print(f"❌ Une erreur inattendue s'est produite : {e}")
 
 def load_server_json(file_name):
     """
@@ -198,7 +191,7 @@ def load_server_json(file_name):
     """
     from replit import db
     server_name = file_name.replace('.json', '')
-    
+
     try:
         data = db.get(server_name)
         if data is None:
@@ -216,9 +209,6 @@ def load_server_json(file_name):
             db[server_name] = initial_data
             return initial_data
         return dict(data)
-    except Exception as e:
-        print(f"❌ Erreur lors du chargement des données {server_name}: {e}")
-        return {}
     except Exception as e:
         print(f"❌ Erreur lors du chargement des données {server_name}: {e}")
         return {}
