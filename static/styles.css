@@ -126,21 +126,22 @@ tr:hover {
     }
 }
 
-.vip-redistribution {
-    margin-top: 30px;
-    padding: 20px;
-    background-color: white;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.vip-info {
+    width: 90%;
+    max-width: 1000px;
+    margin: 20px 0;
+    display: flex; /*Added to allow horizontal display*/
+    justify-content: space-between; /*Added to distribute space*/
+    align-items: center;
 }
 
-.vip-redistribution h2 {
-    color: #333;
-    margin-bottom: 15px;
-}
-
-.vip-redistribution p {
-    margin: 10px 0;
+.vip-rates {
+    color: white;
+    font-weight: bold;
     font-size: 16px;
-    font-weight: bold; /* Added to make VIP lines bold */
+    background-color: transparent; /*Removes white background*/
+}
+
+.vip-rates span {
+    margin: 0 10px;
 }

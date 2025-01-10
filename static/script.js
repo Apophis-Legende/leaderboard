@@ -51,9 +51,34 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("server-select").addEventListener("change", function () {
         const server = this.value;
         loadLeaderboardData(server);
+        updateVipInfo(server);
+    });
+
+    function updateVipInfo(server) {
+        fetch(`/api/vip-info?server=${server}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('current-server-name').textContent = server;
+                document.getElementById('total-commission').textContent = data.commission_totale;
+                const vipCounts = data.vip_counts || { 1: 0, 2: 0, 3: 0 };
+
+                // Ajuster les pourcentages en fonction du nombre de VIP
+                for (let tier = 1; tier <= 3; tier++) {
+                    const count = vipCounts[tier];
+                    const baseShare = tier === 1 ? 20 : tier === 2 ? 30 : 50;
+                    const actualShare = count === 0 ? '0' : `${baseShare}`;
+                    document.getElementById(`vip${tier}-share`).textContent = actualShare + '%';
+                }
+            });
+    }
+
+    document.getElementById('server-select').addEventListener('change', function() {
+        const server = this.value;
+        updateVipInfo(server);
     });
 
     // Charger les données pour le serveur par défaut au démarrage
     const defaultServer = document.getElementById("server-select").value;
     loadLeaderboardData(defaultServer);
+    updateVipInfo(defaultServer);
 });
