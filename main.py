@@ -62,9 +62,9 @@ def update_data():
 
 def load_json(filename, default_data=None):
     """Charge un fichier JSON ou retourne les données par défaut si le fichier n'existe pas."""
-    filepath = os.path.join("json_files", filename)  # Dossier dédié pour les fichiers JSON
-    if os.path.exists(filepath):
-        with open(filepath, "r", encoding="utf-8") as file:
+    absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
+    if os.path.exists(absolute_path):
+        with open(absolute_path, "r", encoding="utf-8") as file:
             return json.load(file)
     return default_data or {}
 

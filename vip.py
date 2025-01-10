@@ -172,12 +172,24 @@ def load_server_json(file_name):
     if not file_name.endswith(".json"):
         file_name += ".json"
 
+    absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), file_name)
     try:
-        with open(file_name, "r", encoding="utf-8") as f:
+        with open(absolute_path, "r", encoding="utf-8") as f:
             return json.load(f)
     except FileNotFoundError:
-        print(f"❌ Fichier introuvable : {file_name}")
-        return {}
+        print(f"❌ Fichier introuvable : {absolute_path}")
+        initial_data = {
+            "serveur": file_name.replace('.json', ''),
+            "nombre_de_jeux": 0,
+            "mises_totales_avant_commission": "0 jetons",
+            "gains_totaux": "0 jetons",
+            "commission_totale": "0 jetons",
+            "utilisateurs": {},
+            "hôtes": {},
+            "croupiers": {}
+        }
+        save_json(file_name, initial_data)
+        return initial_data
     except json.JSONDecodeError:
         print(f"❌ Erreur de format dans le fichier JSON : {file_name}")
         return {}
