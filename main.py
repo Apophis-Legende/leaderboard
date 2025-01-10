@@ -60,13 +60,30 @@ def update_data():
         app.logger.error(f"Erreur dans /update_data : {e}")
         return jsonify({"error": f"Une erreur est survenue : {e}"}), 500
 
-def load_json(filename, default_data=None):
-    """Charge un fichier JSON ou retourne les données par défaut si le fichier n'existe pas."""
-    filepath = os.path.join("json_files", filename)  # Dossier dédié pour les fichiers JSON
-    if os.path.exists(filepath):
-        with open(filepath, "r", encoding="utf-8") as file:
-            return json.load(file)
-    return default_data or {}
+def load_json(filename):
+    """
+    Simule la lecture d'un fichier JSON en utilisant Replit DB.
+    """
+    try:
+        # Charger depuis Replit DB comme si c'était un fichier
+        data = db[filename] if filename in db else None
+        if data is None:
+            # Structure par défaut si le "fichier" n'existe pas
+            data = {
+                "serveur": filename.replace(".json", ""),
+                "nombre_de_jeux": 0,
+                "mises_totales_avant_commission": "0 jetons",
+                "gains_totaux": "0 jetons",
+                "commission_totale": "0 jetons",
+                "utilisateurs": {},
+                "hôtes": {},
+                "croupiers": {}
+            }
+            db[filename] = data  # Sauvegarder la structure par défaut
+        return data
+    except Exception as e:
+        print(f"❌ Erreur lors du chargement des données {filename}: {e}")
+        return None
 
 @app.route('/')
 def index():
@@ -770,7 +787,7 @@ async def reset_all(interaction: discord.Interaction):
 
     # Réinitialiser les rôles assignés dans la db
     db["assigned_roles.json"] = {"users": {}}
-    
+
     await interaction.followup.send("✅ Réinitialisation complète effectuée :\n- Rôles VIP supprimés\n- Données réinitialisées")
 
 @bot.tree.command(name="host_info", description="Affiche les informations d'un hôte")
