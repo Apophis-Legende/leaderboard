@@ -1,4 +1,5 @@
 import json
+import os
 from vip import MAPPING_SERVER_FILE
 
 # Mapping des niveaux VIP et seuils
@@ -58,8 +59,8 @@ def get_highest_vip(user_id, server):
         file_path = f"{server}.json"
         print(f"Loading VIP data from: {file_path}")
 
-        if not file_path:
-            print(f"Erreur VIP: Server {server} non trouvé dans le mapping")
+        if not os.path.exists(file_path):
+            print(f"Erreur VIP: Fichier {file_path} non trouvé")
             return {
                 'vip1': "0 jetons",
                 'vip2': "0 jetons",
