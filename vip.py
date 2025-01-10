@@ -219,6 +219,9 @@ def load_server_json(file_name):
     except Exception as e:
         print(f"❌ Erreur lors du chargement des données {server_name}: {e}")
         return {}
+    except Exception as e:
+        print(f"❌ Erreur lors du chargement des données {server_name}: {e}")
+        return {}
 
 def calculate_vip_tier(total_bets):
     """
