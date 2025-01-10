@@ -116,6 +116,9 @@
                 .then(response => response.json())
                 .then(data => {
                     updateLeaderboardTable(data); // Mettre à jour la table avec les données reçues
+                    if (data && data.totalCommission) {
+                        updateVIPValues(data.totalCommission);
+                    }
                 })
                 .catch(error => {
                     console.error("Erreur lors de la récupération des données :", error);
@@ -159,6 +162,9 @@
                         .then(data => {
                             if (data && data.utilisateurs) {
                                 updateLeaderboardTable(data);
+                                if (data && data.totalCommission) {
+                                    updateVIPValues(data.totalCommission);
+                                }
                             }
                         })
                         .catch(error => {
@@ -186,6 +192,25 @@
             currentServer = this.value; // Changer le serveur courant
             fetchLeaderboardData(); // Charger les nouvelles données
         });
+
+        function formatKamasMillions(jetons) {
+            const kamas = jetons * 10000; // 1 jeton = 10k kamas
+            const millions = kamas / 1000000;
+            return millions >= 1 ? `${millions.toFixed(1)}M Kamas` : `${(kamas/1000).toFixed(0)}K Kamas`;
+        }
+
+        function updateVIPValues(commission) {
+            const totalCommission = parseInt(commission.split(' ')[0]);
+
+            const vip1Amount = totalCommission * 0.20;
+            const vip2Amount = totalCommission * 0.30;
+            const vip3Amount = totalCommission * 0.50;
+
+            document.getElementById('vip1-share').textContent = formatKamasMillions(vip1Amount);
+            document.getElementById('vip2-share').textContent = formatKamasMillions(vip2Amount);
+            document.getElementById('vip3-share').textContent = formatKamasMillions(vip3Amount);
+            document.getElementById('total-commission').textContent = formatKamasMillions(totalCommission);
+        }
     </script>
 </body>
 </html>
