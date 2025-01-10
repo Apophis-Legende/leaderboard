@@ -245,7 +245,7 @@ async def send_data_to_flask(data):
 @bot.event
 async def on_ready():
     print(f"✅ Bot connecté en tant que : {bot.user}")
-    ensure_forbidden_users_file_exists()
+    ensure_forbidden_users_exists()
     print(f"✅ Bot connecté en tant que : {bot.user}")
     print(f"✅ ID du bot : {bot.user.id}")
 

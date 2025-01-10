@@ -50,18 +50,16 @@ MAPPING_SERVER_FILE = {
     "E1": "E1.json"
 }
 
-def ensure_forbidden_users_file_exists():
+def ensure_forbidden_users_exists():
     """
-    Vérifie si le fichier forbidden_vip_users.json existe et le crée avec un contenu vide si nécessaire.
+    Vérifie si la clé forbidden_vip_users existe dans Replit DB.
     """
-    file_name = "forbidden_vip_users.json"
-    if not os.path.exists(file_name):
-        print(f"📁 Le fichier {file_name} n'existe pas. Création en cours...")
-        with open(file_name, "w", encoding="utf-8") as f:
-            json.dump({}, f, indent=4, ensure_ascii=False)  # Fichier vide avec un dictionnaire
-        print(f"✅ Fichier {file_name} créé avec succès.")
+    if "forbidden_vip_users" not in db:
+        print("📁 Initialisation des utilisateurs interdits dans la DB...")
+        db["forbidden_vip_users"] = {}
+        print("✅ Structure des utilisateurs interdits initialisée dans la DB.")
     else:
-        print(f"✔️ Le fichier {file_name} existe déjà.")
+        print("✔️ Structure des utilisateurs interdits existe déjà dans la DB.")
 
 def save_forbidden_vip_users(forbidden_users):
     """
