@@ -55,25 +55,39 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function updateVipInfo(server) {
-        fetch(`/api/vip-info?server=${server}`)
+        const serverMapping = {
+            "Tiliwan1": "T1.json",
+            "Tiliwan2": "T2.json",
+            "Oshimo": "O1.json",
+            "Herdegrize": "H1.json",
+            "Euro": "E1.json"
+        };
+
+        const fileName = serverMapping[server];
+        if (!fileName) return;
+
+        fetch(`/api/leaderboard?server=${server}`)
             .then(response => response.json())
             .then(data => {
                 document.getElementById('current-server-name').textContent = server;
-                document.getElementById('total-commission').textContent = data.commission_totale;
-                const vipCounts = data.vip_counts || { 1: 0, 2: 0, 3: 0 };
+                
+                // Extraire la commission totale du fichier JSON
+                const totalCommission = parseInt(data.commission_totale?.split(' ')[0] || 0);
+                document.getElementById('total-commission').textContent = totalCommission + " jetons";
+                
+                // Calculer 50% de la commission totale pour la redistribution
+                const redistributionTotal = Math.floor(totalCommission * 0.5);
+                
+                // Calculer les montants pour chaque palier VIP
+                const vip1Share = Math.floor(redistributionTotal * 0.20);
+                const vip2Share = Math.floor(redistributionTotal * 0.30);
+                const vip3Share = Math.floor(redistributionTotal * 0.50);
 
-                const totalCommission = parseInt(data.commission_totale);
-                const redistributionTotal = totalCommission * 0.5; // 50% de la commission totale
-
-                // Calculer les gains pour chaque palier VIP
-                const vip1Share = Math.floor(redistributionTotal * 0.20); // 20% pour VIP 1
-                const vip2Share = Math.floor(redistributionTotal * 0.30); // 30% pour VIP 2
-                const vip3Share = Math.floor(redistributionTotal * 0.50); // 50% pour VIP 3
-
-                document.getElementById('vip1-share').textContent = vip1Share;
-                document.getElementById('vip2-share').textContent = vip2Share;
-                document.getElementById('vip3-share').textContent = vip3Share;
-            });
+                document.getElementById('vip1-share').textContent = vip1Share + " jetons";
+                document.getElementById('vip2-share').textContent = vip2Share + " jetons";
+                document.getElementById('vip3-share').textContent = vip3Share + " jetons";
+            })
+            .catch(error => console.error('Erreur:', error));
     }
 
     document.getElementById('server-select').addEventListener('change', function() {
