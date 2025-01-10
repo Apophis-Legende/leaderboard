@@ -1,6 +1,6 @@
 
 entrypoint = "main.py"
-modules = ["nodejs-20", "python-3.10"]
+modules = ["python-3.10"]
 
 hidden = [".pythonlibs"]
 
@@ -9,11 +9,8 @@ channel = "stable-23_05"
 
 [deployment]
 run = ["python", "main.py"]
-deploymentTarget = "gce"
-
-[[ports]]
-localPort = 80
-externalPort = 3000
+deploymentTarget = "cloudrun"
+deploymentType = "autoscale"
 
 [[ports]]
 localPort = 3000
