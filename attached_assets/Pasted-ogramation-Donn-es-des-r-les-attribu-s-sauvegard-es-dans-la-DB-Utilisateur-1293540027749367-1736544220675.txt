@@ -1,0 +1,23 @@
+ogramation.
+✅ Données des rôles attribués sauvegardées dans la DB.
+🔍 Utilisateur 1293540027749367898 : ObservedDict(value={'username': 'ktlegende.', 'total_wins': '0 jetons', 'total_losses': '5000 jetons', 'total_bets': '5000 jetons', 'participation': 1})
+🔍 Attribution du rôle VIP pour ktlegende. (ID : 1293540027749367898)
+🚫 Utilisateur ktlegende. interdit de VIP
+✅ Mise à jour des statuts VIP pour le serveur T1.json terminée.
+172.31.196.9 - - [10/Jan/2025 21:23:14] "GET / HTTP/1.1" 200 -
+172.31.196.9 - - [10/Jan/2025 21:23:14] "GET /static/styles.css HTTP/1.1" 304 -
+172.31.196.9 - - [10/Jan/2025 21:23:15] "GET /static/background.jpg HTTP/1.1" 304 -
+172.31.196.9 - - [10/Jan/2025 21:23:15] "GET /static/banner.png HTTP/1.1" 304 -
+🔍 Requête pour le fichier JSON : T1.json
+🔍 Tentative de connexion à la base de données Replit...
+✅ Connexion à la base de données Replit réussie
+✅ Données chargées: {'serveur': 'T1', 'nombre_de_jeux': 2, 'mises_totales_avant_commission': '11000 jetons', 'gains_totaux': '10450 jetons', 'commission_totale': '550 jetons', 'utilisateurs': {'928329400666173520': {'username': 'apophislegende', 'total_wins': '10450 jetons', 'total_losses': '0 jetons', 'total_bets': '6000 jetons', 'participation': 2}, '1293540027749367898': {'username': 'ktlegende.', 'total_wins': '0 jetons', 'total_losses': '5000 jetons', 'total_bets': '5000 jetons', 'participation': 1}}, 'hôtes': {'928329400666173520': {'username': 'apophislegende', 'total_bets': '11000 jetons', 'total_commission': '550 jetons', 'total_giveaways': 2}}, 'croupiers': {}}
+172.31.196.9 - - [10/Jan/2025 21:23:15] "GET /api/leaderboard?server=Tiliwan1&t=1736544194883 HTTP/1.1" 200 -
+172.31.196.9 - - [10/Jan/2025 21:23:15] "GET /api/check_forbidden?user_id=1293540027749367898 HTTP/1.1" 200 -
+172.31.196.9 - - [10/Jan/2025 21:23:15] "GET /api/check_forbidden?user_id=928329400666173520 HTTP/1.1" 200 -
+🔍 Requête VIP reçue - Serveur: Tiliwan1, User ID: 1293540027749367898
+🔍 Requête VIP reçue - Serveur: Tiliwan1, User ID: 928329400666173520
+💰 Mises totales pour 1293540027749367898: 5000 jetons
+172.31.196.9 - - [10/Jan/2025 21:23:16] "GET /api/vip_status?user_id=1293540027749367898&server=Tiliwan1 HTTP/1.1" 200 -
+💰 Mises totales pour 928329400666173520: 6000 jetons
+172.31.196.9 - - [10/Jan/2025 21:23:16] "GET /api/vip_status?user_id=928329400666173520&server=Tiliwan1 HTTP/1.1" 200 -
