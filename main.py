@@ -8,7 +8,7 @@ import requests
 from logique import process_giveaway_data, load_json, save_json
 from data_manager import load_json, save_json, extract_user_data
 from discord.ui import View, Select
-from vip import check_vip_status, MAPPING_SERVER_FILE, FORBIDDEN_ROLES, ensure_forbidden_users_file_exists, load_assigned_roles, load_forbidden_vip_users
+from vip import check_vip_status, MAPPING_SERVER_FILE, FORBIDDEN_ROLES, ensure_forbidden_users_file_exists, load_assigned_roles
 from discord import app_commands
 from discord import Interaction
 from delette import delete_giveaway
@@ -72,14 +72,6 @@ def load_json(filename, default_data=None):
 def index():
     """Route pour afficher la page HTML."""
     return render_template('index.html')
-
-@app.route('/api/check_forbidden', methods=["GET"])
-def check_forbidden():
-    """API pour vérifier si un utilisateur est interdit"""
-    user_id = request.args.get('user_id')
-    forbidden_users = load_forbidden_vip_users()
-    is_forbidden = user_id in forbidden_users
-    return jsonify({"forbidden": is_forbidden})
 
 @app.route('/api/vip_status', methods=["GET"])
 def get_vip_status():
