@@ -5,7 +5,12 @@ SERVER_MAPPING = {
     "Tiliwan2": "T2", 
     "Oshimo": "O1",
     "Herdegrize": "H1",
-    "Euro": "E1"
+    "Euro": "E1",
+    "T1": "T1",
+    "T2": "T2",
+    "O1": "O1",
+    "H1": "H1",
+    "E1": "E1"
 }
 
 def get_highest_vip(user_id, server):
