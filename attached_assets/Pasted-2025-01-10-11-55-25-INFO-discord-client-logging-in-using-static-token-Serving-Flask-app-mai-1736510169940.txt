@@ -1,0 +1,35 @@
+2025-01-10 11:55:25 INFO     discord.client logging in using static token
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:3000
+ * Running on http://172.31.196.81:3000
+Press CTRL+C to quit
+2025-01-10 11:55:25 INFO     discord.gateway Shard ID None has connected to Gateway (Session ID: ebb3c96aeefa7b2e14e72588aeed035f).
+172.31.196.81 - - [10/Jan/2025 11:55:26] "GET / HTTP/1.1" 200 -
+172.31.196.81 - - [10/Jan/2025 11:55:26] "GET /static/styles.css HTTP/1.1" 304 -
+172.31.196.81 - - [10/Jan/2025 11:55:27] "GET /static/background.jpg HTTP/1.1" 304 -
+172.31.196.81 - - [10/Jan/2025 11:55:27] "GET /static/banner.png HTTP/1.1" 304 -
+🔍 Requête pour le fichier JSON : T1.json
+✅ Données chargées: {'serveur': 'T1', 'nombre_de_jeux': 2, 'mises_totales_avant_commission': '2000 jetons', 'gains_totaux': '1900 jetons', 'commission_totale': '100 jetons', 'utilisateurs': {'928329400666173520': {'username': 'apophislegende', 'total_wins': '950 jetons', 'total_losses': '500 jetons', 'total_bets': '1500 jetons', 'participation': 2}, '1164911677632950394': {'username': 'clikclikboom_', 'total_wins': '950 jetons', 'total_losses': '0 jetons', 'total_bets': '500 jetons', 'participation': 1}}, 'hôtes': {'928329400666173520': {'username': 'apophislegende', 'total_bets': '1000 jetons', 'total_commission': '50 jetons', 'total_giveaways': 2}, '1164911677632950394': {'username': 'clikclikboom_', 'total_bets': '1000 jetons', 'total_commission': '50 jetons', 'total_giveaways': 1}}, 'croupiers': {}}
+172.31.196.81 - - [10/Jan/2025 11:55:27] "GET /api/leaderboard?server=Tiliwan1&t=1736510126838 HTTP/1.1" 200 -
+172.31.196.81 - - [10/Jan/2025 11:55:27] "GET /api/check_forbidden?user_id=928329400666173520 HTTP/1.1" 404 -
+172.31.196.81 - - [10/Jan/2025 11:55:27] "GET /api/check_forbidden?user_id=1164911677632950394 HTTP/1.1" 404 -
+✅ Commandes slash synchronisées : 9 commandes.
+172.31.196.81 - - [10/Jan/2025 11:55:28] "GET / HTTP/1.1" 200 -
+172.31.196.81 - - [10/Jan/2025 11:55:29] "GET /static/styles.css HTTP/1.1" 304 -
+🔍 Requête pour le fichier JSON : T1.json
+✅ Données chargées: {'serveur': 'T1', 'nombre_de_jeux': 2, 'mises_totales_avant_commission': '2000 jetons', 'gains_totaux': '1900 jetons', 'commission_totale': '100 jetons', 'utilisateurs': {'928329400666173520': {'username': 'apophislegende', 'total_wins': '950 jetons', 'total_losses': '500 jetons', 'total_bets': '1500 jetons', 'participation': 2}, '1164911677632950394': {'username': 'clikclikboom_', 'total_wins': '950 jetons', 'total_losses': '0 jetons', 'total_bets': '500 jetons', 'participation': 1}}, 'hôtes': {'928329400666173520': {'username': 'apophislegende', 'total_bets': '1000 jetons', 'total_commission': '50 jetons', 'total_giveaways': 2}, '1164911677632950394': {'username': 'clikclikboom_', 'total_bets': '1000 jetons', 'total_commission': '50 jetons', 'total_giveaways': 1}}, 'croupiers': {}}
+172.31.196.81 - - [10/Jan/2025 11:55:29] "GET /api/leaderboard?server=Tiliwan1&t=1736510129300 HTTP/1.1" 200 -
+172.31.196.81 - - [10/Jan/2025 11:55:29] "GET /api/check_forbidden?user_id=1164911677632950394 HTTP/1.1" 404 -
+172.31.196.81 - - [10/Jan/2025 11:55:29] "GET /api/check_forbidden?user_id=928329400666173520 HTTP/1.1" 404 -
+172.31.196.81 - - [10/Jan/2025 11:55:31] "GET / HTTP/1.1" 200 -
+172.31.196.81 - - [10/Jan/2025 11:55:32] "GET /static/styles.css HTTP/1.1" 304 -
+172.31.196.81 - - [10/Jan/2025 11:55:32] "GET /static/background.jpg HTTP/1.1" 304 -
+172.31.196.81 - - [10/Jan/2025 11:55:32] "GET /static/banner.png HTTP/1.1" 304 -
+🔍 Requête pour le fichier JSON : T1.json
+✅ Données chargées: {'serveur': 'T1', 'nombre_de_jeux': 2, 'mises_totales_avant_commission': '2000 jetons', 'gains_totaux': '1900 jetons', 'commission_totale': '100 jetons', 'utilisateurs': {'928329400666173520': {'username': 'apophislegende', 'total_wins': '950 jetons', 'total_losses': '500 jetons', 'total_bets': '1500 jetons', 'participation': 2}, '1164911677632950394': {'username': 'clikclikboom_', 'total_wins': '950 jetons', 'total_losses': '0 jetons', 'total_bets': '500 jetons', 'participation': 1}}, 'hôtes': {'928329400666173520': {'username': 'apophislegende', 'total_bets': '1000 jetons', 'total_commission': '50 jetons', 'total_giveaways': 2}, '1164911677632950394': {'username': 'clikclikboom_', 'total_bets': '1000 jetons', 'total_commission': '50 jetons', 'total_giveaways': 1}}, 'croupiers': {}}
+172.31.196.81 - - [10/Jan/2025 11:55:32] "GET /api/leaderboard?server=Tiliwan1&t=1736510131987 HTTP/1.1" 200 -
+172.31.196.81 - - [10/Jan/2025 11:55:32] "GET /api/check_forbidden?user_id=928329400666173520 HTTP/1.1" 404 -
+172.31.196.81 - - [10/Jan/2025 11:55:32] "GET /api/check_forbidden?user_id=1164911677632950394 HTTP/1.1" 404 -
