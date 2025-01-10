@@ -117,8 +117,14 @@ def get_leaderboard():
     print(f"🔍 Requête pour le fichier JSON : {file_name}")
 
     try:
-        # Charger depuis Replit db
-        data = db[file_name] if file_name in db else {
+        from replit import db
+        # Vérification explicite de la connexion à la base de données
+        if not db:
+            print("❌ Erreur: Impossible de se connecter à la base de données Replit")
+            return jsonify({"error": "Erreur de connexion à la base de données"}), 500
+            
+        # Charger depuis Replit db avec vérification
+        data = db.get(file_name, {
             "serveur": server,
             "nombre_de_jeux": 0,
             "mises_totales_avant_commission": "0 jetons", 
