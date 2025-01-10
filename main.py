@@ -126,7 +126,7 @@ def get_leaderboard():
         print("✅ Connexion à la base de données Replit réussie")
             
         # Charger depuis Replit db avec vérification
-        data = dict(db.get(file_name, {
+        data = db.get(file_name, {
             "serveur": server,
             "nombre_de_jeux": 0,
             "mises_totales_avant_commission": "0 jetons", 
@@ -135,10 +135,22 @@ def get_leaderboard():
             "utilisateurs": {},
             "hôtes": {},
             "croupiers": {}
-        }))
-        print(f"✅ Données chargées: {data}")
+        })
+        
+        # Convertir récursivement les ObservedDict en dictionnaires standard
+        def convert_to_dict(obj):
+            if hasattr(obj, 'value'):  # Pour ObservedDict/ObservedList
+                obj = obj.value
+            if isinstance(obj, dict):
+                return {k: convert_to_dict(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [convert_to_dict(item) for item in obj]
+            return obj
+            
+        formatted_data = convert_to_dict(data)
+        print(f"✅ Données chargées: {formatted_data}")
 
-        response = jsonify(dict(data))
+        response = jsonify(formatted_data)
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '0'
