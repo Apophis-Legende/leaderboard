@@ -82,9 +82,9 @@ def get_highest_vip(user_id, server):
             print(f"📊 Parts VIP calculées: VIP1={vip1_share}, VIP2={vip2_share}, VIP3={vip3_share}")
 
             return {
-                'vip1': f"{vip1_share} jetons",
-                'vip2': f"{vip2_share} jetons",
-                'vip3': f"{vip3_share} jetons"
+                'vip1': format_kamas(f"{vip1_share} jetons"),
+                'vip2': format_kamas(f"{vip2_share} jetons"),
+                'vip3': format_kamas(f"{vip3_share} jetons")
             }
     except Exception as e:
         print(f"Erreur VIP: {e}")
