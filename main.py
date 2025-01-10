@@ -15,6 +15,7 @@ from delette import delete_giveaway
 from add import add_giveaway_data
 import re
 from modif import process_giveaway
+from replit import db
 
 # Configuration du bot avec intentions
 intents = discord.Intents.default()
@@ -160,7 +161,7 @@ def run_flask():
     app.run(host='0.0.0.0', port=3000, debug=False)
 
 # Charger les données depuis le fichier JSON
-data = load_json("data.json", default_data={})
+data = load_json("data.json") or {}
 
 # Extraire les données des utilisateurs
 user_data = extract_user_data(data)
