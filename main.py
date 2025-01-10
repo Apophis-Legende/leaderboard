@@ -723,11 +723,11 @@ async def remove_forbidden_user(interaction: discord.Interaction, user_id: str):
     else:
         await interaction.response.send_message(f"⚠️ Aucun utilisateur avec l'ID `{user_id}` trouvé dans la liste des interdits.")
 
-@bot.tree.command(name="reset_all", description="Réinitialise les données VIP et tous les fichiers JSON")
+@bot.tree.command(name="reset_all", description="Réinitialise les données VIP et toutes les données")
 @is_admin()
 @is_in_guild()
 async def reset_all(interaction: discord.Interaction):
-    """Réinitialise les données VIP et tous les fichiers JSON"""
+    """Réinitialise les données VIP et toutes les données"""
     await interaction.response.defer()
 
     # 1. Réinitialisation des rôles VIP
@@ -750,15 +750,7 @@ async def reset_all(interaction: discord.Interaction):
             except Exception as e:
                 print(f"❌Erreur pour l'utilisateur {user_id} : {e}")
 
-    # Supprimer assigned_roles.json
-    if os.path.exists("assigned_roles.json"):
-        try:
-            os.remove("assigned_roles.json")
-            print("✅ Fichier assigned_roles.json supprimé")
-        except Exception as e:
-            print(f"❌ Erreur lors de la suppression de assigned_roles.json : {e}")
-
-    # 2. Réinitialisation des fichiers JSON des serveurs
+    # 2. Réinitialisation des données dans Replit db
     initial_data = {
         "serveur": "",
         "nombre_de_jeux": 0,
@@ -770,18 +762,20 @@ async def reset_all(interaction: discord.Interaction):
         "croupiers": {}
     }
 
-    files = ["T1.json", "T2.json", "O1.json", "H1.json", "E1.json"]
-    for file in files:
+    servers = ["T1", "T2", "O1", "H1", "E1"]
+    for server in servers:
         try:
             data = initial_data.copy()
-            data["serveur"] = file.replace(".json", "")
-            with open(file, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=4, ensure_ascii=False)
-            print(f"✅ {file} réinitialisé")
+            data["serveur"] = server
+            db[f"{server}.json"] = data
+            print(f"✅ Données {server} réinitialisées")
         except Exception as e:
-            print(f"❌ Erreur pour {file}: {e}")
+            print(f"❌ Erreur pour {server}: {e}")
 
-    await interaction.followup.send("✅ Réinitialisation complète effectuée :\n- Rôles VIP supprimés\n- Fichiers JSON réinitialisés")
+    # Réinitialiser les rôles assignés dans la db
+    db["assigned_roles.json"] = {"users": {}}
+    
+    await interaction.followup.send("✅ Réinitialisation complète effectuée :\n- Rôles VIP supprimés\n- Données réinitialisées")
 
 @bot.tree.command(name="host_info", description="Affiche les informations d'un hôte")
 @is_admin()
