@@ -77,7 +77,7 @@ def index():
 def check_forbidden():
     """Vérifie si un utilisateur est dans la liste des interdits."""
     user_id = request.args.get('user_id')
-    
+
     # Charger la liste des utilisateurs interdits
     try:
         with open('forbidden_vip_users.json', 'r', encoding='utf-8') as f:
@@ -614,7 +614,8 @@ async def add_forbidden_user(interaction: discord.Interaction, user_id: str, rea
     """
     Ajoute un membre interdit dans le fichier JSON, avec son username et ses rôles.
     """
-    file_name = "forbidden_vip_users.json"
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_name = os.path.join(script_dir, "forbidden_vip_users.json")
 
     # Charger les membres interdits existants
     if os.path.exists(file_name):
@@ -669,7 +670,8 @@ async def list_forbidden_users(interaction: discord.Interaction):
     """
     Liste les membres interdits dans le fichier JSON.
     """
-    file_name = "forbidden_vip_users.json"
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_name = os.path.join(script_dir, "forbidden_vip_users.json")
 
     # Charger les membres interdits
     if os.path.exists(file_name):
@@ -695,7 +697,8 @@ async def remove_forbidden_user(interaction: discord.Interaction, user_id: str):
     """
     Supprime un membre de la liste des interdits.
     """
-    file_name = "forbidden_vip_users.json"
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_name = os.path.join(script_dir, "forbidden_vip_users.json")
 
     # Charger les membres interdits
     if os.path.exists(file_name):
@@ -727,11 +730,11 @@ async def reset_all(interaction: discord.Interaction):
 
         # 1. Réinitialisation des rôles VIP
         guild = interaction.guild
-        
+
         # Chemins absolus pour les fichiers
         script_dir = os.path.dirname(os.path.abspath(__file__))
         assigned_roles_path = os.path.join(script_dir, "assigned_roles.json")
-        
+
         if os.path.exists(assigned_roles_path):
             with open(assigned_roles_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -754,13 +757,13 @@ async def reset_all(interaction: discord.Interaction):
 
         # Supprimer assigned_roles.json
         if os.path.exists("assigned_roles.json"):
-        try:
-            os.remove("assigned_roles.json")
-            print("✅ Fichier assigned_roles.json supprimé")
-        except Exception as e:
-            print(f"❌ Erreur lors de la suppression de assigned_roles.json : {e}")
+            try:
+                os.remove("assigned_roles.json")
+                print("✅ Fichier assigned_roles.json supprimé")
+            except Exception as e:
+                print(f"❌ Erreur lors de la suppression de assigned_roles.json : {e}")
 
-    # 2. Réinitialisation des fichiers JSON des serveurs
+        # 2. Réinitialisation des fichiers JSON des serveurs
         initial_data = {
             "serveur": "",
             "nombre_de_jeux": 0,
