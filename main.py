@@ -135,7 +135,7 @@ def get_leaderboard():
             "utilisateurs": {},
             "hôtes": {},
             "croupiers": {}
-        }
+        })
         print(f"✅ Données chargées: {data}")
 
         response = jsonify(data)
