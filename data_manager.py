@@ -1,6 +1,13 @@
 
 from replit import db
 
+def list_all_data():
+    print("📂 Contenu de Replit DB :")
+    for key in db.keys():
+        print(f"🔑 {key}: {db[key]}")
+
+list_all_data()
+
 def load_json(filename, default_data=None):
     """
     Charge les données depuis Replit DB avec une valeur par défaut
