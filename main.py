@@ -703,51 +703,65 @@ async def remove_forbidden_user(interaction: discord.Interaction, user_id: str):
     else:
         await interaction.response.send_message(f"⚠️ Aucun utilisateur avec l'ID `{user_id}` trouvé dans la liste des interdits.")
 
-@bot.tree.command(name="reset_vip", description="Réinitialise les données des VIP et supprime les rôles attribués.")
-@is_admin()  # Restriction aux administrateurs
-@is_in_guild()  # Bloque l'accès en DM
-async def reset_vip(interaction: discord.Interaction):
-    """
-    Réinitialise les données des VIP et supprime tous les rôles attribués.
-    """
-    await interaction.response.defer()  # Répondre rapidement pour éviter un timeout
+@bot.tree.command(name="reset_all", description="Réinitialise les données VIP et tous les fichiers JSON")
+@is_admin()
+@is_in_guild()
+async def reset_all(interaction: discord.Interaction):
+    """Réinitialise les données VIP et tous les fichiers JSON"""
+    await interaction.response.defer()
 
+    # 1. Réinitialisation des rôles VIP
     guild = interaction.guild
     data = load_assigned_roles()
     users = data.get("users", {})
 
-    if not users:
-        await interaction.followup.send("⚠️ Aucun rôle VIP attribué trouvé à réinitialiser.")
-        return
+    if users:
+        for user_id, user_data in users.items():
+            try:
+                member = await guild.fetch_member(int(user_id))
+                roles_to_remove = [discord.utils.get(guild.roles, name=role) for role in user_data["roles"]]
+                roles_to_remove = [role for role in roles_to_remove if role is not None]
 
-    for user_id, user_data in users.items():
+                if roles_to_remove:
+                    await member.remove_roles(*roles_to_remove)
+                    print(f"✅ Rôles retirés pour {member.name} : {', '.join([role.name for role in roles_to_remove])}")
+            except discord.NotFound:
+                print(f"❌ Membre introuvable avec l'ID {user_id}")
+            except Exception as e:
+                print(f"❌Erreur pour l'utilisateur {user_id} : {e}")
+
+    # Supprimer assigned_roles.json
+    if os.path.exists("assigned_roles.json"):
         try:
-            member = await guild.fetch_member(int(user_id))
-            roles_to_remove = [discord.utils.get(guild.roles, name=role) for role in user_data["roles"]]
-            roles_to_remove = [role for role in roles_to_remove if role is not None]
-
-            if roles_to_remove:
-                await member.remove_roles(*roles_to_remove)
-                print(f"✅ Rôles retirés pour {member.name} : {', '.join([role.name for role in roles_to_remove])}")
-            else:
-                print(f"⚠️ Aucun rôle à retirer pour {member.name}.")
-        except discord.NotFound:
-            print(f"❌ Membre introuvable avec l'ID {user_id}..")
+            os.remove("assigned_roles.json")
+            print("✅ Fichier assigned_roles.json supprimé")
         except Exception as e:
-            print(f"❌ Erreur inattendue pour l'utilisateur {user_id} : {e}")
+            print(f"❌ Erreur lors de la suppression de assigned_roles.json : {e}")
 
-    # Supprimer le fichier JSON
-    file_path = "assigned_roles.json"
-    if os.path.exists(file_path):
+    # 2. Réinitialisation des fichiers JSON des serveurs
+    initial_data = {
+        "serveur": "",
+        "nombre_de_jeux": 0,
+        "mises_totales_avant_commission": "0 jetons",
+        "gains_totaux": "0 jetons",
+        "commission_totale": "0 jetons",
+        "utilisateurs": {},
+        "hôtes": {},
+        "croupiers": {}
+    }
+
+    files = ["T1.json", "T2.json", "O1.json", "H1.json", "E1.json"]
+    for file in files:
         try:
-            os.remove(file_path)
-            print(f"✅ Fichier {file_path} supprimé avec succès.")
+            data = initial_data.copy()
+            data["serveur"] = file.replace(".json", "")
+            with open(file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=4, ensure_ascii=False)
+            print(f"✅ {file} réinitialisé")
         except Exception as e:
-            print(f"❌ Impossible de supprimer le fichier {file_path} : {e}")
-    else:
-        print(f"⚠️ Le fichier {file_path} n'existe pas.")
+            print(f"❌ Erreur pour {file}: {e}")
 
-    await interaction.followup.send("✅ Tous les rôles VIP ont été supprimés et les données ont été réinitialisées.")
+    await interaction.followup.send("✅ Réinitialisation complète effectuée :\n- Rôles VIP supprimés\n- Fichiers JSON réinitialisés")
 
 @bot.tree.command(name="host_info", description="Affiche les informations d'un hôte")
 @is_admin()
@@ -765,38 +779,7 @@ async def host_info(interaction: discord.Interaction, user_id: str):
     except Exception as e:
         await interaction.response.send_message(f"❌ Une erreur est survenue : {str(e)}")
 
-@bot.tree.command(name="reset_json", description="Réinitialise tous les fichiers JSON (T1, T2, O1, H1, E1)")
-@is_admin()
-@is_in_guild()
-async def reset_json(interaction: discord.Interaction):
-    """Réinitialise tous les fichiers JSON avec leur structure par défaut."""
-    await interaction.response.defer()
 
-    initial_data = {
-        "serveur": "",  # Sera rempli pour chaque fichier
-        "nombre_de_jeux": 0,
-        "mises_totales_avant_commission": "0 jetons",
-        "gains_totaux": "0 jetons",
-        "commission_totale": "0 jetons",
-        "utilisateurs": {},
-        "hôtes": {},
-        "croupiers": {}
-    }
-
-    files = ["T1.json", "T2.json", "O1.json", "H1.json", "E1.json"]
-
-    for file in files:
-        try:
-            data = initial_data.copy()
-            data["serveur"] = file.replace(".json", "")
-            with open(file, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=4, ensure_ascii=False)
-            print(f"✅ {file} réinitialisé avec succès")
-        except Exception as e:
-            print(f"❌ Erreur lors de la réinitialisation de {file}: {e}")
-
-    await interaction.followup.send("✅ Tous les fichiers JSON ont été réinitialisés avec succès!")
-    
 # Lancer le bot Discord
 def run_bot():
     bot.run(os.getenv("TOKEN"))
