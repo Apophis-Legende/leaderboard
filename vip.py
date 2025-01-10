@@ -150,8 +150,8 @@ async def check_vip_status(file_name, channel: discord.TextChannel):
         if not users:
             print(f"ℹ️ Aucun utilisateur trouvé pour le serveur {server_name}")
             return
-
-    for user_id, user_data in users.items():
+            
+        for user_id, user_data in users.items():
         print(f"🔍 Utilisateur {user_id} : {user_data}")
 
         # Extraire la mise totale
