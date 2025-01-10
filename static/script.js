@@ -62,13 +62,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById('total-commission').textContent = data.commission_totale;
                 const vipCounts = data.vip_counts || { 1: 0, 2: 0, 3: 0 };
 
-                // Ajuster les pourcentages en fonction du nombre de VIP
-                for (let tier = 1; tier <= 3; tier++) {
-                    const count = vipCounts[tier];
-                    const baseShare = tier === 1 ? 20 : tier === 2 ? 30 : 50;
-                    const actualShare = count === 0 ? '0' : `${baseShare}`;
-                    document.getElementById(`vip${tier}-share`).textContent = actualShare + '%';
-                }
+                const totalCommission = parseInt(data.commission_totale);
+                const redistributionTotal = totalCommission * 0.5; // 50% de la commission totale
+
+                // Calculer les gains pour chaque palier VIP
+                const vip1Share = Math.floor(redistributionTotal * 0.20); // 20% pour VIP 1
+                const vip2Share = Math.floor(redistributionTotal * 0.30); // 30% pour VIP 2
+                const vip3Share = Math.floor(redistributionTotal * 0.50); // 50% pour VIP 3
+
+                document.getElementById('vip1-share').textContent = vip1Share;
+                document.getElementById('vip2-share').textContent = vip2Share;
+                document.getElementById('vip3-share').textContent = vip3Share;
             });
     }
 
