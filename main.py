@@ -94,6 +94,20 @@ def index():
     """Route pour afficher la page HTML."""
     return render_template('index.html')
 
+@app.route('/api/check_forbidden', methods=["GET"])
+def check_forbidden():
+    """API pour vérifier si un utilisateur est interdit"""
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify({"error": "User ID manquant"}), 400
+
+    forbidden_users = load_forbidden_vip_users()
+    is_forbidden = user_id in forbidden_users
+    return jsonify({
+        "is_forbidden": is_forbidden,
+        "details": forbidden_users.get(user_id) if is_forbidden else None
+    })
+
 @app.route('/api/vip_status', methods=["GET"])
 def get_vip_status():
     """API pour obtenir le statut VIP d'un utilisateur"""
