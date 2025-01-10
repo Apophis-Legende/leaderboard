@@ -55,12 +55,11 @@ def calculate_vip_tier(total_bets):
 def get_highest_vip(user_id, server):
     """Get highest VIP level for user"""
     try:
-        # Use the server code directly since it's already in the correct format
         file_path = f"{server}.json"
-        print(f"Loading VIP data from: {file_path}")
+        print(f"🔍 Loading VIP data from: {file_path}")
 
         if not os.path.exists(file_path):
-            print(f"Erreur VIP: Fichier {file_path} non trouvé")
+            print(f"❌ Erreur VIP: Fichier {file_path} non trouvé")
             return {
                 'vip1': "0 jetons",
                 'vip2': "0 jetons",
@@ -69,13 +68,18 @@ def get_highest_vip(user_id, server):
 
         with open(file_path, 'r') as f:
             data = json.load(f)
-            commission_totale = int(data.get('commission_totale', '0 jetons').split(' ')[0])
+            print(f"✅ Données chargées: {data}")
+            commission_totale_str = data.get('commission_totale', '0 jetons')
+            print(f"💰 Commission totale: {commission_totale_str}")
+            commission_totale = int(commission_totale_str.split(' ')[0])
             redistribution = commission_totale // 2  # 50% de la commission totale
 
-            # Calculer les parts VIP
+            # Calculer les parts VIP avec plus de précision
             vip1_share = int(redistribution * 0.20)  # 20% pour VIP 1
             vip2_share = int(redistribution * 0.30)  # 30% pour VIP 2
             vip3_share = int(redistribution * 0.50)  # 50% pour VIP 3
+
+            print(f"📊 Parts VIP calculées: VIP1={vip1_share}, VIP2={vip2_share}, VIP3={vip3_share}")
 
             return {
                 'vip1': f"{vip1_share} jetons",
