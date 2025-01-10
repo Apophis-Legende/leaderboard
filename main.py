@@ -57,7 +57,6 @@ def update_data():
         if not isinstance(data, dict):
             return jsonify({"error": "Les données doivent être un objet JSON valide."}), 400
 
-        save_json("data.json", data)  # Sauvegarder les données dans data.json
         return jsonify({"message": "Données mises à jour avec succès"}), 200
 
     except Exception as e:
@@ -196,14 +195,6 @@ def is_in_guild():
 def run_flask():
     # Assurez-vous que Flask écoute sur 0.0.0.0 pour permettre l'accès externe
     app.run(host='0.0.0.0', port=3000, debug=False)
-
-# Charger les données depuis le fichier JSON
-data = load_json("data.json") or {}
-
-# Extraire les données des utilisateurs
-user_data = extract_user_data(data)
-for user in user_data:
-    print(user)
 
 # ID du bot cible
 TARGET_BOT_ID = 294882584201003009  # ID du GiveawayBot
