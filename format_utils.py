@@ -1,3 +1,4 @@
+
 import json
 from vip import calculate_vip_tier
 
@@ -22,7 +23,7 @@ def format_kamas(jetons_amount):
     try:
         amount = int(jetons_amount.split(' ')[0])
         kamas = amount * 10000  # 1 jeton = 10k kamas
-
+        
         if kamas >= 1000000:
             millions = kamas/1000000
             whole = int(millions)
@@ -54,48 +55,27 @@ def calculate_vip_tier(total_bets):
 def get_highest_vip(user_id, server):
     """Get highest VIP level for user"""
     try:
-        # Mapping des noms de serveurs vers leurs fichiers
-        server_mapping = {
-            "Tiliwan1": "T1",
-            "Tiliwan2": "T2",
-            "Oshimo": "O1"
-        }
-
-        # Conversion du nom du serveur
-        server_code = server_mapping.get(server)
-        if not server_code:
-            print(f"❌ Serveur non reconnu: {server}")
-            return {'vip1': '0 jetons', 'vip2': '0 jetons', 'vip3': '0 jetons', 'total': '0 jetons'}
-
-        # Construction du nom du fichier
-        file_name = f"{server_code}.json"
-
-        print(f"📂 Lecture du fichier: {file_name}")
-
-        # Lire le fichier JSON
-        with open(file_name, 'r', encoding='utf-8') as f:
+        file_path = MAPPING_SERVER_FILE.get(server)
+        if not file_path:
+            print(f"Erreur VIP: Server {server} non trouvé dans le mapping")
+            return "---"
+            
+        with open(file_path, 'r') as f:
             data = json.load(f)
-
-        # Obtenir la commission totale
-        commission_str = data.get('commission_totale', '0 jetons')
-        commission_totale = int(commission_str.split()[0])
-        print(f"💰 Commission totale: {commission_totale} jetons")
-
-        # Calculer la redistribution (50% de la commission totale)
-        redistribution = commission_totale // 2
-        print(f"🔄 Montant à redistribuer: {redistribution} jetons")
-
-        # Calculer les parts VIP
-        vip1 = int(redistribution * 0.2)  # 20% pour VIP 1
-        vip2 = int(redistribution * 0.3)  # 30% pour VIP 2
-        vip3 = int(redistribution * 0.5)  # 50% pour VIP 3
-
-        return {
-            'vip1': f"{vip1} jetons",
-            'vip2': f"{vip2} jetons",
-            'vip3': f"{vip3} jetons",
-            'total': f"{commission_totale} jetons"
-        }
+            commission_totale = int(data.get('commission_totale', '0 jetons').split(' ')[0])
+            redistribution = commission_totale // 2  # 50% de la commission totale
+            
+            # Calculer les parts VIP
+            vip1_share = int(redistribution * 0.20)  # 20% pour VIP 1
+            vip2_share = int(redistribution * 0.30)  # 30% pour VIP 2
+            vip3_share = int(redistribution * 0.50)  # 50% pour VIP 3
+            
+            return {
+                'vip1': f"{vip1_share} jetons",
+                'vip2': f"{vip2_share} jetons",
+                'vip3': f"{vip3_share} jetons",
+                'total': f"{commission_totale} jetons"
+            }
     except Exception as e:
         print(f"Erreur VIP: {e}")
         return {
