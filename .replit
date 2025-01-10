@@ -10,10 +10,8 @@ channel = "stable-23_05"
 [deployment]
 run = ["python", "main.py"]
 deploymentTarget = "gce"
-
-[[ports]]
-localPort = 80
-externalPort = 3000
+ignorePorts = true
+deploymentType = "vm"
 
 [[ports]]
 localPort = 3000
