@@ -125,3 +125,22 @@ tr:hover {
         width: 100%;
     }
 }
+
+.vip-redistribution {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.vip-redistribution h2 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.vip-redistribution p {
+    margin: 10px 0;
+    font-size: 16px;
+    font-weight: bold; /* Added to make VIP lines bold */
+}
