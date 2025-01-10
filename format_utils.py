@@ -1,4 +1,5 @@
 from replit import db
+from vip import calculate_vip_tier
 
 SERVER_MAPPING = {
     "Tiliwan1": "T1",
@@ -46,8 +47,6 @@ def get_highest_vip(user_id, server):
         print(f"❌ Erreur VIP: {e}")
         return {"vip_level": 0}
 
-import json
-from vip import calculate_vip_tier
 
 # Mapping des niveaux VIP et seuils
 VIP_TIERS = {
