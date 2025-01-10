@@ -10,7 +10,8 @@ function loadServerData(server) {
             // Extraction de la commission totale depuis les données
             let totalCommission = 0;
             if (data.commission_totale) {
-                totalCommission = parseInt(data.commission_totale.toString().split(' ')[0]);
+                const commissionStr = data.commission_totale.toString();
+                totalCommission = parseInt(commissionStr.split(' ')[0]);
             }
             
             // Calcul de la redistribution (50% de la commission totale)
@@ -20,6 +21,10 @@ function loadServerData(server) {
             const vip1Share = Math.floor(redistribution * 0.20);
             const vip2Share = Math.floor(redistribution * 0.30);
             const vip3Share = Math.floor(redistribution * 0.50);
+            
+            console.log('Commission totale:', totalCommission);
+            console.log('Redistribution:', redistribution);
+            console.log('Parts VIP:', vip1Share, vip2Share, vip3Share);
             
             // Mise à jour de l'affichage des parts VIP
             document.getElementById('vip1-share').textContent = `${vip1Share} jetons`;

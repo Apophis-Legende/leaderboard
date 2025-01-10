@@ -55,6 +55,14 @@ def calculate_vip_tier(total_bets):
 def get_highest_vip(user_id, server):
     """Get highest VIP level for user"""
     try:
+        MAPPING_SERVER_FILE = {
+            "Tiliwan1": "T1.json",
+            "Tiliwan2": "T2.json",
+            "Oshimo": "O1.json",
+            "Herdegrize": "H1.json",
+            "Euro": "E1.json"
+        }
+        
         file_path = MAPPING_SERVER_FILE.get(server)
         if not file_path:
             print(f"Erreur VIP: Server {server} non trouvé dans le mapping")
