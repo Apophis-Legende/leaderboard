@@ -143,10 +143,12 @@ def is_in_guild():
     return app_commands.check(predicate)
 
 def run_flask():
-    # Configuration for production
-    app.run(host='0.0.0.0', port=3000, debug=False, threaded=True)
+    # Configuration pour la production
+    from waitress import serve
+    print("🚀 Démarrage du serveur de production...")
+    serve(app, host='0.0.0.0', port=3000)
 
-# Charger les données depuis le fichier JSON
+# Charger les données depuis le fichier JSON avec le chemin absolu
 data = load_json("data.json", default_data={})
 
 # Extraire les données des utilisateurs
