@@ -11,7 +11,28 @@ MAPPING_SERVER_FILE = {
     "E1": "E1.json"
 }
 
-from data_manager import load_json, save_json
+def load_json(filename):
+    """
+    Charge un fichier JSON ou retourne None si le fichier est introuvable ou corrompu.
+    """
+    try:
+        if not os.path.exists(filename):
+            print(f"❌ Le fichier {filename} n'existe pas.")
+            return None
+        with open(filename, "r", encoding="utf-8") as file:
+            data = json.load(file)
+            if not data:
+                print(f"⚠️ Le fichier {filename} est vide.")
+                return None
+            return data
+    except json.JSONDecodeError:
+        print(f"❌ Erreur : le fichier {filename} est corrompu.")
+        return None
+
+def save_json(filename, data):
+  """Sauvegarde des données dans un fichier JSON."""
+  with open(filename, "w", encoding="utf-8") as file:
+      json.dump(data, file, indent=4, ensure_ascii=False)
 
 def format_amount(amount):
     """
