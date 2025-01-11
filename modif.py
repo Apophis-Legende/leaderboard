@@ -1,66 +1,32 @@
-import os
-import json
 import requests
 from replit import db
 
-MAPPING_SERVER_FILE = {
-    "T1": "T1",
-    "T2": "T2",
-    "O1": "O1",
-    "H1": "H1", 
-    "E1": "E1"
-}
-
-# Charger un fichier JSON local (not used, replaced by db.get)
-#def load_json(filename, default_data=None):
-#    try:
-#        absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
-#        with open(absolute_path, "r", encoding="utf-8") as file:
-#            return json.load(file)
-#    except FileNotFoundError:
-#        return default_data or {}
-
-# Sauvegarder un fichier JSON local (not used, replaced by db.set)
-#def save_json(filename, data):
-#    absolute_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
-#    with open(absolute_path, "w", encoding="utf-8") as file:
-#        json.dump(data, file, ensure_ascii=False, indent=4)
-#    print(f"✅ Fichier sauvegardé : {absolute_path}")
-
-# Convertir un montant "123 jetons" en entier
 def convert_amount_to_int(amount_str):
     return int(amount_str.split(" ")[0])
 
-# Convertir un montant entier en chaîne "123 jetons"
 def format_amount(amount):
     return f"{int(amount)} jetons"
 
-# Fonction principale pour traiter les données JSON extraites
 def process_giveaway(link, new_prize):
     try:
-        # Étape 1 : Extraire les données brutes depuis le lien
-        response = requests.get(link)
+        # Extraire les données brutes depuis le lien
+        api_url = link.replace("https://giveawaybot.party/summary#", "https://summary-api.giveawaybot.party/?")
+        response = requests.get(api_url)
         if response.status_code != 200:
-            raise Exception(f"Impossible d'extraire les données depuis le lien : {link}")
+            raise Exception(f"Impossible d'extraire les données depuis le lien")
 
         giveaway_data = response.json()
-        prize = giveaway_data.get("giveaway", {}).get("prize", None)
-        if not prize:
-            raise Exception("Aucun `prize` trouvé dans les données extraites.")
+        if not giveaway_data or "giveaway" not in giveaway_data:
+            raise Exception("Données du giveaway invalides")
 
-        # Étape 2 : Extraire le serveur du prize
-        server = new_prize.split()[0]  # Exemple : "T1"
+        # Extraire le serveur et calculer les montants
+        server = new_prize.split()[0]
         gain_after_commission = int(new_prize.split()[1])
         total_bet_before_commission = int(gain_after_commission / 0.95)
         commission_total = total_bet_before_commission - gain_after_commission
 
-        # Trouver le fichier JSON correspondant au serveur
-        server_name = MAPPING_SERVER_FILE.get(server)
-        if not server_name:
-            raise Exception(f"Le serveur `{server}` n'est pas pris en charge.")
-
-        # Charger ou initialiser les données locales
-        server_data = db.get(server_name)
+        # Charger ou initialiser les données
+        server_data = db.get(server)
         if not server_data:
             server_data = {
                 "serveur": server,
@@ -73,17 +39,16 @@ def process_giveaway(link, new_prize):
                 "croupiers": {}
             }
 
-        # Étape 3 : Mettre à jour les utilisateurs
+        # Mettre à jour les utilisateurs
         winners = giveaway_data.get("winners", [])
         entries = giveaway_data.get("entries", [])
+        entries_count = len(entries) if entries else 1
 
         for winner in winners:
-            user_id = winner["id"]
-            username = winner["username"]
-
+            user_id = str(winner["id"])
             if user_id not in server_data["utilisateurs"]:
                 server_data["utilisateurs"][user_id] = {
-                    "username": username,
+                    "username": winner["username"],
                     "total_wins": "0 jetons",
                     "total_losses": "0 jetons",
                     "total_bets": "0 jetons",
@@ -91,69 +56,63 @@ def process_giveaway(link, new_prize):
                 }
 
             user = server_data["utilisateurs"][user_id]
-            user["total_wins"] = format_amount(convert_amount_to_int(user["total_wins"]) + gain_after_commission)
-            user["total_bets"] = format_amount(
-                convert_amount_to_int(user["total_bets"]) + total_bet_before_commission // len(entries)
-            )
+            current_wins = convert_amount_to_int(user["total_wins"])
+            current_bets = convert_amount_to_int(user["total_bets"])
+
+            user["total_wins"] = format_amount(current_wins + gain_after_commission)
+            user["total_bets"] = format_amount(current_bets + total_bet_before_commission // entries_count)
             user["participation"] += 1
 
         for entry in entries:
-            if entry["id"] in [winner["id"] for winner in winners]:
-                continue
-            user_id = entry["id"]
-            username = entry["username"]
+            user_id = str(entry["id"])
+            if user_id not in [str(w["id"]) for w in winners]:
+                if user_id not in server_data["utilisateurs"]:
+                    server_data["utilisateurs"][user_id] = {
+                        "username": entry["username"],
+                        "total_wins": "0 jetons",
+                        "total_losses": "0 jetons",
+                        "total_bets": "0 jetons",
+                        "participation": 0
+                    }
 
-            if user_id not in server_data["utilisateurs"]:
-                server_data["utilisateurs"][user_id] = {
-                    "username": username,
-                    "total_wins": "0 jetons",
-                    "total_losses": "0 jetons",
-                    "total_bets": "0 jetons",
-                    "participation": 0
-                }
+                user = server_data["utilisateurs"][user_id]
+                current_losses = convert_amount_to_int(user["total_losses"])
+                current_bets = convert_amount_to_int(user["total_bets"])
 
-            user = server_data["utilisateurs"][user_id]
-            user["total_losses"] = format_amount(
-                convert_amount_to_int(user["total_losses"]) + total_bet_before_commission // len(entries)
-            )
-            user["total_bets"] = format_amount(
-                convert_amount_to_int(user["total_bets"]) + total_bet_before_commission // len(entries)
-            )
-            user["participation"] += 1
+                user["total_losses"] = format_amount(current_losses + total_bet_before_commission // entries_count)
+                user["total_bets"] = format_amount(current_bets + total_bet_before_commission // entries_count)
+                user["participation"] += 1
 
-        # Étape 4 : Mettre à jour les hôtes et croupiers
-        host_id = giveaway_data["giveaway"]["host"]["id"]
-        host_username = giveaway_data["giveaway"]["host"]["username"]
-
+        # Mettre à jour l'hôte
+        host = giveaway_data["giveaway"]["host"]
+        host_id = str(host["id"])
         if host_id not in server_data["hôtes"]:
             server_data["hôtes"][host_id] = {
-                "username": host_username,
+                "username": host["username"],
                 "total_bets": "0 jetons",
                 "total_commission": "0 jetons"
             }
 
-        server_data["hôtes"][host_id]["total_bets"] = format_amount(
-            convert_amount_to_int(server_data["hôtes"][host_id]["total_bets"]) + total_bet_before_commission
-        )
-        server_data["hôtes"][host_id]["total_commission"] = format_amount(
-            convert_amount_to_int(server_data["hôtes"][host_id]["total_commission"]) + commission_total
-        )
+        host_data = server_data["hôtes"][host_id]
+        current_host_bets = convert_amount_to_int(host_data["total_bets"])
+        current_host_commission = convert_amount_to_int(host_data["total_commission"])
 
-        # Étape 5 : Mettre à jour les totaux globaux
+        host_data["total_bets"] = format_amount(current_host_bets + total_bet_before_commission)
+        host_data["total_commission"] = format_amount(current_host_commission + commission_total)
+
+        # Mettre à jour les totaux globaux
         server_data["nombre_de_jeux"] += 1
-        server_data["mises_totales_avant_commission"] = format_amount(
-            convert_amount_to_int(server_data["mises_totales_avant_commission"]) + total_bet_before_commission
-        )
-        server_data["gains_totaux"] = format_amount(
-            convert_amount_to_int(server_data["gains_totaux"]) + gain_after_commission
-        )
-        server_data["commission_totale"] = format_amount(
-            convert_amount_to_int(server_data["commission_totale"]) + commission_total
-        )
+        current_total_bets = convert_amount_to_int(server_data["mises_totales_avant_commission"])
+        current_total_gains = convert_amount_to_int(server_data["gains_totaux"])
+        current_total_commission = convert_amount_to_int(server_data["commission_totale"])
 
-        # Étape 6 : Sauvegarder les données locales
-        db[server_name] = server_data
-        return f"✅ Données transformées et sauvegardées dans `{server_name}`."
+        server_data["mises_totales_avant_commission"] = format_amount(current_total_bets + total_bet_before_commission)
+        server_data["gains_totaux"] = format_amount(current_total_gains + gain_after_commission)
+        server_data["commission_totale"] = format_amount(current_total_commission + commission_total)
+
+        # Sauvegarder
+        db[server] = server_data
+        return "✅ Données modifiées et sauvegardées avec succès"
 
     except Exception as e:
         return f"❌ Une erreur est survenue : {str(e)}"
