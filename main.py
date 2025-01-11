@@ -692,26 +692,51 @@ async def delete_giveaway_command(interaction: discord.Interaction, link: str):
 @bot.tree.command(name="update_vip", description="Met à jour les statuts VIP pour un serveur donné.")
 @is_admin()
 @is_in_guild()
+@app_commands.describe(server="Nom du serveur (T1, T2, O1, H1, E1)")
 async def update_vip(interaction: discord.Interaction, server: str):
+    """Met à jour les statuts VIP pour un serveur spécifique"""
     await interaction.response.defer()
 
     if not verify_db_connection():
-        await interaction.followup.send("❌ Erreur: Impossible d'accéder à la base de données. Veuillez réessayer plus tard.")
+        await interaction.followup.send("❌ Erreur: Impossible d'accéder à la base de données.")
         return
 
-    print(f"🔄 Demande de mise à jour VIP pour le serveur {server}")
-
-    # Ajoutez un mapping des serveurs si nécessaire
+    # Normaliser et valider le serveur
     server_mapping = {
         "Tiliwan2": "T2",
         "Tiliwan1": "T1",
         "Herdegrize": "H1",
-        "Oshimo": "O1"
+        "Oshimo": "O1",
+        "Euro": "E1",
+        "T1": "T1",
+        "T2": "T2",
+        "O1": "O1",
+        "H1": "H1",
+        "E1": "E1"
     }
 
-    server_name = server_mapping.get(server, server)  # Par défaut, utilise le nom donné
-    await interaction.followup.send(f"🔄 Mise à jour des statuts VIP pour le serveur **{server}** en cours...")
-    await check_vip_stataus(server_name, interaction.channel)
+    server_name = server_mapping.get(server.upper())
+    if not server_name:
+        await interaction.followup.send(f"❌ Serveur invalide. Utilisez : {', '.join(set(server_mapping.values()))}")
+        return
+
+    try:
+        print(f"🔄 Mise à jour VIP pour {server_name}")
+        await interaction.followup.send(f"🔄 Mise à jour des statuts VIP pour **{server_name}** en cours...")
+
+        # Vérifier si le fichier JSON existe
+        json_file = f"{server_name}.json"
+        if json_file not in db:
+            await interaction.followup.send(f"❌ Données introuvables pour {server_name}")
+            return
+
+        # Mise à jour des VIP
+        await check_vip_status(json_file, interaction.channel)
+        await interaction.followup.send("✅ Mise à jour des statuts VIP terminée")
+
+    except Exception as e:
+        print(f"❌ Erreur lors de la mise à jour VIP : {e}")
+        await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}}")
 
 @bot.tree.command(name="add_forbidden_user", description="Ajoute un membre interdit dans Replit DB.")
 @is_admin()  # Restriction aux administrateurs
