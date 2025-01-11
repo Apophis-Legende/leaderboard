@@ -848,12 +848,21 @@ async def host_info(interaction: discord.Interaction, user_id: str):
         from host_info import calculate_host_stats, format_host_card
         stats = calculate_host_stats(user_id)
         if stats['username']:
-            card = format_host_card(stats)
-            await interaction.response.send_message(card)
+            cards = format_host_card(stats)
+            # Envoyer les cartes en plusieurs messages si nécessaire
+            cards_list = cards.split('\n\n')
+            for card in cards_list:
+                if card.strip():
+                    await interaction.followup.send(card)
+            if not interaction.response.is_done():
+                await interaction.response.send_message("✅ Informations de l'hôte affichées ci-dessous.")
         else:
             await interaction.response.send_message("❌ Aucune donnée d'hôte trouvée pour cet utilisateur.")
     except Exception as e:
-        await interaction.response.send_message(f"❌ Une erreur est survenue : {str(e)}")
+        if not interaction.response.is_done():
+            await interaction.response.send_message(f"❌ Une erreur est survenue : {str(e)}")
+        else:
+            await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
 
 
 # Lancer le bot Discord
