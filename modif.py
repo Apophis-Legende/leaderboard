@@ -1,3 +1,4 @@
+
 import requests
 from replit import db
 
@@ -9,7 +10,6 @@ def format_amount(amount):
 
 def process_giveaway(link, new_prize):
     try:
-        # Extraire les données brutes depuis le lien
         api_url = link.replace("https://giveawaybot.party/summary#", "https://summary-api.giveawaybot.party/?")
         response = requests.get(api_url)
         if response.status_code != 200:
@@ -19,14 +19,13 @@ def process_giveaway(link, new_prize):
         if not giveaway_data or "giveaway" not in giveaway_data:
             raise Exception("Données du giveaway invalides")
 
-        # Extraire le serveur et calculer les montants
         server = new_prize.split()[0]
         gain_after_commission = int(new_prize.split()[1])
         total_bet_before_commission = int(gain_after_commission / 0.95)
         commission_total = total_bet_before_commission - gain_after_commission
 
-        # Charger ou initialiser les données
-        server_data = db.get(server)
+        server_file = f"{server}.json"
+        server_data = db.get(server_file)
         if not server_data:
             server_data = {
                 "serveur": server,
@@ -39,7 +38,6 @@ def process_giveaway(link, new_prize):
                 "croupiers": {}
             }
 
-        # Mettre à jour les utilisateurs
         winners = giveaway_data.get("winners", [])
         entries = giveaway_data.get("entries", [])
         entries_count = len(entries) if entries else 1
@@ -83,7 +81,6 @@ def process_giveaway(link, new_prize):
                 user["total_bets"] = format_amount(current_bets + total_bet_before_commission // entries_count)
                 user["participation"] += 1
 
-        # Mettre à jour l'hôte
         host = giveaway_data["giveaway"]["host"]
         host_id = str(host["id"])
         if host_id not in server_data["hôtes"]:
@@ -100,7 +97,6 @@ def process_giveaway(link, new_prize):
         host_data["total_bets"] = format_amount(current_host_bets + total_bet_before_commission)
         host_data["total_commission"] = format_amount(current_host_commission + commission_total)
 
-        # Mettre à jour les totaux globaux
         server_data["nombre_de_jeux"] += 1
         current_total_bets = convert_amount_to_int(server_data["mises_totales_avant_commission"])
         current_total_gains = convert_amount_to_int(server_data["gains_totaux"])
@@ -110,8 +106,7 @@ def process_giveaway(link, new_prize):
         server_data["gains_totaux"] = format_amount(current_total_gains + gain_after_commission)
         server_data["commission_totale"] = format_amount(current_total_commission + commission_total)
 
-        # Sauvegarder
-        db[server] = server_data
+        db[server_file] = server_data
         return "✅ Données modifiées et sauvegardées avec succès"
 
     except Exception as e:

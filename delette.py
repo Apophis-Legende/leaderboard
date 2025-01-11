@@ -6,7 +6,6 @@ import requests
 
 async def delete_giveaway(interaction: discord.Interaction, link: str):
     try:
-        # Convertir le lien en lien API si nécessaire
         api_url = link.replace("https://giveawaybot.party/summary#", "https://summary-api.giveawaybot.party/?")
         response = requests.get(api_url)
         giveaway_data = response.json()
@@ -16,21 +15,18 @@ async def delete_giveaway(interaction: discord.Interaction, link: str):
 
         prize = giveaway_data["giveaway"]["prize"]
         server = prize.split()[0]
-        server_file = f"{server}"
+        server_file = f"{server}.json"
 
-        # Charger les données actuelles
         data = db.get(server_file)
         if not data:
             raise Exception("Données non trouvées pour ce serveur")
 
-        # Extraction des informations
         winners = giveaway_data.get("winners", [])
         entries = giveaway_data.get("entries", [])
         gain = int(prize.split()[1])
         bet = int(gain / 0.95)
         commission = bet - gain
 
-        # Mise à jour des utilisateurs
         for winner in winners:
             user_id = str(winner["id"])
             if user_id in data["utilisateurs"]:
@@ -52,7 +48,6 @@ async def delete_giveaway(interaction: discord.Interaction, link: str):
                     user["total_bets"] = f"{max(0, current_bets - bet//len(entries))} jetons"
                     user["participation"] = max(0, user["participation"] - 1)
 
-        # Mise à jour hôte
         host = giveaway_data["giveaway"]["host"]
         host_id = str(host["id"])
         if host_id in data["hôtes"]:
@@ -62,7 +57,6 @@ async def delete_giveaway(interaction: discord.Interaction, link: str):
             host_data["total_bets"] = f"{max(0, current_host_bets - bet)} jetons"
             host_data["total_commission"] = f"{max(0, current_host_commission - commission)} jetons"
 
-        # Mise à jour données globales
         data["nombre_de_jeux"] = max(0, data["nombre_de_jeux"] - 1)
         current_total_bets = int(data["mises_totales_avant_commission"].split()[0])
         current_total_gains = int(data["gains_totaux"].split()[0])
@@ -72,9 +66,7 @@ async def delete_giveaway(interaction: discord.Interaction, link: str):
         data["gains_totaux"] = f"{max(0, current_total_gains - gain)} jetons"
         data["commission_totale"] = f"{max(0, current_total_commission - commission)} jetons"
 
-        # Sauvegarder
         db[server_file] = data
-        return "✅ Giveaway supprimé avec succès"
-
+        await interaction.followup.send("✅ Giveaway supprimé avec succès")
     except Exception as e:
-        raise Exception(f"❌ Erreur: {str(e)}")
+        await interaction.followup.send(f"❌ Erreur: {str(e)}")
