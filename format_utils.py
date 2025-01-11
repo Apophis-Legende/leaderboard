@@ -34,14 +34,25 @@ def get_highest_vip(user_id, server):
         total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
         print(f"💰 Mises totales pour {user_id}: {total_bets} jetons")
 
-        if total_bets >= 20000:
-            return {"vip_level": 3}
-        elif total_bets >= 10000:
-            return {"vip_level": 2}
-        elif total_bets >= 4000:
-            return {"vip_level": 1}
-        else:
-            return {"vip_level": 0}
+        # Différents seuils selon le serveur
+        if server == "E1":  # Serveur Euro
+            if total_bets >= 600:
+                return {"vip_level": 3}
+            elif total_bets >= 350:
+                return {"vip_level": 2}
+            elif total_bets >= 150:
+                return {"vip_level": 1}
+            else:
+                return {"vip_level": 0}
+        else:  # Autres serveurs
+            if total_bets >= 20000:
+                return {"vip_level": 3}
+            elif total_bets >= 10000:
+                return {"vip_level": 2}
+            elif total_bets >= 4000:
+                return {"vip_level": 1}
+            else:
+                return {"vip_level": 0}
 
     except Exception as e:
         print(f"❌ Erreur VIP: {e}")
