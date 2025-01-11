@@ -903,34 +903,38 @@ async def reset_lb(interaction: discord.Interaction):
 @is_in_guild()
 async def host_info(interaction: discord.Interaction, user_id: str):
     """Affiche les informations détaillées d'un hôte."""
+    await interaction.response.defer()
+    
     try:
         from host_info import calculate_host_stats, format_host_card
         stats = calculate_host_stats(user_id)
-        if stats['username']:
-            cards = format_host_card(stats)
-            # Envoyer les cartes en plusieurs messages si nécessaire
-            cards_list = cards.split('\n\n')
-            for card in cards_list:
-                if card.strip():
-                    try:
-                        await asyncio.sleep(1)  # Ajoute un délai de 1 seconde
-                        await interaction.followup.send(card)
-                    except discord.HTTPException as e:
-                        if e.code == 429:  # Too Many Requests
-                            retry_after = e.retry_after if hasattr(e, 'retry_after') else 5
-                            await asyncio.sleep(retry_after)
-                            await interaction.followup.send(card)
-                        else:
-                            raise
-            if not interaction.response.is_done():
-                await interaction.response.send_message("✅ Informations de l'hôte affichées ci-dessous.")
-        else:
-            await interaction.response.send_message("❌ Aucune donnée d'hôte trouvée pour cet utilisateur.")
+        
+        if not stats['username']:
+            await interaction.followup.send("❌ Aucune donnée d'hôte trouvée pour cet utilisateur.")
+            return
+            
+        cards = format_host_card(stats)
+        cards_list = cards.split('\n\n')
+        
+        # Envoyer un message initial
+        await interaction.followup.send("📊 Informations de l'hôte :")
+        
+        # Envoyer chaque carte avec gestion des délais
+        for card in cards_list:
+            if card.strip():
+                try:
+                    await asyncio.sleep(1)
+                    await interaction.channel.send(card)
+                except discord.HTTPException as e:
+                    if e.code == 429:  # Too Many Requests
+                        retry_after = e.retry_after if hasattr(e, 'retry_after') else 5
+                        await asyncio.sleep(retry_after)
+                        await interaction.channel.send(card)
+                    else:
+                        raise
+                        
     except Exception as e:
-        if not interaction.response.is_done():
-            await interaction.response.send_message(f"❌ Une erreur est survenue : {str(e)}")
-        else:
-            await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
+        await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
 
 
 # Lancer le bot Discord
