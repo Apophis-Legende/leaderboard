@@ -197,10 +197,14 @@
         // Initialiser les valeurs VIP au chargement
         updateVIPValues('Tiliwan1');
 
-        function formatKamasMillions(jetons) {
-            const kamas = jetons * 10000; // 1 jeton = 10k kamas
-            const millions = kamas / 1000000;
-            return millions >= 1 ? `${millions.toFixed(1)}M Kamas` : `${(kamas/1000).toFixed(0)}K Kamas`;
+        function formatKamasMillions(jetons, server) {
+            if (server === 'Euro') {
+                return `${jetons}€`;
+            } else {
+                const kamas = jetons * 10000; // 1 jeton = 10k kamas
+                const millions = kamas / 1000000;
+                return millions >= 1 ? `${millions.toFixed(1)}M Kamas` : `${(kamas/1000).toFixed(0)}K Kamas`;
+            }
         }
 
         async function updateVIPValues(server) {
@@ -208,10 +212,10 @@
                 const response = await fetch(`/api/vip_commissions?server=${server}`);
                 const data = await response.json();
                 
-                document.getElementById('vip1-share').textContent = formatKamasMillions(data.vip1);
-                document.getElementById('vip2-share').textContent = formatKamasMillions(data.vip2);
-                document.getElementById('vip3-share').textContent = formatKamasMillions(data.vip3);
-                document.getElementById('total-commission').textContent = formatKamasMillions(data.total);
+                document.getElementById('vip1-share').textContent = formatKamasMillions(data.vip1, server);
+                document.getElementById('vip2-share').textContent = formatKamasMillions(data.vip2, server);
+                document.getElementById('vip3-share').textContent = formatKamasMillions(data.vip3, server);
+                document.getElementById('total-commission').textContent = formatKamasMillions(data.total, server);
                 
                 document.getElementById('current-server-name').textContent = server;
             } catch (error) {
