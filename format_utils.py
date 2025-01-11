@@ -59,10 +59,10 @@ VIP_TIERS = {
 def format_kamas(jetons_amount, is_euro=False):
     """Convert jetons to kamas format or euro format"""
     try:
-        amount = int(jetons_amount.split(' ')[0])
+        amount = float(jetons_amount.split(' ')[0])
         if is_euro:
             return f"{amount:.2f}€"
-        
+            
         kamas = amount * 10000  # 1 jeton = 10k kamas
         if kamas >= 1000000:
             millions = kamas/1000000
