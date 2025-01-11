@@ -163,9 +163,19 @@ async def check_vip_status(file_name, channel: discord.TextChannel):
             try:
                 # Extraire la mise totale
                 total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
-
-                # Calculer le palier VIP
-                new_vip_tier = calculate_vip_tier(total_bets)
+                
+                # Calculer le palier VIP en fonction du serveur
+                if server_name == "E1":  # Serveur Euro
+                    if total_bets >= 600:
+                        new_vip_tier = 3
+                    elif total_bets >= 350:
+                        new_vip_tier = 2
+                    elif total_bets >= 150:
+                        new_vip_tier = 1
+                    else:
+                        new_vip_tier = None
+                else:  # Autres serveurs
+                    new_vip_tier = calculate_vip_tier(total_bets)
 
                 if new_vip_tier:
                     try:
