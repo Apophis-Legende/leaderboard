@@ -47,74 +47,65 @@ document.addEventListener("DOMContentLoaded", function () {
         tbody.innerHTML = `<tr><td colspan="5" class="error">${message}</td></tr>`;
     }
 
-    async function getTotalCommissions(serverName) {
-        // Simuler une requête pour récupérer les données du serveur
-        const data = {
-            Tiliwan1: { totalCommission: 10000 },
-            Tiliwan2: { totalCommission: 5000 },
-        };
-        return data[serverName].totalCommission || 0;
+    // Récupérer les données VIP depuis l'API
+    async function getVIPCommissions(serverName) {
+        try {
+            const response = await fetch(`/api/vip_commissions?server=${serverName}`);
+            if (!response.ok) {
+                console.error("Erreur lors de la récupération des commissions VIP");
+                return null;
+            }
+            const data = await response.json();
+            console.log("Données reçues depuis l'API :", data); // LOG pour vérifier les données
+            return data;
+        } catch (error) {
+            console.error("Erreur de communication avec l'API :", error);
+            return null;
+        }
     }
 
-    function calculateVIPShares(totalCommission) {
-        return {
-            vip1: totalCommission * 0.2,
-            vip2: totalCommission * 0.3,
-            vip3: totalCommission * 0.5,
-        };
-    }
+    function loadVIPCommissions(server) {
+        console.log(`🔄 Chargement des données VIP pour le serveur : ${server}`);
 
-    function updateVIPValues(vipShares) {
-        document.getElementById('vip1-share').textContent = `${vipShares.vip1.toFixed(2)} jetons`;
-        document.getElementById('vip2-share').textContent = `${vipShares.vip2.toFixed(2)} jetons`;
-        document.getElementById('vip3-share').textContent = `${vipShares.vip3.toFixed(2)} jetons`;
+        $.ajax({
+            url: `/api/vip_commissions`,
+            type: "GET",
+            data: { server: server },
+            success: function (data) {
+                console.log("📥 Données VIP reçues :", data);
 
-        const totalRedistributed = vipShares.vip1 + vipShares.vip2 + vipShares.vip3;
-        document.getElementById('total-commission').textContent = `${totalRedistributed.toFixed(2)} jetons`;
-    }
+                // Mettre à jour les éléments HTML avec les données reçues
+                $('#vip1-share').text(`${data.vip1.toFixed(2)} jetons`);
+                $('#vip2-share').text(`${data.vip2.toFixed(2)} jetons`);
+                $('#vip3-share').text(`${data.vip3.toFixed(2)} jetons`);
+                $('#total-commission').text(`${data.total.toFixed(2)} jetons`);
+            },
+            error: function (error) {
+                console.error("❌ Erreur lors de la récupération des données VIP :", error);
 
-    function loadUserDetails(serverName) {
-        // Simuler une requête pour récupérer les utilisateurs
-        const users = {
-            Tiliwan1: [
-                { username: 'apophislegende', profit: '-500K Kamas', bets: '10M Kamas', vip: '---' },
-            ],
-            Tiliwan2: [
-                { username: 'player2', profit: '300K Kamas', bets: '5M Kamas', vip: 'VIP 2' },
-            ],
-        };
-
-        const tbody = document.querySelector('#user-table tbody');
-        tbody.innerHTML = ''; // Effacer les anciennes données
-
-        users[serverName].forEach((user) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${user.username}</td>
-                <td>${user.profit}</td>
-                <td>${user.bets}</td>
-                <td>${user.vip}</td>
-            `;
-            tbody.appendChild(row);
+                // Gérer les erreurs d'affichage
+                $('#vip1-share').text("Erreur");
+                $('#vip2-share').text("Erreur");
+                $('#vip3-share').text("Erreur");
+                $('#total-commission').text("Erreur");
+            }
         });
     }
 
-    async function loadServerData(serverName) {
-        const totalCommission = await getTotalCommissions(serverName);
-        const vipShares = calculateVIPShares(totalCommission);
-        updateVIPValues(vipShares);
-        loadUserDetails(serverName);
-    }
+    // Exemple d'appel
+    loadVIPCommissions('Tiliwan1');
 
+
+    // Charger les données automatiquement au démarrage
+    document.addEventListener("DOMContentLoaded", loadDefaultServerData);
+
+
+    // Mettre à jour les données lorsqu'un serveur est sélectionné
     document.getElementById('server-select').addEventListener('change', (event) => {
         const selectedServer = event.target.value;
         document.getElementById('current-server-name').textContent = selectedServer;
         loadServerData(selectedServer);
     });
-
-    // Charger les données par défaut au démarrage
-    loadServerData('Tiliwan1');
-
 
 
     // Gestionnaire d'événements pour le menu déroulant

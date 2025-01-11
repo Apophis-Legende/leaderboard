@@ -1,11 +1,15 @@
-
 from replit import db
 
 def calculate_vip_commissions(server):
-    """Calcule les commissions VIP pour un serveur donné"""
+    """
+    Calculer les commissions VIP pour un serveur donné.
+    Charge les données depuis Replit DB et calcule les répartitions.
+    """
     try:
-        server_data = db.get(f"{server}.json", {})
+        # Charger les données depuis la DB
+        server_data = db.get(f"{server}.json")
         if not server_data:
+            print(f"❌ Aucune donnée trouvée pour {server}")
             return {
                 "vip1": 0,
                 "vip2": 0,
@@ -13,16 +17,35 @@ def calculate_vip_commissions(server):
                 "total": 0
             }
 
-        total_commission = int(server_data.get("commission_totale", "0 jetons").split()[0])
-        
+        # Extraire la commission totale
+        total_commission = server_data.get("commission_totale", "0 jetons")
+        if isinstance(total_commission, str):
+            total_commission = int(total_commission.split()[0])
+
+        if total_commission == 0:
+            print(f"ℹ️ Pas de commissions à redistribuer pour {server}")
+            return {
+                "vip1": 0,
+                "vip2": 0,
+                "vip3": 0,
+                "total": 0
+            }
+
+        # Calcul des répartitions
+        redistributable = total_commission * 0.5  # 50% pour VIPs
+        vip1_share = redistributable * 0.2  # 20% de la moitié
+        vip2_share = redistributable * 0.3  # 30% de la moitié
+        vip3_share = redistributable * 0.5  # 50% de la moitié
+
         return {
-            "vip1": total_commission * 0.20,  # VIP 1 : 20%
-            "vip2": total_commission * 0.30,  # VIP 2 : 30%
-            "vip3": total_commission * 0.50,  # VIP 3 : 50%
+            "vip1": vip1_share,
+            "vip2": vip2_share,
+            "vip3": vip3_share,
             "total": total_commission
         }
+
     except Exception as e:
-        print(f"❌ Erreur calcul commissions: {e}")
+        print(f"❌ Erreur dans le calcul des commissions pour {server}: {e}")
         return {
             "vip1": 0,
             "vip2": 0,

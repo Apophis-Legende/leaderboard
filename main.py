@@ -17,6 +17,7 @@ import re
 from modif import process_giveaway
 from replit import db
 
+
 # Configuration du bot avec intentions
 intents = discord.Intents.default()
 intents.messages = True
@@ -125,13 +126,32 @@ def get_vip_status():
 
 @app.route('/api/vip_commissions', methods=["GET"])
 def get_vip_commissions():
-    """API pour obtenir les commissions VIP d'un serveur"""
-    from commission_calculator import calculate_vip_commissions
+    """API pour calculer et obtenir les commissions VIP"""
+    from commission_calculator import calculate_vip_commissions  # Import de la fonction adaptée
+
+    # Récupération des paramètres
     server = request.args.get('server')
+    print(f"🔍 Requête pour les commissions VIP reçue - Serveur: {server}")
+
+    # Vérification du paramètre serveur
     if not server:
+        print("❌ Paramètre 'server' manquant")
         return jsonify({"error": "Paramètre 'server' manquant"}), 400
-    
-    commissions = calculate_vip_commissions(server)
+
+    # Mapping des noms de serveur vers les codes internes
+    server_code = server.replace("Tiliwan1", "T1").replace("Tiliwan2", "T2").replace("Oshimo", "O1").replace("Herdegrize", "H1").replace("Euro", "E1")
+    print(f"🔍 Code serveur après mapping : {server_code}")
+
+    # Appel à la fonction de calcul des commissions
+    commissions = calculate_vip_commissions(server_code)
+
+    # Vérification des résultats
+    if commissions["total"] == 0:
+        print(f"ℹ️ Pas de commissions disponibles pour le serveur : {server_code}")
+        return jsonify({"message": "Aucune commission à redistribuer", "data": commissions}), 200
+
+    # Retourner les résultats
+    print(f"✅ Commissions calculées pour {server_code} : {commissions}")
     return jsonify(commissions)
 
 @app.route('/api/leaderboard', methods=["GET"])
