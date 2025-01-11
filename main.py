@@ -628,13 +628,18 @@ async def modif_json(interaction: discord.Interaction, link: str, prize: str):
 @is_admin()  # Restriction aux administrateurs
 @is_in_guild()  # Bloque l'accès en DM
 async def add_giveaway(interaction: discord.Interaction, link: str):
-    await interaction.response.defer()
     try:
+        await interaction.response.defer()  # Defer the interaction to indicate processing
         add_giveaway_data(link, MAPPING_SERVER_FILE)
         await interaction.followup.send("✅ Données ajoutées avec succès !")
     except Exception as e:
         print(f"❌ Erreur : {e}")
-        await interaction.followup.send(f"❌ Une erreur est survenue : {e}")
+        # Check if the response is already done before sending a follow-up
+        if not interaction.response.is_done():
+            await interaction.followup.send(f"❌ Une erreur est survenue : {e}")
+        else:
+            await interaction.followup.send("❌ Une erreur est survenue et une réponse n’a pas pu être correctement traitée.")
+
 
 @bot.tree.command(name="delete_giveaway", description="Supprime les données associées à un giveaway via son lien.")
 @is_admin()  # Restriction aux administrateurs
@@ -861,15 +866,15 @@ async def host_info(interaction: discord.Interaction, user_id: str):
             for card in cards_list:
                 if card.strip():
                     try:
-        await asyncio.sleep(1)  # Ajoute un délai de 1 seconde
-        await interaction.followup.send(card)
-    except discord.HTTPException as e:
-        if e.code == 429:  # Too Many Requests
-            retry_after = e.retry_after if hasattr(e, 'retry_after') else 5
-            await asyncio.sleep(retry_after)
-            await interaction.followup.send(card)
-        else:
-            raise
+                        await asyncio.sleep(1)  # Ajoute un délai de 1 seconde
+                        await interaction.followup.send(card)
+                    except discord.HTTPException as e:
+                        if e.code == 429:  # Too Many Requests
+                            retry_after = e.retry_after if hasattr(e, 'retry_after') else 5
+                            await asyncio.sleep(retry_after)
+                            await interaction.followup.send(card)
+                        else:
+                            raise
             if not interaction.response.is_done():
                 await interaction.response.send_message("✅ Informations de l'hôte affichées ci-dessous.")
         else:
@@ -879,6 +884,7 @@ async def host_info(interaction: discord.Interaction, user_id: str):
             await interaction.response.send_message(f"❌ Une erreur est survenue : {str(e)}")
         else:
             await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
+
 
 
 # Lancer le bot Discord
