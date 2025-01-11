@@ -50,10 +50,10 @@ def format_host_card(stats):
 ║           Stats Totales Hôte             
 ╠══════════════════════════════════════════
 ║ 👤 {stats['username']}
-║ 💰 Commission Totale: {format_kamas(f"{stats['total_commission']} jetons")}
-║ 🎲 Mises Totales: {format_kamas(f"{stats['total_bets']} jetons")}
+║ 💰 Commission Totale: {format_kamas(f"{stats['total_commission']} jetons", include_euro=True)}
+║ 🎲 Mises Totales: {format_kamas(f"{stats['total_bets']} jetons", include_euro=True)}
 ║ 🎮 Giveaways Organisés: {stats['total_giveaways']}
-║ 💸 Commission générée : {format_kamas(f"{stats['commission_from_participation']} jetons")}
+║ 💸 Commission générée : {format_kamas(f"{stats['commission_from_participation']} jetons", include_euro=True)}
 ╚══════════════════════════════════════════```"""
     cards.append(total_card)
 
@@ -77,8 +77,8 @@ def format_host_card(stats):
 ╔══════════════════════════════════════════
 ║              {server_names[server]}                
 ╠══════════════════════════════════════════
-║ 💰 Commission: {format_kamas(host_data['total_commission'])}
-║ 🎲 Mises: {format_kamas(host_data['total_bets'])}
+║ 💰 Commission: {format_kamas(host_data['total_commission'], server=='E1')}
+║ 🎲 Mises: {format_kamas(host_data['total_bets'], server=='E1')}
 ║ 🎮 Giveaways: {host_data.get('total_giveaways', 0)}
 ╚══════════════════════════════════════════```"""
                 cards.append(server_card)

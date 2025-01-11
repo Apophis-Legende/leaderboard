@@ -56,12 +56,14 @@ VIP_TIERS = {
 }
 
 
-def format_kamas(jetons_amount):
-    """Convert jetons to kamas format"""
+def format_kamas(jetons_amount, is_euro=False):
+    """Convert jetons to kamas format or euro format"""
     try:
         amount = int(jetons_amount.split(' ')[0])
-        kamas = amount * 10000  # 1 jeton = 10k kamas
+        if is_euro:
+            return f"{amount:.2f}€"
         
+        kamas = amount * 10000  # 1 jeton = 10k kamas
         if kamas >= 1000000:
             millions = kamas/1000000
             whole = int(millions)
@@ -71,7 +73,7 @@ def format_kamas(jetons_amount):
             return f"{whole}M{decimal} Kamas"
         return f"{kamas//1000}K Kamas"
     except:
-        return "0 Kamas"
+        return "0 Kamas" if not is_euro else "0.00€"
 
 def calculate_benefice(wins, total_bets):
     """Calculate total benefit (wins - total_bets)"""
