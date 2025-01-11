@@ -628,17 +628,32 @@ async def modif_json(interaction: discord.Interaction, link: str, prize: str):
 @is_admin()  # Restriction aux administrateurs
 @is_in_guild()  # Bloque l'accès en DM
 async def add_giveaway(interaction: discord.Interaction, link: str):
+    await interaction.response.defer()
+
+    if not verify_db_connection():
+        await interaction.followup.send("❌ Erreur: Impossible d'accéder à la base de données. Veuillez réessayer plus tard.")
+        return
+
     try:
-        await interaction.response.defer()  # Defer the interaction to indicate processing
         add_giveaway_data(link, MAPPING_SERVER_FILE)
-        await interaction.followup.send("✅ Données ajoutées avec succès !")
+        try:
+            await interaction.followup.send("✅ Données ajoutées avec succès !")
+        except discord.HTTPException as e:
+            if e.code == 429:
+                retry_after = e.retry_after if hasattr(e, 'retry_after') else 5
+                await asyncio.sleep(retry_after)
+                await interaction.followup.send("✅ Données ajoutées avec succès !")
+            else:
+                raise
     except Exception as e:
-        print(f"❌ Erreur : {e}")
-        # Check if the response is already done before sending a follow-up
+        error_msg = f"❌ Une erreur est survenue : {str(e)}"
         if not interaction.response.is_done():
-            await interaction.followup.send(f"❌ Une erreur est survenue : {e}")
+            await interaction.followup.send(error_msg)
         else:
-            await interaction.followup.send("❌ Une erreur est survenue et une réponse n’a pas pu être correctement traitée.")
+            try:
+                await interaction.followup.send(error_msg)
+            except:
+                print(f"Impossible d'envoyer le message d'erreur : {error_msg}")
 
 
 @bot.tree.command(name="delete_giveaway", description="Supprime les données associées à un giveaway via son lien.")
@@ -731,7 +746,7 @@ async def add_forbidden_user(interaction: discord.Interaction, user_id: str, rea
     # Ajouter l'utilisateur avec le username, les rôles et la raison
     forbidden_users[user_id] = {
         "username": member.name,
-        ""roles": roles,
+        "roles": roles,
         "reason": reason
     }
 
