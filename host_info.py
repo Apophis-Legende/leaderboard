@@ -10,6 +10,7 @@ def calculate_host_stats(host_id):
         'total_commission': 0,
         'total_commission_euro': 0,
         'total_bets': 0,
+        'total_bets_euro': 0,
         'total_giveaways': 0,
         'commission_from_participation': 0,
         'commission_from_participation_euro': 0
@@ -27,11 +28,13 @@ def calculate_host_stats(host_id):
                 host_data = hosts[host_id]
                 total_stats['username'] = host_data['username']
                 commission = int(host_data['total_commission'].split()[0])
+                bets = int(host_data['total_bets'].split()[0])
                 if server == 'E1':
                     total_stats['total_commission_euro'] += commission
+                    total_stats['total_bets_euro'] = bets
                 else:
                     total_stats['total_commission'] += commission
-                total_stats['total_bets'] += int(host_data['total_bets'].split()[0])
+                    total_stats['total_bets'] += bets
                 total_stats['total_giveaways'] += host_data.get('total_giveaways', 0)
 
             # Commission générée par participations
