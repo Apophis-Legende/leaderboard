@@ -1,8 +1,22 @@
 
 from replit import db
 
+def verify_db_connection():
+    """Vérifie la connexion à Replit DB"""
+    try:
+        db["test_connection"] = True
+        del db["test_connection"]
+        return True
+    except Exception as e:
+        print(f"❌ Erreur de connexion à Replit DB: {e}")
+        return False
+
 def list_all_data():
     """Liste toutes les données dans Replit DB"""
+    if not verify_db_connection():
+        print("❌ Impossible d'accéder à Replit DB")
+        return
+        
     print("📂 Contenu de Replit DB :")
     for key in db.keys():
         print(f"🔑 {key}")

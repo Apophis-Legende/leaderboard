@@ -614,6 +614,11 @@ async def on_ready():
 @app_commands.describe(link="Lien vers le fichier JSON brut", prize="Nouveau prize (format : 'T1 950')")
 async def modif_json(interaction: discord.Interaction, link: str, prize: str):
     await interaction.response.defer()
+    
+    from data_manager import verify_db_connection
+    if not verify_db_connection():
+        await interaction.followup.send("❌ Erreur: Impossible d'accéder à la base de données. Veuillez réessayer plus tard.")
+        return
 
     try:
         # Appeler la fonction principale pour traiter le fichier JSON
