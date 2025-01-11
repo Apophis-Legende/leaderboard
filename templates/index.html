@@ -61,22 +61,28 @@
         let currentServer = 'Tiliwan1'; // Serveur par défaut
 
         function formatKamas(jetons) {
-            const amount = parseInt(jetons);
-            const kamas = amount * 10000; // 1 jeton = 10k kamas
-            const isNegative = kamas < 0;
-            const absKamas = Math.abs(kamas);
-
-            let result;
-            if (absKamas >= 1000000) {
-                const millions = absKamas/1000000;
-                const whole = Math.floor(millions);
-                const decimal = Math.floor((millions - whole) * 10);
-                result = decimal === 0 ? `${whole}M Kamas` : `${whole}M${decimal} Kamas`;
+            const currentServer = document.getElementById('server-select').value;
+            if (currentServer === 'Euro') {
+                const amount = parseFloat(jetons);
+                return `${amount.toFixed(2)}€`;
             } else {
-                result = `${Math.floor(absKamas/1000)}K Kamas`;
-            }
+                const amount = parseInt(jetons);
+                const kamas = amount * 10000;
+                const isNegative = kamas < 0;
+                const absKamas = Math.abs(kamas);
 
-            return isNegative ? `-${result}` : result;
+                let result;
+                if (absKamas >= 1000000) {
+                    const millions = absKamas/1000000;
+                    const whole = Math.floor(millions);
+                    const decimal = Math.floor((millions - whole) * 10);
+                    result = decimal === 0 ? `${whole}M Kamas` : `${whole}M${decimal} Kamas`;
+                } else {
+                    result = `${Math.floor(absKamas/1000)}K Kamas`;
+                }
+
+                return isNegative ? `-${result}` : result;
+            }
         }
 
         function calculateBenefice(wins, total_bets) {
@@ -199,7 +205,7 @@
 
         function formatKamasMillions(jetons, server) {
             if (server === 'Euro') {
-                return `${jetons}€`;
+                return `${Number(jetons).toFixed(2)}€`;
             } else {
                 const kamas = jetons * 10000; // 1 jeton = 10k kamas
                 const millions = kamas / 1000000;
