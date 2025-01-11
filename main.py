@@ -860,7 +860,16 @@ async def host_info(interaction: discord.Interaction, user_id: str):
             cards_list = cards.split('\n\n')
             for card in cards_list:
                 if card.strip():
-                    await interaction.followup.send(card)
+                    try:
+        await asyncio.sleep(1)  # Ajoute un délai de 1 seconde
+        await interaction.followup.send(card)
+    except discord.HTTPException as e:
+        if e.code == 429:  # Too Many Requests
+            retry_after = e.retry_after if hasattr(e, 'retry_after') else 5
+            await asyncio.sleep(retry_after)
+            await interaction.followup.send(card)
+        else:
+            raise
             if not interaction.response.is_done():
                 await interaction.response.send_message("✅ Informations de l'hôte affichées ci-dessous.")
         else:
