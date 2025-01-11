@@ -162,7 +162,7 @@ def get_leaderboard():
     if not server:
         return jsonify({"error": "Paramètre 'server' manquant dans la requête."}), 400
 
-    file_name = MAPPING_SERVER_FILE.get(server.replace("Tiliwan1", "T1").replace("Tiliwan2", "T2").replace("Oshimo", "O1"))
+    file_name = MAPPING_SERVER_FILE.get(server.replace("Tiliwan1", "T1").replace("Tiliwan2", "T2").replace("Oshimo", "O1").replace("Herdegrize", "H1").replace("Euro", "E1"))
     if not file_name:
         return jsonify({"error": f"Serveur '{server}' non reconnu."}), 404
 
