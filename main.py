@@ -176,7 +176,7 @@ def get_leaderboard():
             print("❌ Erreur: Impossible de se connecter à la base de données Replit")
             return jsonify({"error": "Erreur de connexion à la base de données"}), 500
         print("✅ Connexion à la base de données Replit réussie")
-            
+
         # Charger depuis Replit db avec vérification
         data = db.get(file_name, {
             "serveur": server,
@@ -188,7 +188,7 @@ def get_leaderboard():
             "hôtes": {},
             "croupiers": {}
         })
-        
+
         # Convertir récursivement les ObservedDict en dictionnaires standard
         def convert_to_dict(obj):
             if hasattr(obj, 'value'):  # Pour ObservedDict/ObservedList
@@ -198,7 +198,7 @@ def get_leaderboard():
             elif isinstance(obj, list):
                 return [convert_to_dict(item) for item in obj]
             return obj
-            
+
         formatted_data = convert_to_dict(data)
         print(f"✅ Données chargées: {formatted_data}")
 
@@ -674,10 +674,15 @@ async def delete_giveaway_command(interaction: discord.Interaction, link: str):
 
 
 @bot.tree.command(name="update_vip", description="Met à jour les statuts VIP pour un serveur donné.")
-@is_admin()  # Restriction aux administrateurs
-@is_in_guild()  # Bloque l'accès en DM
+@is_admin()
+@is_in_guild()
 async def update_vip(interaction: discord.Interaction, server: str):
     await interaction.response.defer()
+
+    if not verify_db_connection():
+        await interaction.followup.send("❌ Erreur: Impossible d'accéder à la base de données. Veuillez réessayer plus tard.")
+        return
+
     print(f"🔄 Demande de mise à jour VIP pour le serveur {server}")
 
     # Ajoutez un mapping des serveurs si nécessaire
@@ -726,7 +731,7 @@ async def add_forbidden_user(interaction: discord.Interaction, user_id: str, rea
     # Ajouter l'utilisateur avec le username, les rôles et la raison
     forbidden_users[user_id] = {
         "username": member.name,
-        "roles": roles,
+        ""roles": roles,
         "reason": reason
     }
 
@@ -818,7 +823,7 @@ async def reset_vip(interaction: discord.Interaction):
 
     # Réinitialiser les rôles assignés dans la db
     db["assigned_roles.json"] = {"users": {}}
-    
+
     await interaction.followup.send("✅ Réinitialisation des rôles VIP effectuée")
 
 @bot.tree.command(name="reset_lb", description="Réinitialise les données des leaderboards")
@@ -903,3 +908,14 @@ def run_bot():
 if __name__ == "__main__":
     threading.Thread(target=run_flask).start()  # Lancer Flask dans un thread
     run_bot()  # Lancer le bot Discord
+
+def verify_db_connection():
+    try:
+        # Tentative d'accès à la DB pour vérifier la connexion
+        db.keys()  # Appel d'une fonction qui nécessite une connexion
+        return True
+    except Exception as e:
+        print(f"❌ Erreur de connexion à la base de données : {e}")
+        return False
+
+import asyncio
