@@ -189,9 +189,13 @@
 
         // Gestion du menu déroulant pour changer de serveur
         document.getElementById('server-select').addEventListener('change', function() {
-            currentServer = this.value; // Changer le serveur courant
-            fetchLeaderboardData(); // Charger les nouvelles données
+            currentServer = this.value;
+            fetchLeaderboardData();
+            updateVIPValues(currentServer);
         });
+
+        // Initialiser les valeurs VIP au chargement
+        updateVIPValues('Tiliwan1');
 
         function formatKamasMillions(jetons) {
             const kamas = jetons * 10000; // 1 jeton = 10k kamas
@@ -199,17 +203,20 @@
             return millions >= 1 ? `${millions.toFixed(1)}M Kamas` : `${(kamas/1000).toFixed(0)}K Kamas`;
         }
 
-        function updateVIPValues(commission) {
-            const totalCommission = parseInt(commission.split(' ')[0]);
-
-            const vip1Amount = totalCommission * 0.20;
-            const vip2Amount = totalCommission * 0.30;
-            const vip3Amount = totalCommission * 0.50;
-
-            document.getElementById('vip1-share').textContent = formatKamasMillions(vip1Amount);
-            document.getElementById('vip2-share').textContent = formatKamasMillions(vip2Amount);
-            document.getElementById('vip3-share').textContent = formatKamasMillions(vip3Amount);
-            document.getElementById('total-commission').textContent = formatKamasMillions(totalCommission);
+        async function updateVIPValues(server) {
+            try {
+                const response = await fetch(`/api/vip_commissions?server=${server}`);
+                const data = await response.json();
+                
+                document.getElementById('vip1-share').textContent = formatKamasMillions(data.vip1);
+                document.getElementById('vip2-share').textContent = formatKamasMillions(data.vip2);
+                document.getElementById('vip3-share').textContent = formatKamasMillions(data.vip3);
+                document.getElementById('total-commission').textContent = formatKamasMillions(data.total);
+                
+                document.getElementById('current-server-name').textContent = server;
+            } catch (error) {
+                console.error("Erreur lors de la récupération des commissions:", error);
+            }
         }
     </script>
 </body>
