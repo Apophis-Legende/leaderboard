@@ -5,6 +5,7 @@ import threading
 import os
 import json
 import requests
+import asyncio
 from logique import process_giveaway_data, load_json, save_json
 from data_manager import load_json, verify_db_connection , list_all_data
 from discord.ui import View, Select
