@@ -736,7 +736,8 @@ async def update_vip(interaction: discord.Interaction, server: str):
 
     except Exception as e:
         print(f"❌ Erreur lors de la mise à jour VIP : {e}")
-        await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}}")
+        await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
+
 
 @bot.tree.command(name="add_forbidden_user", description="Ajoute un membre interdit dans Replit DB.")
 @is_admin()  # Restriction aux administrateurs
