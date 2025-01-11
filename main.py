@@ -785,14 +785,13 @@ async def remove_forbidden_user(interaction: discord.Interaction, user_id: str):
         )
 
 
-@bot.tree.command(name="reset_all", description="Réinitialise les données VIP et toutes les données")
+@bot.tree.command(name="reset_vip", description="Réinitialise les rôles VIP")
 @is_admin()
 @is_in_guild()
-async def reset_all(interaction: discord.Interaction):
-    """Réinitialise les données VIP et toutes les données"""
+async def reset_vip(interaction: discord.Interaction):
+    """Réinitialise uniquement les rôles VIP"""
     await interaction.response.defer()
 
-    # 1. Réinitialisation des rôles VIP
     guild = interaction.guild
     data = load_assigned_roles()
     users = data.get("users", {})
@@ -810,9 +809,20 @@ async def reset_all(interaction: discord.Interaction):
             except discord.NotFound:
                 print(f"❌ Membre introuvable avec l'ID {user_id}")
             except Exception as e:
-                print(f"❌Erreur pour l'utilisateur {user_id} : {e}")
+                print(f"❌ Erreur pour l'utilisateur {user_id} : {e}")
 
-    # 2. Réinitialisation des données dans Replit db
+    # Réinitialiser les rôles assignés dans la db
+    db["assigned_roles.json"] = {"users": {}}
+    
+    await interaction.followup.send("✅ Réinitialisation des rôles VIP effectuée")
+
+@bot.tree.command(name="reset_lb", description="Réinitialise les données des leaderboards")
+@is_admin()
+@is_in_guild()
+async def reset_lb(interaction: discord.Interaction):
+    """Réinitialise uniquement les données des leaderboards"""
+    await interaction.response.defer()
+
     initial_data = {
         "serveur": "",
         "nombre_de_jeux": 0,
@@ -834,10 +844,7 @@ async def reset_all(interaction: discord.Interaction):
         except Exception as e:
             print(f"❌ Erreur pour {server}: {e}")
 
-    # Réinitialiser les rôles assignés dans la db
-    db["assigned_roles.json"] = {"users": {}}
-
-    await interaction.followup.send("✅ Réinitialisation complète effectuée :\n- Rôles VIP supprimés\n- Données réinitialisées")
+    await interaction.followup.send("✅ Réinitialisation des leaderboards effectuée")
 
 @bot.tree.command(name="host_info", description="Affiche les informations d'un hôte")
 @is_admin()
