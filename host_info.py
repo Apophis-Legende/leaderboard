@@ -39,7 +39,11 @@ def calculate_host_stats(host_id):
             if host_id in users:
                 user_data = users[host_id]
                 total_bets = int(user_data['total_bets'].split()[0])
-                total_stats['commission_from_participation'] += int(total_bets * 0.05)
+                # Séparation des commissions Euro et Kamas
+                if server == 'E1':
+                    total_stats['commission_from_participation_euro'] += int(total_bets * 0.05)
+                else:
+                    total_stats['commission_from_participation'] += int(total_bets * 0.05)
 
         except Exception as e:
             print(f"❌ Erreur lecture données {server}: {e}")
@@ -56,10 +60,13 @@ def format_host_card(stats):
 ║           Stats Totales Hôte             
 ╠══════════════════════════════════════════
 ║ 👤 {stats['username']}
-║ 💰 Commission Totale: {format_kamas(f"{stats['total_commission']} jetons")} + {format_kamas(f"{stats['total_commission_euro']} jetons", is_euro=True)}
-║ 🎲 Mises Totales: {format_kamas(f"{stats['total_bets']} jetons")}
+║ 💰 Commission Totale Kamas: {format_kamas(f"{stats['total_commission']} jetons")}
+║ 💰 Commission Totale Euro: {format_kamas(f"{stats['total_commission_euro']} jetons", is_euro=True)}
+║ 🎲 Mises Totales Kamas: {format_kamas(f"{stats['total_bets']} jetons")}
+║ 🎲 Mises Totales Euro: {format_kamas(f"{stats['commission_from_participation_euro']} jetons", is_euro=True)}
 ║ 🎮 Giveaways Organisés: {stats['total_giveaways']}
-║ 💸 Commission générée : {format_kamas(f"{stats['commission_from_participation']} jetons", is_euro=True)}
+║ 💸 Commission générée Kamas: {format_kamas(f"{stats['commission_from_participation']} jetons")}
+║ 💸 Commission générée Euro: {format_kamas(f"{stats['commission_from_participation_euro']} jetons", is_euro=True)}
 ╚══════════════════════════════════════════```"""
     cards.append(total_card)
 
