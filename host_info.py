@@ -66,7 +66,7 @@ def format_host_card(stats):
 ║ 💰 Commission Totale Kamas: {format_kamas(f"{stats['total_commission']} jetons")}
 ║ 💰 Commission Totale Euro: {format_kamas(f"{stats['total_commission_euro']} jetons", is_euro=True)}
 ║ 🎲 Mises Totales Kamas: {format_kamas(f"{stats['total_bets']} jetons")}
-║ 🎲 Mises Totales Euro: {format_kamas(f"{stats['commission_from_participation_euro']} jetons", is_euro=True)}
+║ 🎲 Mises Totales Euro: {format_kamas(f"{stats['total_bets_euro']} jetons", is_euro=True)}
 ║ 🎮 Giveaways Organisés: {stats['total_giveaways']}
 ║ 💸 Commission générée Kamas: {format_kamas(f"{stats['commission_from_participation']} jetons")}
 ║ 💸 Commission générée Euro: {format_kamas(f"{stats['commission_from_participation_euro']} jetons", is_euro=True)}
