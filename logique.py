@@ -57,6 +57,8 @@ async def process_giveaway_data(raw_data, channel):
     try:
         if "giveaway" not in raw_data or "winners" not in raw_data or "entries" not in raw_data:
             raise KeyError("Les clés 'giveaway', 'winners' ou 'entries' sont manquantes dans les données.")
+            
+        print("🔍 Données reçues:", raw_data)  # Debug log
 
         giveaway_info = raw_data["giveaway"]
         prize = giveaway_info["prize"]

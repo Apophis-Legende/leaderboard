@@ -4,11 +4,11 @@ from replit import db
 import requests
 
 MAPPING_SERVER_FILE = {
-    "T1": "T1",
-    "T2": "T2", 
-    "O1": "O1",
-    "H1": "H1",
-    "E1": "E1"
+    "T1": "T1.json",
+    "T2": "T2.json", 
+    "O1": "O1.json",
+    "H1": "H1.json",
+    "E1": "E1.json"
 }
 
 async def delete_giveaway(interaction: discord.Interaction, link: str):
