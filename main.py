@@ -6,7 +6,7 @@ import os
 import json
 import requests
 from logique import process_giveaway_data, load_json, save_json
-from data_manager import load_json, save_json, extract_user_data, list_all_data
+from data_manager import load_json, verify_db_connection , list_all_data
 from discord.ui import View, Select
 from vip import check_vip_status, MAPPING_SERVER_FILE, FORBIDDEN_ROLES, load_assigned_roles, load_forbidden_vip_users
 from discord import app_commands
