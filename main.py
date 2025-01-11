@@ -614,11 +614,6 @@ async def on_ready():
 @app_commands.describe(link="Lien vers le fichier JSON brut", prize="Nouveau prize (format : 'T1 950')")
 async def modif_json(interaction: discord.Interaction, link: str, prize: str):
     await interaction.response.defer()
-    
-    from data_manager import verify_db_connection
-    if not verify_db_connection():
-        await interaction.followup.send("❌ Erreur: Impossible d'accéder à la base de données. Veuillez réessayer plus tard.")
-        return
 
     try:
         # Appeler la fonction principale pour traiter le fichier JSON
@@ -695,7 +690,7 @@ async def update_vip(interaction: discord.Interaction, server: str):
 
     server_name = server_mapping.get(server, server)  # Par défaut, utilise le nom donné
     await interaction.followup.send(f"🔄 Mise à jour des statuts VIP pour le serveur **{server}** en cours...")
-    await check_vip_status(server_name, interaction.channel)
+    await check_vip_stataus(server_name, interaction.channel)
 
 @bot.tree.command(name="add_forbidden_user", description="Ajoute un membre interdit dans Replit DB.")
 @is_admin()  # Restriction aux administrateurs
@@ -889,7 +884,6 @@ async def host_info(interaction: discord.Interaction, user_id: str):
             await interaction.response.send_message(f"❌ Une erreur est survenue : {str(e)}")
         else:
             await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
-
 
 
 # Lancer le bot Discord
