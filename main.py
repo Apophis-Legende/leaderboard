@@ -284,19 +284,27 @@ async def send_data_to_flask(data):
 async def on_ready():
     print(f"✅ Bot connecté en tant que : {bot.user}")
     ensure_forbidden_users_exists()
-    print(f"✅ Bot connecté en tant que : {bot.user}")
     print(f"✅ ID du bot : {bot.user.id}")
 
     try:
+        # Vérifier et initialiser les fichiers JSON
+        verifier_et_initialiser_fichiers_json(MAPPING_SERVER_FILE)
+        print("✅ Vérification et initialisation des fichiers JSON terminées.")
+
+        # Synchroniser les commandes slash
         synced = await bot.tree.sync()
         print(f"✅ Commandes slash synchronisées : {len(synced)}")
+
+        # Démarrer la tâche flamboard
+        send_flamboard_embed.start()
+        print("✅ Tâche flamboard démarrée")
+
+        # Liste des commandes disponibles
+        print("📝 Commandes disponibles :")
+        for cmd in bot.tree.get_commands():
+            print(f"- /{cmd.name}")
     except Exception as e:
-        print(f"❌ Erreur lors de la synchronisation des commandes slash : {e}")
-
-    # Vérifier et initialiser les fichiers JSON
-    verifier_et_initialiser_fichiers_json(MAPPING_SERVER_FILE)
-
-    print("✅ Vérification et initialisation des fichiers JSON terminées.")
+        print(f"❌ Erreur : {e}")
 
 async def send_data_to_flask(data):
     """Envoie des données JSON au serveur Flask."""
@@ -946,6 +954,7 @@ async def test_flamboard(interaction: discord.Interaction):
     try:
         embed = create_flamboard_embed()
         await interaction.followup.send(embed=embed)
+        await interaction.followup.send("✅ Flamboard envoyé avec succès !") # Confirmation message
     except Exception as e:
         await interaction.followup.send(f"❌ Erreur : {e}")
 
@@ -1033,18 +1042,23 @@ async def on_ready():
     ensure_forbidden_users_exists()
     print(f"✅ ID du bot : {bot.user.id}")
 
-    # Vérifier et initialiser les fichiers JSON
-    verifier_et_initialiser_fichiers_json(MAPPING_SERVER_FILE)
-    print("✅ Vérification et initialisation des fichiers JSON terminées.")
-
     try:
+        # Vérifier et initialiser les fichiers JSON
+        verifier_et_initialiser_fichiers_json(MAPPING_SERVER_FILE)
+        print("✅ Vérification et initialisation des fichiers JSON terminées.")
+
         # Synchroniser les commandes slash
         synced = await bot.tree.sync()
         print(f"✅ Commandes slash synchronisées : {len(synced)}")
-        
+
         # Démarrer la tâche flamboard
         send_flamboard_embed.start()
         print("✅ Tâche flamboard démarrée")
+
+        # Liste des commandes disponibles
+        print("📝 Commandes disponibles :")
+        for cmd in bot.tree.get_commands():
+            print(f"- /{cmd.name}")
     except Exception as e:
         print(f"❌ Erreur : {e}")
 
