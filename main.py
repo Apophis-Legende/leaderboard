@@ -17,7 +17,8 @@ from add import add_giveaway_data
 import re
 from modif import process_giveaway
 from replit import db
-
+from discord.ext import tasks
+from datetime import datetime
 
 # Configuration du bot avec intentions
 intents = discord.Intents.default()
@@ -735,7 +736,7 @@ async def update_vip(interaction: discord.Interaction, server: str):
         await interaction.followup.send("✅ Mise à jour des statuts VIP terminée")
 
     except Exception as e:
-        print(f"❌ Erreur lors de la mise à jour VIP : {e}")
+        print(f"❌ Erreur lors de la mise àjour VIP : {e}")
         await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
 
 
@@ -904,21 +905,21 @@ async def reset_lb(interaction: discord.Interaction):
 async def host_info(interaction: discord.Interaction, user_id: str):
     """Affiche les informations détaillées d'un hôte."""
     await interaction.response.defer()
-    
+
     try:
         from host_info import calculate_host_stats, format_host_card
         stats = calculate_host_stats(user_id)
-        
+
         if not stats['username']:
             await interaction.followup.send("❌ Aucune donnée d'hôte trouvée pour cet utilisateur.")
             return
-            
+
         cards = format_host_card(stats)
         cards_list = cards.split('\n\n')
-        
+
         # Envoyer un message initial
         await interaction.followup.send("📊 Informations de l'hôte :")
-        
+
         # Envoyer chaque carte avec gestion des délais
         for card in cards_list:
             if card.strip():
@@ -932,7 +933,7 @@ async def host_info(interaction: discord.Interaction, user_id: str):
                         await interaction.channel.send(card)
                     else:
                         raise
-                        
+
     except Exception as e:
         await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
 
@@ -965,3 +966,98 @@ def verify_db_connection():
         return False
 
 import asyncio
+from discord.ext import tasks
+from datetime import datetime
+
+# Configuration du flamboard
+FLAMBOARD_CHANNEL_ID = 123456789012345678  # À remplacer par votre ID de canal
+
+def calculate_vip_commission_distribution():
+    """Calcule la distribution des commissions VIP"""
+    from commission_calculator import calculate_vip_commissions
+
+    total_commission = 0
+    vip_tiers = {"VIP 1": 0, "VIP 2": 0, "VIP 3": 0}
+
+    for server in ["T1", "T2", "O1", "H1", "E1"]:
+        commissions = calculate_vip_commissions(server)
+        if commissions:
+            total_commission += commissions.get("total", 0)
+            vip_tiers["VIP 1"] += commissions.get("vip1", 0)
+            vip_tiers["VIP 2"] += commissions.get("vip2", 0)
+            vip_tiers["VIP 3"] += commissions.get("vip3", 0)
+
+    return total_commission, vip_tiers
+
+def create_flamboard_embed():
+    """Crée l'embed du flamboard avec les données actuelles"""
+    total_commission, vip_tiers = calculate_vip_commission_distribution()
+
+    embed = discord.Embed(
+        title="La maj du FLAMBOARD est là 🔥",
+        description="Bonsoir à toutes et à tous ❤️\n"
+                    "｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *+:｡.｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *",
+        color=discord.Color.red()
+    )
+
+    embed.add_field(
+        name="💰 Redistribution des commissions",
+        value=f"Actuellement, **{total_commission:,.2f}** de nos coms vous sont redistribuées 😍🥵🔥",
+        inline=False
+    )
+
+    embed.add_field(name="🥇 VIP 1", value=f"{vip_tiers['VIP 1']:,.2f}", inline=False)
+    embed.add_field(name="🥈 VIP 2", value=f"{vip_tiers['VIP 2']:,.2f}", inline=False)
+    embed.add_field(name="🥉 VIP 3", value=f"{vip_tiers['VIP 3']:,.2f}", inline=False)
+
+    embed.add_field(
+        name="｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *+:｡.｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *",
+        value="[Cliquez ici pour voir le leaderboard](https://flamboard.com)",
+        inline=False
+    )
+
+    embed.set_footer(text="Bonne chance à vous et un grand merci pour votre confiance ❤️🍀")
+    return embed
+
+@tasks.loop(minutes=1)
+async def send_flamboard_embed():
+    """Envoie l'embed du flamboard à minuit"""
+    now = datetime.now()
+    if now.hour == 0 and now.minute == 0:
+        channel = bot.get_channel(FLAMBOARD_CHANNEL_ID)
+        if channel:
+            try:
+                embed = create_flamboard_embed()
+                await channel.send(embed=embed)
+                print("✅ Flamboard envoyé avec succès")
+            except Exception as e:
+                print(f"❌ Erreur lors de l'envoi du flamboard : {e}")
+        else:
+            print(f"❌ Canal flamboard introuvable : {FLAMBOARD_CHANNEL_ID}")
+
+@bot.tree.command(name="test_flamboard", description="Teste l'envoi du flamboard")
+@is_admin()
+@is_in_guild()
+async def test_flamboard(interaction: discord.Interaction):
+    """Teste l'envoi du flamboard manuellement"""
+    await interaction.response.defer()
+    try:
+        embed = create_flamboard_embed()
+        await interaction.followup.send(embed=embed)
+    except Exception as e:
+        await interaction.followup.send(f"❌ Erreur : {e}")
+
+# Démarrage de la tâche flamboard
+@bot.event
+async def on_ready():
+    print(f"✅ Bot connecté en tant que : {bot.user}")
+    ensure_forbidden_users_exists()
+    print(f"✅ ID du bot : {bot.user.id}")
+
+    try:
+        synced = await bot.tree.sync()
+        print(f"✅ Commandes slash synchronisées : {len(synced)}")
+        send_flamboard_embed.start()
+        print("✅ Tâche flamboard démarrée")
+    except Exception as e:
+        print(f"❌ Erreur : {e}")
