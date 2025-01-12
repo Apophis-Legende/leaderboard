@@ -1,0 +1,50 @@
+# ID du salon où envoyer le message
+CHANNEL_ID = 123456789012345678  # Remplacez par l'ID du salon cible
+
+@bot.event
+async def on_ready():
+    print(f"Bot connecté en tant que {bot.user}")
+    send_flamboard_embed.start()  # Démarrer la tâche planifiée
+
+# Fonction pour créer l'embed
+def create_flamboard_embed():
+    embed = discord.Embed(
+        title="La maj du FLAMBOARD est là 🔥",
+        description="Bonsoir à toutes et à tous ❤️\n"
+                    "｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *+:｡.｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *",
+        color=discord.Color.red()
+    )
+    embed.add_field(
+        name="💰 Redistribution des commissions",
+        value="Actuellement, **228.66M** (c'est une logique) de nos coms vous sont redistribuées 😍🥵🔥",
+        inline=False
+    )
+    embed.add_field(name="🥇 VIP 1", value="68.6M (c'est une logique)", inline=False)
+    embed.add_field(name="🥈 VIP 2", value="68.6M (c'est une logique)", inline=False)
+    embed.add_field(name="🥉 VIP 3", value="91.46M (c'est une logique)", inline=False)
+    embed.add_field(
+        name="｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *+:｡.｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *",
+        value="[Cliquez ici pour voir le leaderboard](lien_du_leaderboard)",
+        inline=False
+    )
+    embed.set_image(url="lien_de_votre_image")  # Remplacez par le lien de votre image
+    embed.set_footer(text="Bonne chance à vous et un grand merci pour votre confiance ❤️🍀")
+    return embed
+
+# Tâche planifiée pour envoyer l'embed à minuit
+@tasks.loop(minutes=1)  # Vérifie chaque minute si c'est minuit
+async def send_flamboard_embed():
+    now = datetime.now()
+    if now.hour == 0 and now.minute == 0:  # Vérifie si c'est minuit
+        channel = bot.get_channel(CHANNEL_ID)
+        if channel:
+            embed = create_flamboard_embed()
+            await channel.send(embed=embed)
+        else:
+            print(f"Le salon avec l'ID {CHANNEL_ID} est introuvable.")
+
+# Commande manuelle pour tester l'envoi de l'embed
+@bot.command()
+async def test_flamboard(ctx):
+    embed = create_flamboard_embed()
+    await ctx.send(embed=embed)

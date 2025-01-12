@@ -937,24 +937,17 @@ async def host_info(interaction: discord.Interaction, user_id: str):
     except Exception as e:
         await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
 
-
-# Lancer le bot Discord
-def run_bot():
-    while True:
-        try:
-            bot.run(os.getenv("TOKEN"))
-        except discord.errors.HTTPException as e:
-            if e.status == 429:  # Rate limit error
-                print(f"Rate limit hit. Waiting 30 seconds before retrying...")
-                import time
-                time.sleep(30)
-                continue
-            raise e
-
-# Exécuter Flask et Discord en parallèle
-if __name__ == "__main__":
-    threading.Thread(target=run_flask).start()  # Lancer Flask dans un thread
-    run_bot()  # Lancer le bot Discord
+@bot.tree.command(name="test_flamboard", description="Teste l'envoi du flamboard")
+@is_admin()
+@is_in_guild()
+async def test_flamboard(interaction: discord.Interaction):
+    """Teste l'envoi du flamboard manuellement"""
+    await interaction.response.defer()
+    try:
+        embed = create_flamboard_embed()
+        await interaction.followup.send(embed=embed)
+    except Exception as e:
+        await interaction.followup.send(f"❌ Erreur : {e}")
 
 def verify_db_connection():
     try:
@@ -965,12 +958,9 @@ def verify_db_connection():
         print(f"❌ Erreur de connexion à la base de données : {e}")
         return False
 
-import asyncio
-from discord.ext import tasks
-from datetime import datetime
 
 # Configuration du flamboard
-FLAMBOARD_CHANNEL_ID = 123456789012345678  # À remplacer par votre ID de canal
+FLAMBOARD_CHANNEL_ID = 1323220160253001761  # À remplacer par votre ID de canal
 
 def calculate_vip_commission_distribution():
     """Calcule la distribution des commissions VIP"""
@@ -1035,17 +1025,6 @@ async def send_flamboard_embed():
         else:
             print(f"❌ Canal flamboard introuvable : {FLAMBOARD_CHANNEL_ID}")
 
-@bot.tree.command(name="test_flamboard", description="Teste l'envoi du flamboard")
-@is_admin()
-@is_in_guild()
-async def test_flamboard(interaction: discord.Interaction):
-    """Teste l'envoi du flamboard manuellement"""
-    await interaction.response.defer()
-    try:
-        embed = create_flamboard_embed()
-        await interaction.followup.send(embed=embed)
-    except Exception as e:
-        await interaction.followup.send(f"❌ Erreur : {e}")
 
 # Démarrage de la tâche flamboard
 @bot.event
@@ -1061,3 +1040,21 @@ async def on_ready():
         print("✅ Tâche flamboard démarrée")
     except Exception as e:
         print(f"❌ Erreur : {e}")
+
+# Lancer le bot Discord
+def run_bot():
+    while True:
+        try:
+            bot.run(os.getenv("TOKEN"))
+        except discord.errors.HTTPException as e:
+            if e.status == 429:  # Rate limit error
+                print(f"Rate limit hit. Waiting 30 seconds before retrying...")
+                import time
+                time.sleep(30)
+                continue
+            raise e
+
+# Exécuter Flask et Discord en parallèle
+if __name__ == "__main__":
+    threading.Thread(target=run_flask).start()  # Lancer Flask dans un thread
+    run_bot()  # Lancer le bot Discord
