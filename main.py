@@ -945,10 +945,10 @@ def verify_db_connection():
 # Configuration des flamboards par serveur
 FLAMBOARD_CHANNELS = {
     "T1": 1323220160253001761,  # Remplacer par l'ID du salon T1
-    "T2": 1323220160253001762,  # Remplacer par l'ID du salon T2
-    "O1": 1323220160253001763,  # Remplacer par l'ID du salon O1
-    "H1": 1323220160253001764,  # Remplacer par l'ID du salon H1
-    "E1": 1323220160253001765   # Remplacer par l'ID du salon E1
+    "T2": 1323220160253001761,  # Remplacer par l'ID du salon T2
+    "O1": 1323220160253001761,  # Remplacer par l'ID du salon O1
+    "H1": 1323220160253001761,  # Remplacer par l'ID du salon H1
+    "E1": 1323220160253001761   # Remplacer par l'ID du salon E1
 }
 
 def calculate_vip_commission_distribution():
