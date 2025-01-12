@@ -977,8 +977,11 @@ def create_flamboard_embed(server):
     from commission_calculator import calculate_vip_commissions
     commissions = calculate_vip_commissions(server)
     
+    from format_utils import format_kamas
+    
     # Diviser la commission totale par 2 pour l'affichage
     display_total = commissions["total"] / 2
+    is_euro = server == "E1"
 
     embed = discord.Embed(
         title=f"LeaderBoard de l'as de trèfle {server} :four_leaf_clover: ",
@@ -989,13 +992,13 @@ def create_flamboard_embed(server):
 
     embed.add_field(
         name="💰 Redistribution des commissions",
-        value=f"Actuellement, **{display_total:,.2f}** de nos commissions pour vous :four_leaf_clover: :four_leaf_clover: :four_leaf_clover: ",
+        value=f"Actuellement, **{format_kamas(str(display_total), is_euro)}** de nos commissions pour vous :four_leaf_clover: :four_leaf_clover: :four_leaf_clover: ",
         inline=False
     )
 
-    embed.add_field(name="🥇 VIP 1", value=f"{commissions['vip1']:,.2f}", inline=False)
-    embed.add_field(name="🥈 VIP 2", value=f"{commissions['vip2']:,.2f}", inline=False)
-    embed.add_field(name="🥉 VIP 3", value=f"{commissions['vip3']:,.2f}", inline=False)
+    embed.add_field(name="🥇 VIP 1", value=format_kamas(str(commissions['vip1']), is_euro), inline=False)
+    embed.add_field(name="🥈 VIP 2", value=format_kamas(str(commissions['vip2']), is_euro), inline=False)
+    embed.add_field(name="🥉 VIP 3", value=format_kamas(str(commissions['vip3']), is_euro), inline=False)
 
     embed.add_field(
         name="｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *+:｡.｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *",
