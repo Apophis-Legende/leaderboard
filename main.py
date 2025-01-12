@@ -942,8 +942,14 @@ def verify_db_connection():
         return False
 
 
-# Configuration du flamboard
-FLAMBOARD_CHANNEL_ID = 1323220160253001761  # À remplacer par votre ID de canal
+# Configuration des flamboards par serveur
+FLAMBOARD_CHANNELS = {
+    "T1": 1323220160253001761,  # Remplacer par l'ID du salon T1
+    "T2": 1323220160253001762,  # Remplacer par l'ID du salon T2
+    "O1": 1323220160253001763,  # Remplacer par l'ID du salon O1
+    "H1": 1323220160253001764,  # Remplacer par l'ID du salon H1
+    "E1": 1323220160253001765   # Remplacer par l'ID du salon E1
+}
 
 def calculate_vip_commission_distribution():
     """Calcule la distribution des commissions VIP"""
@@ -962,12 +968,16 @@ def calculate_vip_commission_distribution():
 
     return total_commission, vip_tiers
 
-def create_flamboard_embed():
-    """Crée l'embed du flamboard avec les données actuelles"""
-    total_commission, vip_tiers = calculate_vip_commission_distribution()
+def create_flamboard_embed(server):
+    """Crée l'embed du flamboard pour un serveur spécifique"""
+    from commission_calculator import calculate_vip_commissions
+    commissions = calculate_vip_commissions(server)
+    
+    # Diviser la commission totale par 2 pour l'affichage
+    display_total = commissions["total"] / 2
 
     embed = discord.Embed(
-        title="LeaderBoard de l'as de trèfle {serveur} :four_leaf_clover: ",
+        title=f"LeaderBoard de l'as de trèfle {server} :four_leaf_clover: ",
         description="Bonsoir les Trèflois :four_leaf_clover: \n"
                     "｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *+:｡.｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *",
         color=discord.Color.red()
@@ -975,13 +985,13 @@ def create_flamboard_embed():
 
     embed.add_field(
         name="💰 Redistribution des commissions",
-        value=f"Actuellement, **{total_commission:,.2f}** de nos commissions pour vous :four_leaf_clover: :four_leaf_clover: :four_leaf_clover: ",
+        value=f"Actuellement, **{display_total:,.2f}** de nos commissions pour vous :four_leaf_clover: :four_leaf_clover: :four_leaf_clover: ",
         inline=False
     )
 
-    embed.add_field(name="🥇 VIP 1", value=f"{vip_tiers['VIP 1']:,.2f}", inline=False)
-    embed.add_field(name="🥈 VIP 2", value=f"{vip_tiers['VIP 2']:,.2f}", inline=False)
-    embed.add_field(name="🥉 VIP 3", value=f"{vip_tiers['VIP 3']:,.2f}", inline=False)
+    embed.add_field(name="🥇 VIP 1", value=f"{commissions['vip1']:,.2f}", inline=False)
+    embed.add_field(name="🥈 VIP 2", value=f"{commissions['vip2']:,.2f}", inline=False)
+    embed.add_field(name="🥉 VIP 3", value=f"{commissions['vip3']:,.2f}", inline=False)
 
     embed.add_field(
         name="｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *+:｡.｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *",
@@ -994,19 +1004,20 @@ def create_flamboard_embed():
 
 @tasks.loop(minutes=1)
 async def send_flamboard_embed():
-    """Envoie l'embed du flamboard à minuit"""
+    """Envoie l'embed du flamboard à minuit pour chaque serveur"""
     now = datetime.now()
     if now.hour == 0 and now.minute == 0:
-        channel = bot.get_channel(FLAMBOARD_CHANNEL_ID)
-        if channel:
-            try:
-                embed = create_flamboard_embed()
-                await channel.send(embed=embed)
-                print("✅ Flamboard envoyé avec succès")
-            except Exception as e:
-                print(f"❌ Erreur lors de l'envoi du flamboard : {e}")
-        else:
-            print(f"❌ Canal flamboard introuvable : {FLAMBOARD_CHANNEL_ID}")
+        for server, channel_id in FLAMBOARD_CHANNELS.items():
+            channel = bot.get_channel(channel_id)
+            if channel:
+                try:
+                    embed = create_flamboard_embed(server)
+                    await channel.send(embed=embed)
+                    print(f"✅ Flamboard envoyé avec succès pour {server}")
+                except Exception as e:
+                    print(f"❌ Erreur lors de l'envoi du flamboard pour {server}: {e}")
+            else:
+                print(f"❌ Canal flamboard introuvable pour {server}: {channel_id}")
 
 
 @bot.event
