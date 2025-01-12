@@ -1026,16 +1026,23 @@ async def send_flamboard_embed():
             print(f"❌ Canal flamboard introuvable : {FLAMBOARD_CHANNEL_ID}")
 
 
-# Démarrage de la tâche flamboard
+# Configuration initiale et démarrage des tâches
 @bot.event
 async def on_ready():
     print(f"✅ Bot connecté en tant que : {bot.user}")
     ensure_forbidden_users_exists()
     print(f"✅ ID du bot : {bot.user.id}")
 
+    # Vérifier et initialiser les fichiers JSON
+    verifier_et_initialiser_fichiers_json(MAPPING_SERVER_FILE)
+    print("✅ Vérification et initialisation des fichiers JSON terminées.")
+
     try:
+        # Synchroniser les commandes slash
         synced = await bot.tree.sync()
         print(f"✅ Commandes slash synchronisées : {len(synced)}")
+        
+        # Démarrer la tâche flamboard
         send_flamboard_embed.start()
         print("✅ Tâche flamboard démarrée")
     except Exception as e:
