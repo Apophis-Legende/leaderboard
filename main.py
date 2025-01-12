@@ -922,11 +922,15 @@ async def host_info(interaction: discord.Interaction, user_id: str):
 @bot.tree.command(name="test_flamboard", description="Teste l'envoi du flamboard")
 @is_admin()
 @is_in_guild()
-async def test_flamboard(interaction: discord.Interaction):
+@app_commands.describe(server="Serveur pour lequel tester le flamboard (T1, T2, O1, H1, E1)")
+async def test_flamboard(interaction: discord.Interaction, server: str):
     """Teste l'envoi du flamboard manuellement"""
     await interaction.response.defer()
     try:
-        embed = create_flamboard_embed()
+        if server not in ["T1", "T2", "O1", "H1", "E1"]:
+            await interaction.followup.send("❌ Serveur invalide. Utilisez : T1, T2, O1, H1 ou E1")
+            return
+        embed = create_flamboard_embed(server)
         await interaction.followup.send(embed=embed)
         await interaction.followup.send("✅ Flamboard envoyé avec succès !") # Confirmation message
     except Exception as e:
