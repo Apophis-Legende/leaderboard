@@ -591,32 +591,6 @@ def find_server_file(server, mapping):
     print(f"✅ Fichier trouvé pour le serveur {server}: {filename}")
     return filename
 
-# Événement pour synchroniser les commandes du bot
-@bot.event
-async def on_ready():
-    try:
-        # Initialiser les fichiers JSON
-        for server_file in MAPPING_SERVER_FILE.values():
-            if not os.path.exists(server_file):
-                initial_data = {
-                    "serveur": server_file.replace('.json', ''),
-                    "nombre_de_jeux": 0,
-                    "mises_totales_avant_commission": "0 jetons",
-                    "gains_totaux": "0 jetons",
-                    "commission_totale": "0 jetons",
-                    "utilisateurs": {},
-                    "hôtes": {},
-                    "croupiers": {}
-                }
-                with open(server_file, 'w', encoding='utf-8') as f:
-                    json.dump(initial_data, f, indent=4, ensure_ascii=False)
-                print(f"✅ Fichier {server_file} créé")
-
-        # Synchroniser les commandes
-        synced = await bot.tree.sync()
-        print(f"✅ Commandes slash synchronisées : {len(synced)} commandes.")
-    except Exception as e:
-        print(f"❌ Erreur lors de la synchronisation des commandes : {e}")
 
 @bot.tree.command(name="modif-json", description="Extrait et transforme des données brutes JSON depuis un lien.")
 @is_admin()  # Restriction aux administrateurs
@@ -993,15 +967,15 @@ def create_flamboard_embed():
     total_commission, vip_tiers = calculate_vip_commission_distribution()
 
     embed = discord.Embed(
-        title="La maj du FLAMBOARD est là 🔥",
-        description="Bonsoir à toutes et à tous ❤️\n"
+        title="LeaderBoard de l'as de trèfle {serveur} :four_leaf_clover: ",
+        description="Bonsoir les Trèflois :four_leaf_clover: \n"
                     "｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *+:｡.｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *",
         color=discord.Color.red()
     )
 
     embed.add_field(
         name="💰 Redistribution des commissions",
-        value=f"Actuellement, **{total_commission:,.2f}** de nos coms vous sont redistribuées 😍🥵🔥",
+        value=f"Actuellement, **{total_commission:,.2f}** de nos commissions pour vous :four_leaf_clover: :four_leaf_clover: :four_leaf_clover: ",
         inline=False
     )
 
@@ -1011,11 +985,11 @@ def create_flamboard_embed():
 
     embed.add_field(
         name="｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *+:｡.｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *",
-        value="[Cliquez ici pour voir le leaderboard](https://flamboard.com)",
+        value="[Cliquez ici pour voir le leaderboard](https://lasdetrefle.replit.app/)",
         inline=False
     )
 
-    embed.set_footer(text="Bonne chance à vous et un grand merci pour votre confiance ❤️🍀")
+    embed.set_footer(text="Bonne chance à tous ! :four_leaf_clover: :four_leaf_clover: :four_leaf_clover:  ")
     return embed
 
 @tasks.loop(minutes=1)
@@ -1035,32 +1009,53 @@ async def send_flamboard_embed():
             print(f"❌ Canal flamboard introuvable : {FLAMBOARD_CHANNEL_ID}")
 
 
-# Configuration initiale et démarrage des tâches
 @bot.event
 async def on_ready():
     print(f"✅ Bot connecté en tant que : {bot.user}")
-    ensure_forbidden_users_exists()
     print(f"✅ ID du bot : {bot.user.id}")
 
     try:
         # Vérifier et initialiser les fichiers JSON
-        verifier_et_initialiser_fichiers_json(MAPPING_SERVER_FILE)
+        for server_file in MAPPING_SERVER_FILE.values():
+            if not os.path.exists(server_file):
+                initial_data = {
+                    "serveur": server_file.replace('.json', ''),
+                    "nombre_de_jeux": 0,
+                    "mises_totales_avant_commission": "0 jetons",
+                    "gains_totaux": "0 jetons",
+                    "commission_totale": "0 jetons",
+                    "utilisateurs": {},
+                    "hôtes": {},
+                    "croupiers": {}
+                }
+                with open(server_file, 'w', encoding='utf-8') as f:
+                    json.dump(initial_data, f, indent=4, ensure_ascii=False)
+                print(f"✅ Fichier {server_file} créé")
         print("✅ Vérification et initialisation des fichiers JSON terminées.")
+
+        # Vérifier l'existence des utilisateurs interdits
+        if 'ensure_forbidden_users_exists' in globals():
+            ensure_forbidden_users_exists()
+            print("✅ Liste des utilisateurs interdits vérifiée.")
+        else:
+            print("⚠️ Fonction ensure_forbidden_users_exists non définie. Ignorée.")
 
         # Synchroniser les commandes slash
         synced = await bot.tree.sync()
-        print(f"✅ Commandes slash synchronisées : {len(synced)}")
-
-        # Démarrer la tâche flamboard
-        send_flamboard_embed.start()
-        print("✅ Tâche flamboard démarrée")
+        print(f"✅ Commandes slash synchronisées : {len(synced)} commandes.")
 
         # Liste des commandes disponibles
         print("📝 Commandes disponibles :")
         for cmd in bot.tree.get_commands():
             print(f"- /{cmd.name}")
+
+        # Démarrer la tâche flamboard
+        if not send_flamboard_embed.is_running():
+            send_flamboard_embed.start()
+            print("✅ Tâche flamboard démarrée")
     except Exception as e:
-        print(f"❌ Erreur : {e}")
+        print(f"❌ Erreur dans on_ready : {e}")
+
 
 # Lancer le bot Discord
 def run_bot():
