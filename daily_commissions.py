@@ -149,8 +149,12 @@ def calculate_daily_commissions(server):
                 # Sauvegarder la part investissement
                 if "investment_share" not in server_data:
                     server_data["investment_share"] = "0 jetons"
-                current_investment = int(server_data["investment_share"].split()[0])
-                server_data["investment_share"] = f"{current_investment + investment_share} jetons"
+                if server == "E1":
+                    current_investment = float(server_data["investment_share"].split()[0])
+                    server_data["investment_share"] = f"{current_investment + investment_share:.2f} jetons"
+                else:
+                    current_investment = int(server_data["investment_share"].split()[0])
+                    server_data["investment_share"] = f"{current_investment + investment_share} jetons"
 
                 # Formatter le montant selon le serveur
                 if server == "E1":
