@@ -970,10 +970,10 @@ async def test_croupier_info(interaction: discord.Interaction, server: str):
                         print(f"Canal trouvé pour le croupier {croupier_id}. Envoi en cours...")
                         try:
                             await channel.send(f"💰 Commission: {data['commission']:,} jetons")
-                        await asyncio.sleep(1)  # Délai pour éviter les limites
-                        print(f"Message envoyé au canal {croupier_id}.")
-                    except discord.errors.HTTPException as e:
-                        print(f"Erreur d'envoi au canal {croupier_id} : {e}")
+                            await asyncio.sleep(1)  # Délai pour éviter les limites
+                            print(f"Message envoyé au canal {croupier_id}.")
+                        except discord.errors.HTTPException as e:
+                            print(f"Erreur d'envoi au canal {croupier_id} : {e}")
                 else:
                     print(f"Canal introuvable pour le croupier {croupier_id}")
             await interaction.followup.send("✅ Commissions envoyées avec succès.", ephemeral=True)
@@ -984,6 +984,7 @@ async def test_croupier_info(interaction: discord.Interaction, server: str):
     except Exception as e:
         print(f"Erreur dans test_croupier_info : {e}")
         await interaction.followup.send(f"❌ Une erreur est survenue : {e}", ephemeral=True)
+
 
 
 @bot.tree.command(name="test_commission_channels", description="Teste l'envoi des commissions dans tous les salons")
