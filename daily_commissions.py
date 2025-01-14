@@ -33,11 +33,20 @@ def calculate_daily_commissions(server):
             commission = data.get("daily_commission", "0 jetons")
             if isinstance(commission, str):
                 amount = int(commission.split()[0])
+                # Application de la répartition selon le rôle
+                if data.get("role") == "premium":
+                    final_amount = int(amount * 0.50)  # 50%
+                elif data.get("role") == "standard":
+                    final_amount = int(amount * 0.40)  # 40%
+                else:
+                    final_amount = int(amount * 0.10)  # 10%
+                    
                 daily_commissions["croupiers"][croupier_id] = {
                     "username": data.get("username", "Unknown"),
-                    "commission": amount
+                    "commission": final_amount,
+                    "role": data.get("role", "standard")
                 }
-                daily_commissions["total"] += amount
+                daily_commissions["total"] += final_amount
 
         # Sauvegarder l'historique
         history_key = f"{server}_commission_history"
@@ -72,7 +81,7 @@ def get_commission_history(server, days=7):
     return filtered_history
 
 def add_commission(server, croupier_id, amount, role="standard"):
-    """Ajoute une commission pour un croupier avec répartition selon le rôle"""
+    """Ajoute une commission pour un croupier"""
     try:
         server_data = db.get(f"{server}.json", {})
         if not server_data:
@@ -89,16 +98,8 @@ def add_commission(server, croupier_id, amount, role="standard"):
                 "role": role
             }
 
-        # Appliquer la répartition
-        if role == "premium":
-            commission = amount * 0.50  # 50%
-        elif role == "standard":
-            commission = amount * 0.40  # 40%
-        else:
-            commission = amount * 0.10  # 10%
-
         current = int(croupiers[croupier_id]["daily_commission"].split()[0])
-        croupiers[croupier_id]["daily_commission"] = f"{current + int(commission)} jetons"
+        croupiers[croupier_id]["daily_commission"] = f"{current + int(amount)} jetons"
         
         server_data["croupiers"] = croupiers
         db[f"{server}.json"] = server_data
