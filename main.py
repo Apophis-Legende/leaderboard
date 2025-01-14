@@ -919,94 +919,6 @@ async def host_info(interaction: discord.Interaction, user_id: str):
     except Exception as e:
         await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
 
-@bot.tree.command(name="daily_commissions", description="Affiche les commissions journalières par croupier")
-@is_admin()
-@is_in_guild()
-@app_commands.describe(croupier_id="ID du croupier (optionnel)")
-async def daily_commissions(interaction: discord.Interaction, croupier_id: str = None):
-    """Affiche les commissions journalières pour tous les serveurs, filtré par croupier si spécifié"""
-    await interaction.response.defer()
-    try:
-        from commission_calculator import calculate_daily_commissions
-        from format_utils import format_kamas
-
-        embed = discord.Embed(
-            title="Commissions journalières par serveur",
-            description="Répartition des commissions du jour" + (f" pour le croupier <@{croupier_id}>" if croupier_id else ""),
-            color=discord.Color.green()
-        )
-
-        servers = ["T1", "T2", "O1", "H1", "E1"]
-        total_all_servers = 0
-
-        for server in servers:
-            commissions = calculate_daily_commissions(server)
-            is_euro = server == "E1"
-
-            # Si un croupier est spécifié, vérifier s'il a des commissions sur ce serveur
-            if croupier_id:
-                server_data = db.get(f"{server}.json", {})
-                croupiers = server_data.get("croupiers", {})
-                if croupier_id not in croupiers:
-                    continue
-
-                # Calculer la part du croupier spécifique
-                croupier_total = int(croupiers[croupier_id].get("total_commission", "0 jetons").split()[0])
-                if croupier_total == 0:
-                    continue
-
-                commissions["croupier"] = croupier_total
-
-            if commissions["total"] > 0:
-                embed.add_field(
-                    name=f"📊 Serveur {server}",
-                    value=f"Commission Totale: **{format_kamas(str(commissions['total']), is_euro)}**\n"
-                          f"Part VIP (50%): {format_kamas(str(commissions['vip_share']), is_euro)}\n"
-                          f"Investissement (10%): {format_kamas(str(commissions['investment']), is_euro)}\n"
-                          f"Part Croupier (40%): {format_kamas(str(commissions['croupier']), is_euro)}",
-                    inline=False
-                )
-                total_all_servers += commissions["croupier"]
-
-        if total_all_servers > 0:
-            embed.add_field(
-                name="💰 Total des commissions croupier",
-                value=f"**{format_kamas(str(total_all_servers), False)}**",
-                inline=False
-            )
-        else:
-            embed.description = "Aucune commission trouvée" + (f" pour le croupier <@{croupier_id}>" if croupier_id else "")
-
-        await interaction.followup.send(embed=embed)
-
-    except Exception as e:
-        await interaction.followup.send(f"❌ Erreur : {e}")
-
-@bot.tree.command(name="test_commission_send", description="Teste l'envoi des commissions dans tous les salons")
-@is_admin()
-@is_in_guild()
-async def test_commission_send(interaction: discord.Interaction):
-    """Teste l'envoi des commissions dans tous les salons configurés"""
-    await interaction.response.defer()
-    try:
-        for user_id, data in COMMISSION_CHANNELS.items():
-            channel_id = data["channel"]
-            channel = bot.get_channel(channel_id)
-
-            if channel:
-                try:
-                    message = f"Test d'envoi pour {user_id} dans le salon {channel.name}"
-                    await channel.send(message)
-                    print(f"✅ Message envoyé dans le salon {channel.name}")
-                except Exception as e:
-                    print(f"❌ Erreur envoi message dans {channel_id}: {e}")
-            else:
-                print(f"❌ Canal introuvable: {channel_id}")
-
-        await interaction.followup.send("✅ Test d'envoi terminé, vérifiez les salons configurés")
-    except Exception as e:
-        await interaction.followup.send(f"❌ Erreur : {e}")
-
 @bot.tree.command(name="test_lasboard", description="Teste l'envoi du flamboard")
 @is_admin()
 @is_in_guild()
@@ -1043,17 +955,6 @@ FLAMBOARD_CHANNELS = {
     "E1": 1327976062893821962   # Remplacer par l'ID du salon E1
 }
 
-COMMISSION_CHANNELS = {
-    # Format: user_id: {channel_id: channel, servers: [liste des serveurs]}
-    "1164911677632950394": {"channel": 1328089699075489852, "servers": ["T1", "T2, H1, E1, O1"]},
-    "880919250758410330": {"channel": 1328089795888681023, "servers": ["T1", "T2, H1, E1, O1"]},
-    "1293540027749367898": {"channel": 1328089867330261116, "servers": ["T1", "T2, H1, E1, O1"]},
-    "460558717318987796": {"channel": 1328089908883230760, "servers": ["T1", "T2, H1, E1, O1"]},
-    "1171906215002001510": {"channel": 1328089968937271346, "servers": ["T1", "T2, H1, E1, O1"]},
-    "928329400666173520": {"channel": 1328090006320844930, "servers": ["T1", "T2, H1, E1, O1"]},
-    "GLOBAL": {"channel": 1328711022839595030, "servers": ["T1", "T2", "O1", "H1", "E1"]}
-}
-
 def calculate_vip_commission_distribution():
     """Calcule la distribution des commissions VIP"""
     from commission_calculator import calculate_vip_commissions
@@ -1075,9 +976,9 @@ def create_flamboard_embed(server):
     """Crée l'embed du L'asBoard pour un serveur spécifique"""
     from commission_calculator import calculate_vip_commissions
     commissions = calculate_vip_commissions(server)
-
+    
     from format_utils import format_kamas
-
+    
     # Diviser la commission totale par 2 pour l'affichage
     display_total = commissions["total"] / 2
     is_euro = server == "E1"
@@ -1104,7 +1005,7 @@ def create_flamboard_embed(server):
         value="[Cliquez ici pour voir le leaderboard](https://lasdetrefle.replit.app/)",
         inline=False
     )
-
+    
     embed.set_image(url="https://zupimages.net/up/25/02/e6ln.png")
 
     embed.set_footer(text="Bonne chance à tous !")
@@ -1112,10 +1013,9 @@ def create_flamboard_embed(server):
 
 @tasks.loop(minutes=1)
 async def send_flamboard_embed():
-    """Envoie l'embed du L'asBoard et les commissions à minuit"""
+    """Envoie l'embed du L'asBoard à minuit pour chaque serveur"""
     now = datetime.now()
     if now.hour == 0 and now.minute == 0:
-        # Envoi des L'asBoard
         for server, channel_id in FLAMBOARD_CHANNELS.items():
             channel = bot.get_channel(channel_id)
             if channel:
@@ -1127,36 +1027,6 @@ async def send_flamboard_embed():
                     print(f"❌ Erreur lors de l'envoi du L'asBoard pour {server}: {e}")
             else:
                 print(f"❌ Canal L'asBoard introuvable pour {server}: {channel_id}")
-
-        # Envoi des commissions aux croupiers
-        for user_id, data in COMMISSION_CHANNELS.items():
-            if user_id != "GLOBAL":  # On n'envoie pas au canal global
-                channel = bot.get_channel(data["channel"])
-                if channel:
-                    try:
-                        from commission_calculator import calculate_daily_commissions
-                        from format_utils import format_kamas
-                        
-                        total_commission = 0
-                        commission_details = []
-                        
-                        for server in ["T1", "T2", "O1", "H1", "E1"]:
-                            commissions = calculate_daily_commissions(server)
-                            if commissions["croupier"] > 0:
-                                is_euro = server == "E1"
-                                commission_details.append(f"**{server}**: {format_kamas(str(commissions['croupier']), is_euro)}")
-                                total_commission += commissions["croupier"]
-                        
-                        if total_commission > 0:
-                            message = f"💰 **Commissions du jour pour <@{user_id}>**\n"
-                            message += "\n".join(commission_details)
-                            message += f"\n**Total**: {format_kamas(str(total_commission), False)}"
-                            await channel.send(message)
-                            
-                    except Exception as e:
-                        print(f"❌ Erreur envoi commissions pour {user_id}: {e}")
-                else:
-                    print(f"❌ Canal commissions introuvable pour {user_id}")
 
 
 @bot.event
@@ -1224,46 +1094,3 @@ def run_bot():
 if __name__ == "__main__":
     threading.Thread(target=run_flask).start()  # Lancer Flask dans un thread
     run_bot()  # Lancer le bot Discord
-
-def calculate_daily_commissions(server):
-    """
-    Calcule la répartition des commissions journalières pour un serveur.
-    """
-    try:
-        server_data = db.get(f"{server}.json", {})
-        if not server_data:
-            return {
-                "total": 0,
-                "vip_share": 0,
-                "investment": 0,
-                "croupier": 0
-            }
-
-        # Récupérer la date du jour (timestamp de minuit)
-        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp()
-
-        # Ne compter que les commissions de la journée
-        commission_data = server_data.get("commissions_history", {})
-        daily_commission = sum(int(amount.split()[0]) 
-                             for timestamp, amount in commission_data.items() 
-                             if float(timestamp) >= today)
-
-        total_commission = str(daily_commission) + " jetons"
-        vip_share = int(daily_commission * 0.5)
-        investment = int(daily_commission * 0.1)
-        croupier = int(daily_commission * 0.4)
-
-        return {
-            "total": daily_commission,
-            "vip_share": vip_share,
-            "investment": investment,
-            "croupier": croupier
-        }
-    except Exception as e:
-        print(f"❌ Erreur lors du calcul des commissions journalières pour {server} : {e}")
-        return {
-            "total": 0,
-            "vip_share": 0,
-            "investment": 0,
-            "croupier": 0
-        }

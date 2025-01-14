@@ -17,15 +17,10 @@ def calculate_vip_commissions(server):
                 "total": 0
             }
 
-        # Récupérer les données des croupiers pour aujourd'hui
-        croupiers = server_data.get("croupiers", {})
-        total_commission = 0
-
-        # Calculer le total des commissions du jour
-        for croupier_data in croupiers.values():
-            commission = croupier_data.get("total_commission", "0 jetons")
-            if isinstance(commission, str):
-                total_commission += int(commission.split()[0])
+        # Extraire la commission totale
+        total_commission = server_data.get("commission_totale", "0 jetons")
+        if isinstance(total_commission, str):
+            total_commission = int(total_commission.split()[0])
 
         if total_commission == 0:
             print(f"ℹ️ Pas de commissions à redistribuer pour {server}")
@@ -56,53 +51,4 @@ def calculate_vip_commissions(server):
             "vip2": 0,
             "vip3": 0,
             "total": 0
-        }
-def calculate_daily_commissions(server):
-    """
-    Calcule la répartition des commissions journalières pour un serveur.
-    """
-    try:
-        print(f"🔍 Calcul des commissions pour {server}")
-        server_data = db.get(f"{server}.json")
-        if not server_data:
-            print(f"❌ Aucune donnée trouvée pour {server}")
-            return {
-                "total": 0,
-                "vip_share": 0,
-                "investment": 0,
-                "croupier": 0
-            }
-
-        # Récupérer la date du jour (timestamp de minuit)
-        from datetime import datetime
-        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp()
-
-        # Récupérer l'historique des commissions pour aujourd'hui
-        daily_commission = 0
-        commission_history = server_data.get("commission_history", {})
-        
-        # Calculer le total des commissions du jour
-        for timestamp, amount in commission_history.items():
-            if float(timestamp) >= today:
-                if isinstance(amount, str) and "jetons" in amount:
-                    daily_commission += int(amount.split()[0])
-                    print(f"💰 Commission trouvée: {amount}")
-
-        vip_share = daily_commission * 0.5  # 50% pour les VIP
-        investment = daily_commission * 0.1  # 10% pour l'investissement
-        croupier = daily_commission * 0.4  # 40% pour le croupier
-
-        return {
-            "total": daily_commission,
-            "vip_share": vip_share,
-            "investment": investment,
-            "croupier": croupier
-        }
-    except Exception as e:
-        print(f"❌ Erreur calcul commissions journalières {server}: {e}")
-        return {
-            "total": 0,
-            "vip_share": 0,
-            "investment": 0,
-            "croupier": 0
         }
