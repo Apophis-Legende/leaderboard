@@ -228,7 +228,7 @@ def calculate_daily_commissions(server):
             # Mettre à jour les stats par serveur
             if server not in commission_details[croupier_id]["servers"]:
                 commission_details[croupier_id]["servers"][server] = 0
-            commission_details[croupier_id]["servers"][server] += data["commission"]
+            commission_details[croupier_id]["servers"][server] += float(data["commission"])
 
         db[commission_history_key] = commission_details
 
