@@ -933,6 +933,16 @@ async def test_croupier_info(interaction: discord.Interaction, server: str):
             return
 
         await interaction.response.defer(ephemeral=True)
+        
+        # Utiliser la date du jour pour la clé
+        today = datetime.now().strftime('%Y-%m-%d')
+        db_key = f"LB/{server}/{today}"
+        server_data = db.get(db_key)
+        
+        if not server_data:
+            await interaction.followup.send(f"❌ Aucune donnée trouvée pour {server} à la date {today}", ephemeral=True)
+            return
+            
         daily_commissions = calculate_daily_commissions(server)
         if daily_commissions and daily_commissions["croupiers"]:
             for croupier_id, data in daily_commissions["croupiers"].items():

@@ -106,7 +106,8 @@ def save_daily_leaderboard(server, giveaway_data=None):
 def calculate_daily_commissions(server):
     """Calcule les commissions journalières pour un serveur"""
     try:
-        server_data = db.get(f"{server}.json", {})
+        today = datetime.now().strftime('%Y-%m-%d')
+        server_data = db.get(f"LB/{server}/{today}", {})
         if not server_data:
             return {
                 "date": get_today_timestamp(),
