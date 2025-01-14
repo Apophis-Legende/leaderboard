@@ -1095,13 +1095,18 @@ def create_flamboard_embed(server):
         color=discord.Color.red()
     )
 
+    total_commission = commissions["total"]
+    vip_part = total_commission * 0.50
+    invest_part = total_commission * 0.10
+    croupier_part = total_commission * 0.40
+    
     embed.add_field(
         name="💰 Redistribution des commissions",
-        value=f"Actuellement, **{format_kamas(str(display_total), is_euro)}** de nos commissions totales\n\n" + 
+        value=f"Actuellement, **{format_kamas(str(total_commission), is_euro)}** de commissions totales\n\n" + 
               "**Répartition :**\n" +
-              "👑 50% VIP\n" +
-              "💼 10% Investissement\n" +
-              "🎲 40% Croupier",
+              f"👑 50% VIP : **{format_kamas(str(vip_part), is_euro)}**\n" +
+              f"💼 10% Investissement : **{format_kamas(str(invest_part), is_euro)}**\n" +
+              f"🎲 40% Croupier : **{format_kamas(str(croupier_part), is_euro)}**",
         inline=False
     )
 
