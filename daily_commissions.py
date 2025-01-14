@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 import time
 from format_utils import format_kamas
 
+
+
 def get_today_timestamp():
     """Retourne le timestamp de minuit du jour actuel"""
     now = datetime.now()
@@ -242,12 +244,15 @@ def add_commission(server, croupier_id, amount, role="standard"):
             }
 
         current = int(croupiers[croupier_id]["daily_commission"].split()[0])
+        print(f"Ajout de {amount} jetons à {croupier_id}, ancien total: {current} jetons")
         croupiers[croupier_id]["daily_commission"] = f"{current + int(amount)} jetons"
-        
+
         server_data["croupiers"] = croupiers
         db[f"{server}.json"] = server_data
+        print(f"Commission mise à jour pour {croupier_id}: {croupiers[croupier_id]['daily_commission']}")
         return True
 
     except Exception as e:
         print(f"❌ Erreur lors de l'ajout de la commission: {e}")
         return False
+        
