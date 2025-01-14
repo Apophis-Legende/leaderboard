@@ -938,20 +938,32 @@ async def test_croupier_info(interaction: discord.Interaction):
 
         all_commissions = {}
         for server in ["T1", "T2", "O1", "H1", "E1"]:
+            print(f"Traitement des commissions pour le serveur: {server}")
             daily_commissions = calculate_daily_commissions(server)
             if daily_commissions and daily_commissions["croupiers"]:
                 for croupier_id, data in daily_commissions["croupiers"].items():
+                    print(f"Traitement des données pour le croupier {data['username']} (ID: {croupier_id})")
+
                     if croupier_id not in all_commissions:
                         all_commissions[croupier_id] = {
                             "username": data["username"],
                             "servers": {}
                         }
-                    # Vérifier et convertir la commission en entier ou flottant
+
                     try:
-                        commission = float(data["commission"])  # S'assurer que c'est un flottant
-                        formatted_commission = str(commission)  # Formater en chaîne pour l'affichage
-                    except ValueError:
-                        print(f"Erreur de format dans la commission pour {data['username']} sur le serveur {server}")
+                        # Nettoyer la chaîne de texte (enlever " jetons" ou autres parties non numériques)
+                        commission_str = str(data["commission"]).strip()
+                        commission_str = commission_str.replace(' jetons', '').strip()
+
+                        print(f"Commission brute pour {data['username']} : {commission_str}")
+
+                        # Si la commission contient un nombre avec décimale, on la traite comme flottant
+                        commission = float(commission_str)
+                        formatted_commission = f"{commission:.2f}"  # Formater la commission avec 2 décimales
+                        print(f"Commission formatée pour {data['username']} : {formatted_commission}")
+
+                    except ValueError as e:
+                        print(f"Erreur de format dans la commission pour {data['username']} sur le serveur {server} : {e}")
                         continue  # Passer si la commission n'est pas un nombre valide
 
                     all_commissions[croupier_id]["servers"][server] = {
@@ -961,6 +973,8 @@ async def test_croupier_info(interaction: discord.Interaction):
 
         if all_commissions:
             for croupier_id, croupier_data in all_commissions.items():
+                print(f"Envoi des informations pour le croupier {croupier_data['username']}")
+
                 channel_id = COMMISSION_CHANNELS.get(croupier_id, {}).get("channel")
                 if channel_id:
                     channel = bot.get_channel(channel_id)
@@ -988,8 +1002,6 @@ async def test_croupier_info(interaction: discord.Interaction):
     except Exception as e:
         print(f"Erreur dans test_croupier_info : {e}")
         await interaction.followup.send(f"❌ Une erreur est survenue : {e}", ephemeral=True)
-
-
 
 @bot.tree.command(name="test_commission_channels", description="Teste l'envoi des commissions dans tous les salons")
 @is_admin()
