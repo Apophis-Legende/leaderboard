@@ -925,37 +925,33 @@ async def host_info(interaction: discord.Interaction, user_id: str):
         await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
 
 @bot.tree.command(name="test_croupier_info", description="Envoie manuellement les infos des croupiers")
-@is_admin()
-@is_in_guild()
 @app_commands.describe(server="Serveur pour lequel envoyer les infos (T1, T2, O1, H1, E1)")
 async def test_croupier_info(interaction: discord.Interaction, server: str):
-    """Envoie manuellement les informations des croupiers"""
-    await interaction.response.defer()
     try:
         if server not in ["T1", "T2", "O1", "H1", "E1"]:
-            await interaction.followup.send("❌ Serveur invalide. Utilisez : T1, T2, O1, H1 ou E1")
+            await interaction.response.send_message("❌ Serveur invalide. Utilisez : T1, T2, O1, H1 ou E1", ephemeral=True)
             return
-            
+
+        await interaction.response.defer(ephemeral=True)
         daily_commissions = calculate_daily_commissions(server)
         if daily_commissions and daily_commissions["croupiers"]:
             for croupier_id, data in daily_commissions["croupiers"].items():
                 channel = bot.get_channel(int(croupier_id))
                 if channel:
-                    commission = data["commission"]
-                    message = (
-                        f"💰 **Commissions journalières - {server}**\n"
-                        f"Montant : **{commission:,}** jetons\n"
-                        f"Date : {datetime.now().strftime('%d/%m/%Y')}"
-                    )
-                    await channel.send(message)
-                    print(f"✅ Commission envoyée à {data['username']} pour {server}")
+                    try:
+                        await channel.send(f"💰 Commission: {data['commission']:,} jetons")
+                        await asyncio.sleep(1)  # Délai pour éviter les limites
+                    except discord.errors.HTTPException as e:
+                        print(f"Erreur d'envoi au canal {croupier_id}: {e}")
                 else:
-                    print(f"❌ Canal introuvable pour le croupier {croupier_id}")
-            await interaction.followup.send("✅ Récapitulatif des commissions envoyé !")
+                    print(f"Canal introuvable pour le croupier {croupier_id}")
+            await interaction.followup.send("✅ Commissions envoyées avec succès.", ephemeral=True)
         else:
-            await interaction.followup.send("❌ Aucune commission à envoyer pour ce serveur")
+            await interaction.followup.send("❌ Aucune commission à envoyer.", ephemeral=True)
     except Exception as e:
-        await interaction.followup.send(f"❌ Erreur : {e}")
+        await interaction.followup.send(f"❌ Une erreur est survenue : {e}", ephemeral=True)
+        print(f"Erreur dans test_croupier_info : {e}")
+
 
 @bot.tree.command(name="test_commission_channels", description="Teste l'envoi des commissions dans tous les salons")
 @is_admin()
