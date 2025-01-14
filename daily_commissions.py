@@ -158,7 +158,7 @@ def calculate_daily_commissions(server):
 
                 daily_commissions["croupiers"][host_id] = {
                     "username": data.get("username", "Unknown"),
-                    "commission": croupier_share,
+                    "commission": croupier_share if server != "E1" else f"{croupier_share:.2f}",
                     "formatted_commission": formatted_amount,
                     "role": data.get("role", "standard")
                 }
