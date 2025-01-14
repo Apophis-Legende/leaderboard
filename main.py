@@ -20,6 +20,7 @@ from replit import db
 from daily_commissions import calculate_daily_commissions
 from discord.ext import tasks
 from datetime import datetime
+from config import COMMISSION_CHANNELS
 
 # Configuration du bot avec intentions
 intents = discord.Intents.default()
@@ -985,8 +986,6 @@ async def test_croupier_info(interaction: discord.Interaction, server: str):
         print(f"Erreur dans test_croupier_info : {e}")
         await interaction.followup.send(f"❌ Une erreur est survenue : {e}", ephemeral=True)
 
-
-
 @bot.tree.command(name="test_commission_channels", description="Teste l'envoi des commissions dans tous les salons")
 @is_admin()
 @is_in_guild()
@@ -1042,7 +1041,7 @@ FLAMBOARD_CHANNELS = {
     "E1": 1327976062893821962   # Remplacer par l'ID du salon E1
 }
 
-from config import COMMISSION_CHANNELS
+
 
 def calculate_vip_commission_distribution():
     """Calcule la distribution des commissions VIP"""
