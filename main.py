@@ -982,6 +982,31 @@ async def daily_commissions(interaction: discord.Interaction, croupier_id: str =
     except Exception as e:
         await interaction.followup.send(f"❌ Erreur : {e}")
 
+@bot.tree.command(name="test_commission_send", description="Teste l'envoi des commissions dans tous les salons")
+@is_admin()
+@is_in_guild()
+async def test_commission_send(interaction: discord.Interaction):
+    """Teste l'envoi des commissions dans tous les salons configurés"""
+    await interaction.response.defer()
+    try:
+        for user_id, data in COMMISSION_CHANNELS.items():
+            channel_id = data["channel"]
+            channel = bot.get_channel(channel_id)
+            
+            if channel:
+                try:
+                    message = f"Test d'envoi pour {user_id} dans le salon {channel.name}"
+                    await channel.send(message)
+                    print(f"✅ Message envoyé dans le salon {channel.name}")
+                except Exception as e:
+                    print(f"❌ Erreur envoi message dans {channel_id}: {e}")
+            else:
+                print(f"❌ Canal introuvable: {channel_id}")
+                
+        await interaction.followup.send("✅ Test d'envoi terminé, vérifiez les salons configurés")
+    except Exception as e:
+        await interaction.followup.send(f"❌ Erreur : {e}")
+
 @bot.tree.command(name="test_lasboard", description="Teste l'envoi du flamboard")
 @is_admin()
 @is_in_guild()
