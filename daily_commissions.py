@@ -58,11 +58,45 @@ def calculate_daily_commissions(server):
                 }
                 daily_commissions["total"] += croupier_share
 
-        # Sauvegarder l'historique
+        # Sauvegarder l'historique détaillé
         history_key = f"{server}_commission_history"
+        commission_history_key = f"{server}_croupier_details"
+        
         history = db.get(history_key, {})
+        commission_details = db.get(commission_history_key, {})
+        
+        # Sauvegarder l'historique standard
         history[str(today)] = daily_commissions
         db[history_key] = history
+        
+        # Sauvegarder les détails des croupiers
+        for croupier_id, data in daily_commissions["croupiers"].items():
+            if croupier_id not in commission_details:
+                commission_details[croupier_id] = {
+                    "username": data["username"],
+                    "total_commission": 0,
+                    "commission_history": {},
+                    "servers": {}
+                }
+            
+            # Mettre à jour les totaux
+            commission_details[croupier_id]["total_commission"] += data["commission"]
+            
+            # Ajouter l'historique par date
+            if str(today) not in commission_details[croupier_id]["commission_history"]:
+                commission_details[croupier_id]["commission_history"][str(today)] = {}
+            
+            commission_details[croupier_id]["commission_history"][str(today)][server] = {
+                "commission": data["commission"],
+                "formatted_commission": data["formatted_commission"]
+            }
+            
+            # Mettre à jour les stats par serveur
+            if server not in commission_details[croupier_id]["servers"]:
+                commission_details[croupier_id]["servers"][server] = 0
+            commission_details[croupier_id]["servers"][server] += data["commission"]
+        
+        db[commission_history_key] = commission_details
 
         # Réinitialiser les commissions journalières
         for croupier in croupiers.values():
