@@ -929,12 +929,10 @@ async def host_info(interaction: discord.Interaction, user_id: str):
 async def test_croupier_info(interaction: discord.Interaction):
     try:
         print("Commande test_croupier_info appelée pour tous les serveurs")
-        await interaction.response.defer(ephemeral=True)
 
         await interaction.response.defer(ephemeral=True)
         print("Réponse différée.")
 
-        # Utiliser la date du jour pour la clé
         today = datetime.now().strftime('%Y-%m-%d')
         print(f"Date actuelle : {today}")
 
@@ -948,9 +946,17 @@ async def test_croupier_info(interaction: discord.Interaction):
                             "username": data["username"],
                             "servers": {}
                         }
+                    # Vérifier et convertir la commission en entier ou flottant
+                    try:
+                        commission = float(data["commission"])  # S'assurer que c'est un flottant
+                        formatted_commission = str(commission)  # Formater en chaîne pour l'affichage
+                    except ValueError:
+                        print(f"Erreur de format dans la commission pour {data['username']} sur le serveur {server}")
+                        continue  # Passer si la commission n'est pas un nombre valide
+
                     all_commissions[croupier_id]["servers"][server] = {
-                        "commission": data["commission"],
-                        "formatted_commission": data["formatted_commission"]
+                        "commission": commission,
+                        "formatted_commission": formatted_commission
                     }
 
         if all_commissions:
@@ -982,6 +988,8 @@ async def test_croupier_info(interaction: discord.Interaction):
     except Exception as e:
         print(f"Erreur dans test_croupier_info : {e}")
         await interaction.followup.send(f"❌ Une erreur est survenue : {e}", ephemeral=True)
+
+
 
 @bot.tree.command(name="test_commission_channels", description="Teste l'envoi des commissions dans tous les salons")
 @is_admin()
