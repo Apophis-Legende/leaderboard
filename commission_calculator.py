@@ -68,14 +68,14 @@ def calculate_daily_commissions(server):
                 "croupier": 0
             }
 
-        # Récupérer les données des hôtes (croupiers)
-        hosts = server_data.get("hôtes", {})
+        # Récupérer les données des croupiers
+        croupiers = server_data.get("croupiers", {})
         daily_commission = 0
 
-        print(f"👥 Nombre d'hôtes trouvés: {len(hosts)}")
-        for host_id, host_data in hosts.items():
-            print(f"🎲 Hôte {host_id}:")
-            commission = host_data.get("total_commission", "0 jetons")
+        print(f"👥 Nombre de croupiers trouvés: {len(croupiers)}")
+        for croupier_id, croupier_data in croupiers.items():
+            print(f"🎲 Croupier {croupier_id}:")
+            commission = croupier_data.get("total_commission", "0 jetons")
             if isinstance(commission, str):
                 amount = int(commission.split()[0])
                 daily_commission += amount
