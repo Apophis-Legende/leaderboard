@@ -1112,9 +1112,10 @@ def create_flamboard_embed(server):
 
 @tasks.loop(minutes=1)
 async def send_flamboard_embed():
-    """Envoie l'embed du L'asBoard à minuit pour chaque serveur"""
+    """Envoie l'embed du L'asBoard et les commissions à minuit"""
     now = datetime.now()
     if now.hour == 0 and now.minute == 0:
+        # Envoi des L'asBoard
         for server, channel_id in FLAMBOARD_CHANNELS.items():
             channel = bot.get_channel(channel_id)
             if channel:
@@ -1126,6 +1127,36 @@ async def send_flamboard_embed():
                     print(f"❌ Erreur lors de l'envoi du L'asBoard pour {server}: {e}")
             else:
                 print(f"❌ Canal L'asBoard introuvable pour {server}: {channel_id}")
+
+        # Envoi des commissions aux croupiers
+        for user_id, data in COMMISSION_CHANNELS.items():
+            if user_id != "GLOBAL":  # On n'envoie pas au canal global
+                channel = bot.get_channel(data["channel"])
+                if channel:
+                    try:
+                        from commission_calculator import calculate_daily_commissions
+                        from format_utils import format_kamas
+                        
+                        total_commission = 0
+                        commission_details = []
+                        
+                        for server in ["T1", "T2", "O1", "H1", "E1"]:
+                            commissions = calculate_daily_commissions(server)
+                            if commissions["croupier"] > 0:
+                                is_euro = server == "E1"
+                                commission_details.append(f"**{server}**: {format_kamas(str(commissions['croupier']), is_euro)}")
+                                total_commission += commissions["croupier"]
+                        
+                        if total_commission > 0:
+                            message = f"💰 **Commissions du jour pour <@{user_id}>**\n"
+                            message += "\n".join(commission_details)
+                            message += f"\n**Total**: {format_kamas(str(total_commission), False)}"
+                            await channel.send(message)
+                            
+                    except Exception as e:
+                        print(f"❌ Erreur envoi commissions pour {user_id}: {e}")
+                else:
+                    print(f"❌ Canal commissions introuvable pour {user_id}")
 
 
 @bot.event
