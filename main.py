@@ -955,6 +955,15 @@ FLAMBOARD_CHANNELS = {
     "E1": 1327976062893821962   # Remplacer par l'ID du salon E1
 }
 
+COMMISSION_CHANNELS = {
+    "T1": {"channel": 1234567890, "user_id": "USER_ID_1"},
+    "T2": {"channel": 1234567891, "user_id": "USER_ID_2"},
+    "O1": {"channel": 1234567892, "user_id": "USER_ID_3"},
+    "H1": {"channel": 1234567893, "user_id": "USER_ID_4"},
+    "E1": {"channel": 1234567894, "user_id": "USER_ID_5"},
+    "GLOBAL": {"channel": 1234567895, "user_id": "USER_ID_6"}
+}
+
 def calculate_vip_commission_distribution():
     """Calcule la distribution des commissions VIP"""
     from commission_calculator import calculate_vip_commissions
@@ -976,9 +985,9 @@ def create_flamboard_embed(server):
     """Crée l'embed du L'asBoard pour un serveur spécifique"""
     from commission_calculator import calculate_vip_commissions
     commissions = calculate_vip_commissions(server)
-    
+
     from format_utils import format_kamas
-    
+
     # Diviser la commission totale par 2 pour l'affichage
     display_total = commissions["total"] / 2
     is_euro = server == "E1"
@@ -1005,7 +1014,7 @@ def create_flamboard_embed(server):
         value="[Cliquez ici pour voir le leaderboard](https://lasdetrefle.replit.app/)",
         inline=False
     )
-    
+
     embed.set_image(url="https://zupimages.net/up/25/02/e6ln.png")
 
     embed.set_footer(text="Bonne chance à tous !")

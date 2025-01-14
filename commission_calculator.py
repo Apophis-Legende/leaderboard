@@ -52,3 +52,39 @@ def calculate_vip_commissions(server):
             "vip3": 0,
             "total": 0
         }
+def calculate_daily_commissions(server):
+    """
+    Calcule la répartition des commissions journalières pour un serveur.
+    """
+    try:
+        server_data = db.get(f"{server}.json")
+        if not server_data:
+            return {
+                "total": 0,
+                "vip_share": 0,
+                "investment": 0,
+                "croupier": 0
+            }
+
+        total_commission = server_data.get("commission_totale", "0 jetons")
+        if isinstance(total_commission, str):
+            total_commission = int(total_commission.split()[0])
+
+        vip_share = total_commission * 0.5  # 50% pour les VIP
+        investment = total_commission * 0.1  # 10% pour l'investissement
+        croupier = total_commission * 0.4  # 40% pour le croupier
+
+        return {
+            "total": total_commission,
+            "vip_share": vip_share,
+            "investment": investment,
+            "croupier": croupier
+        }
+    except Exception as e:
+        print(f"❌ Erreur calcul commissions journalières {server}: {e}")
+        return {
+            "total": 0,
+            "vip_share": 0,
+            "investment": 0,
+            "croupier": 0
+        }
