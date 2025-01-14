@@ -929,7 +929,7 @@ async def daily_commissions(interaction: discord.Interaction, croupier_id: str =
     try:
         from commission_calculator import calculate_daily_commissions
         from format_utils import format_kamas
-        
+
         embed = discord.Embed(
             title="Commissions journalières par serveur",
             description="Répartition des commissions du jour" + (f" pour le croupier <@{croupier_id}>" if croupier_id else ""),
@@ -938,25 +938,25 @@ async def daily_commissions(interaction: discord.Interaction, croupier_id: str =
 
         servers = ["T1", "T2", "O1", "H1", "E1"]
         total_all_servers = 0
-        
+
         for server in servers:
             commissions = calculate_daily_commissions(server)
             is_euro = server == "E1"
-            
+
             # Si un croupier est spécifié, vérifier s'il a des commissions sur ce serveur
             if croupier_id:
                 server_data = db.get(f"{server}.json", {})
                 croupiers = server_data.get("croupiers", {})
                 if croupier_id not in croupiers:
                     continue
-                
+
                 # Calculer la part du croupier spécifique
                 croupier_total = int(croupiers[croupier_id].get("total_commission", "0 jetons").split()[0])
                 if croupier_total == 0:
                     continue
-                    
+
                 commissions["croupier"] = croupier_total
-            
+
             if commissions["total"] > 0:
                 embed.add_field(
                     name=f"📊 Serveur {server}",
@@ -978,7 +978,7 @@ async def daily_commissions(interaction: discord.Interaction, croupier_id: str =
             embed.description = "Aucune commission trouvée" + (f" pour le croupier <@{croupier_id}>" if croupier_id else "")
 
         await interaction.followup.send(embed=embed)
-        
+
     except Exception as e:
         await interaction.followup.send(f"❌ Erreur : {e}")
 
@@ -992,7 +992,7 @@ async def test_commission_send(interaction: discord.Interaction):
         for user_id, data in COMMISSION_CHANNELS.items():
             channel_id = data["channel"]
             channel = bot.get_channel(channel_id)
-            
+
             if channel:
                 try:
                     message = f"Test d'envoi pour {user_id} dans le salon {channel.name}"
@@ -1002,7 +1002,7 @@ async def test_commission_send(interaction: discord.Interaction):
                     print(f"❌ Erreur envoi message dans {channel_id}: {e}")
             else:
                 print(f"❌ Canal introuvable: {channel_id}")
-                
+
         await interaction.followup.send("✅ Test d'envoi terminé, vérifiez les salons configurés")
     except Exception as e:
         await interaction.followup.send(f"❌ Erreur : {e}")
@@ -1193,3 +1193,46 @@ def run_bot():
 if __name__ == "__main__":
     threading.Thread(target=run_flask).start()  # Lancer Flask dans un thread
     run_bot()  # Lancer le bot Discord
+
+def calculate_daily_commissions(server):
+    """
+    Calcule la répartition des commissions journalières pour un serveur.
+    """
+    try:
+        server_data = db.get(f"{server}.json", {})
+        if not server_data:
+            return {
+                "total": 0,
+                "vip_share": 0,
+                "investment": 0,
+                "croupier": 0
+            }
+
+        # Récupérer la date du jour (timestamp de minuit)
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp()
+
+        # Ne compter que les commissions de la journée
+        commission_data = server_data.get("commissions_history", {})
+        daily_commission = sum(int(amount.split()[0]) 
+                             for timestamp, amount in commission_data.items() 
+                             if float(timestamp) >= today)
+
+        total_commission = str(daily_commission) + " jetons"
+        vip_share = int(daily_commission * 0.5)
+        investment = int(daily_commission * 0.1)
+        croupier = int(daily_commission * 0.4)
+
+        return {
+            "total": daily_commission,
+            "vip_share": vip_share,
+            "investment": investment,
+            "croupier": croupier
+        }
+    except Exception as e:
+        print(f"❌ Erreur lors du calcul des commissions journalières pour {server} : {e}")
+        return {
+            "total": 0,
+            "vip_share": 0,
+            "investment": 0,
+            "croupier": 0
+        }
