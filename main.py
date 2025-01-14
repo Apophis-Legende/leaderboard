@@ -985,6 +985,13 @@ async def test_croupier_info(interaction: discord.Interaction):
                             color=discord.Color.gold()
                         )
 
+                        # Ajouter la répartition des commissions
+                        embed.add_field(
+                            name="📊 Répartition des commissions",
+                            value="👑 **50%** VIP\n💼 **10%** Investissement\n🎲 **40%** Croupier",
+                            inline=False
+                        )
+
                         for server, server_data in croupier_data["servers"].items():
                             embed.add_field(
                                 name=f"🎲 Serveur {server}",
