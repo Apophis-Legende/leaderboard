@@ -66,19 +66,21 @@ def save_daily_leaderboard(server, giveaway_data=None):
         
         # Récupérer l'historique existant ou créer un nouveau
         history_key = f"LB/{server}/{today}"
-        existing_data = db.get(history_key, daily_data)
         
-        # Ajouter le nouveau giveaway s'il existe
-        if giveaway_data:
-            if "giveaways" not in existing_data:
-                existing_data["giveaways"] = []
-            existing_data["giveaways"].append({
-                "timestamp": datetime.now().timestamp(),
-                "prize": giveaway_data["giveaway"]["prize"],
-                "host": giveaway_data["giveaway"]["host"]["username"],
-                "winners": [w["username"] for w in giveaway_data.get("winners", [])],
-                "entries_count": len(giveaway_data.get("entries", [])),
-            })
+        # Structure pour le leaderboard quotidien
+        lb_data = {
+            "date": today,
+            "serveur": server,
+            "nombre_de_jeux": server_data.get("nombre_de_jeux", 0),
+            "mises_totales_avant_commission": server_data.get("mises_totales_avant_commission", "0 jetons"),
+            "gains_totaux": server_data.get("gains_totaux", "0 jetons"), 
+            "commission_totale": server_data.get("commission_totale", "0 jetons"),
+            "utilisateurs": server_data.get("utilisateurs", {}),
+            "hôtes": server_data.get("hôtes", {}),
+            "croupiers": server_data.get("croupiers", {})
+        }
+        
+        db[history_key] = lb_data
         
         # Récupérer l'historique existant ou utiliser les nouvelles données
         history_key = f"COMMISSION/{server}/{today}"
