@@ -66,16 +66,21 @@ def calculate_daily_commissions(server):
                 "croupier": 0
             }
 
-        total_commission = server_data.get("commission_totale", "0 jetons")
-        if isinstance(total_commission, str):
-            total_commission = int(total_commission.split()[0])
+        # Récupérer les données des hôtes (croupiers)
+        hosts = server_data.get("hôtes", {})
+        daily_commission = 0
+        
+        for host_data in hosts.values():
+            commission = host_data.get("total_commission", "0 jetons")
+            if isinstance(commission, str):
+                daily_commission += int(commission.split()[0])
 
-        vip_share = total_commission * 0.5  # 50% pour les VIP
-        investment = total_commission * 0.1  # 10% pour l'investissement
-        croupier = total_commission * 0.4  # 40% pour le croupier
+        vip_share = daily_commission * 0.5  # 50% pour les VIP
+        investment = daily_commission * 0.1  # 10% pour l'investissement
+        croupier = daily_commission * 0.4  # 40% pour le croupier
 
         return {
-            "total": total_commission,
+            "total": daily_commission,
             "vip_share": vip_share,
             "investment": investment,
             "croupier": croupier
