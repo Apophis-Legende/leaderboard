@@ -131,15 +131,22 @@ def calculate_daily_commissions(server):
             commission = data.get("total_commission", "0 jetons")
             if isinstance(commission, str):
                 try:
-                    amount = float(commission.split()[0])
-                    # 40% pour le croupier
-                    croupier_share = float(amount * 0.40)
-                    # 10% pour l'investissement 
-                    investment_share = float(amount * 0.10)
+                    # Retirer le texte et garder la valeur numérique (par exemple '14.0' ou '8')
+                    amount_str = commission.split()[0]
+
+                    # Convertir en float (permet de garder les décimales)
+                    amount = float(amount_str)
+
+                    # Calculs des parts du croupier et de l'investissement
+                    croupier_share = amount * 0.40
+                    investment_share = amount * 0.10
+
                 except ValueError:
+                    # En cas d'erreur de conversion, on attribue une valeur par défaut
                     amount = 0
                     croupier_share = 0
                     investment_share = 0
+
                 # 50% pour les VIP (géré par commission_calculator.py)
 
                 # Sauvegarder la part investissement
