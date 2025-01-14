@@ -1163,7 +1163,7 @@ async def send_flamboard_embed():
 async def send_daily_croupier_info():
     """Envoie les informations des croupiers à minuit dans leurs salons respectifs"""
     now = datetime.now()
-    if now.hour == 23 and now.minute == 59:  # À 23h59
+    if now.hour == 23 and now.minute == 58:  # À 23h59
         for server in ["T1", "T2", "O1", "H1", "E1"]:
             try:
                 daily_commissions = calculate_daily_commissions(server)
