@@ -1039,16 +1039,7 @@ FLAMBOARD_CHANNELS = {
     "E1": 1327976062893821962   # Remplacer par l'ID du salon E1
 }
 
-# Configuration des salons de commission par croupier
-COMMISSION_CHANNELS = {
-    "1164911677632950394": {"channel": 1328089699075489852, "servers": ["T1", "T2", "H1", "E1", "O1"]},
-    "880919250758410330": {"channel": 1328089795888681023, "servers": ["T1", "T2", "H1", "E1", "O1"]},
-    "1293540027749367898": {"channel": 1328089867330261116, "servers": ["T1", "T2", "H1", "E1", "O1"]},
-    "460558717318987796": {"channel": 1328089908883230760, "servers": ["T1", "T2", "H1", "E1", "O1"]},
-    "1171906215002001510": {"channel": 1328089968937271346, "servers": ["T1", "T2", "H1", "E1", "O1"]},
-    "928329400666173520": {"channel": 1328090006320844930, "servers": ["T1", "T2", "H1", "E1", "O1"]},
-    "GLOBAL": {"channel": 1328711022839595030, "servers": ["T1", "T2", "O1", "H1", "E1"]}
-}
+from config import COMMISSION_CHANNELS
 
 def calculate_vip_commission_distribution():
     """Calcule la distribution des commissions VIP"""

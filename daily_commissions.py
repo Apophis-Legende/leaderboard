@@ -2,7 +2,7 @@ from replit import db
 from datetime import datetime, timedelta
 import time
 from format_utils import format_kamas
-from main import COMMISSION_CHANNELS, bot
+from config import COMMISSION_CHANNELS
 
 
 
