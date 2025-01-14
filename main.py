@@ -963,11 +963,13 @@ async def test_croupier_info(interaction: discord.Interaction, server: str):
             for croupier_id, data in daily_commissions["croupiers"].items():
                 print(f"Traitement du croupier {croupier_id} avec les données : {data}")
 
-                channel = bot.get_channel(int(croupier_id))
-                if channel:
-                    print(f"Canal trouvé pour le croupier {croupier_id}. Envoi en cours...")
-                    try:
-                        await channel.send(f"💰 Commission: {data['commission']:,} jetons")
+                channel_id = COMMISSION_CHANNELS.get(croupier_id, {}).get("channel")
+                if channel_id:
+                    channel = bot.get_channel(channel_id)
+                    if channel:
+                        print(f"Canal trouvé pour le croupier {croupier_id}. Envoi en cours...")
+                        try:
+                            await channel.send(f"💰 Commission: {data['commission']:,} jetons")
                         await asyncio.sleep(1)  # Délai pour éviter les limites
                         print(f"Message envoyé au canal {croupier_id}.")
                     except discord.errors.HTTPException as e:
