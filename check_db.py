@@ -7,12 +7,15 @@ def check_db_content():
     # Afficher les clés principales
     print("Clés disponibles:", list(db.keys()))
 
+    from datetime import datetime
+    today = datetime.now().strftime('%Y-%m-%d')
+    
     # Parcourir les serveurs
     servers = ["T1", "T2", "O1", "H1", "E1"]
     for server in servers:
-        # Données du serveur
-        server_data = db.get(f"{server}.json", {})
-        print(f"\n== Données {server} ==")
+        # Données du serveur pour aujourd'hui
+        server_data = db.get(f"LB/{server}/{today}", {})
+        print(f"\n== Données {server} du {today} ==")
         print(f"Commission totale: {server_data.get('commission_totale', '0 jetons')}")
 
         # Historique des commissions

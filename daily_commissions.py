@@ -207,7 +207,8 @@ def calculate_daily_commissions(server):
 
 def get_commission_history(server, days=7):
     """Récupère l'historique des commissions sur X jours"""
-    history_key = f"{server}_commission_history"
+    today = datetime.now().strftime('%Y-%m-%d')
+    history_key = f"LB/{server}/{today}"
     history = db.get(history_key, {})
     
     today = get_today_timestamp()
