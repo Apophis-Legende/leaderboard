@@ -919,6 +919,59 @@ async def host_info(interaction: discord.Interaction, user_id: str):
     except Exception as e:
         await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
 
+@bot.tree.command(name="daily_commissions", description="Affiche les commissions journalières d'un serveur")
+@is_admin()
+@is_in_guild()
+@app_commands.describe(server="Serveur pour voir les commissions (T1, T2, O1, H1, E1)")
+async def daily_commissions(interaction: discord.Interaction, server: str):
+    """Affiche les commissions journalières pour un serveur"""
+    await interaction.response.defer()
+    try:
+        if server not in ["T1", "T2", "O1", "H1", "E1"]:
+            await interaction.followup.send("❌ Serveur invalide. Utilisez : T1, T2, O1, H1 ou E1")
+            return
+
+        from commission_calculator import calculate_daily_commissions
+        commissions = calculate_daily_commissions(server)
+        
+        from format_utils import format_kamas
+        is_euro = server == "E1"
+        
+        embed = discord.Embed(
+            title=f"Commissions journalières {server}",
+            description="Répartition des commissions du jour",
+            color=discord.Color.green()
+        )
+        
+        embed.add_field(
+            name="💰 Commission Totale",
+            value=format_kamas(str(commissions['total']), is_euro),
+            inline=False
+        )
+        
+        embed.add_field(
+            name="👑 Part VIP (50%)",
+            value=format_kamas(str(commissions['vip_share']), is_euro),
+            inline=True
+        )
+        
+        embed.add_field(
+            name="💼 Investissement (10%)",
+            value=format_kamas(str(commissions['investment']), is_euro),
+            inline=True
+        )
+        
+        embed.add_field(
+            name="🎲 Part Croupier (40%)",
+            value=format_kamas(str(commissions['croupier']), is_euro),
+            inline=True
+        )
+        
+        await interaction.followup.send(embed=embed)
+        
+    except Exception as e:
+        await interaction.followup.send(f"❌ Erreur : {e}")
+
 @bot.tree.command(name="test_lasboard", description="Teste l'envoi du flamboard")
 @is_admin()
 @is_in_guild()
