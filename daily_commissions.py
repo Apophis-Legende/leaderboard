@@ -29,6 +29,13 @@ def save_daily_leaderboard(server, giveaway_data=None):
             "commissions": {
                 "total": commission_totale,
                 "details": []
+            },
+            "host": {
+                "id": None,
+                "username": None
+            } if not giveaway_data else {
+                "id": giveaway_data["giveaway"]["host"]["id"],
+                "username": giveaway_data["giveaway"]["host"]["username"]
             }
         }
         
