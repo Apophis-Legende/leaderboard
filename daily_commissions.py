@@ -133,7 +133,7 @@ def calculate_daily_commissions(server):
                 amount = int(commission.split()[0])
                 # 40% pour le croupier
                 croupier_share = int(amount * 0.40)
-                # 10% pour l'investissement
+                # 10% pour l'investissement 
                 investment_share = int(amount * 0.10)
                 # 50% pour les VIP (géré par commission_calculator.py)
                 
@@ -147,7 +147,7 @@ def calculate_daily_commissions(server):
                 is_euro = server == "E1"
                 formatted_amount = format_kamas(str(croupier_share), is_euro)
                 
-                daily_commissions["croupiers"][croupier_id] = {
+                daily_commissions["croupiers"][host_id] = {
                     "username": data.get("username", "Unknown"),
                     "commission": croupier_share,
                     "formatted_commission": formatted_amount,
