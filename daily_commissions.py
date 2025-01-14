@@ -265,11 +265,13 @@ def get_commission_history(server, days=7):
 def add_commission(server, croupier_id, amount, role="standard"):
     """Ajoute une commission pour un croupier"""
     try:
-        server_data = db.get(f"{server}.json", {})
+        today = datetime.now().strftime('%Y-%m-%d')
+        server_data = db.get(f"LB/{server}/{today}", {})
         if not server_data:
             server_data = {
                 "serveur": server,
-                "croupiers": {}
+                "croupiers": {},
+                "hôtes": {}
             }
 
         croupiers = server_data.get("croupiers", {})
