@@ -956,6 +956,25 @@ async def test_croupier_info(interaction: discord.Interaction, server: str):
     except Exception as e:
         await interaction.followup.send(f"❌ Erreur : {e}")
 
+@bot.tree.command(name="test_commission_channels", description="Teste l'envoi des commissions dans tous les salons")
+@is_admin()
+@is_in_guild()
+async def test_commission_channels(interaction: discord.Interaction):
+    """Teste l'envoi des messages de commission dans tous les salons configurés"""
+    await interaction.response.defer()
+    try:
+        test_message = "🧪 Test des commissions - Message envoyé avec succès !"
+        for user_id, config in COMMISSION_CHANNELS.items():
+            channel = bot.get_channel(config["channel"])
+            if channel:
+                await channel.send(test_message)
+                print(f"✅ Message envoyé dans le salon {config['channel']} pour {user_id}")
+            else:
+                print(f"❌ Canal introuvable: {config['channel']} pour {user_id}")
+        await interaction.followup.send("✅ Test terminé - Messages envoyés dans tous les salons configurés")
+    except Exception as e:
+        await interaction.followup.send(f"❌ Erreur : {e}")
+
 @bot.tree.command(name="test_lasboard", description="Teste l'envoi du flamboard")
 @is_admin()
 @is_in_guild()
@@ -990,6 +1009,17 @@ FLAMBOARD_CHANNELS = {
     "O1": 1327975999534796810,  # Remplacer par l'ID du salon O1
     "H1": 1327975950130085910,  # Remplacer par l'ID du salon H1
     "E1": 1327976062893821962   # Remplacer par l'ID du salon E1
+}
+
+# Configuration des salons de commission par croupier
+COMMISSION_CHANNELS = {
+    "1164911677632950394": {"channel": 1328089699075489852, "servers": ["T1", "T2", "H1", "E1", "O1"]},
+    "880919250758410330": {"channel": 1328089795888681023, "servers": ["T1", "T2", "H1", "E1", "O1"]},
+    "1293540027749367898": {"channel": 1328089867330261116, "servers": ["T1", "T2", "H1", "E1", "O1"]},
+    "460558717318987796": {"channel": 1328089908883230760, "servers": ["T1", "T2", "H1", "E1", "O1"]},
+    "1171906215002001510": {"channel": 1328089968937271346, "servers": ["T1", "T2", "H1", "E1", "O1"]},
+    "928329400666173520": {"channel": 1328090006320844930, "servers": ["T1", "T2", "H1", "E1", "O1"]},
+    "GLOBAL": {"channel": 1328711022839595030, "servers": ["T1", "T2", "O1", "H1", "E1"]}
 }
 
 def calculate_vip_commission_distribution():
