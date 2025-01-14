@@ -919,54 +919,64 @@ async def host_info(interaction: discord.Interaction, user_id: str):
     except Exception as e:
         await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
 
-@bot.tree.command(name="daily_commissions", description="Affiche les commissions journalières d'un serveur")
+@bot.tree.command(name="daily_commissions", description="Affiche les commissions journalières par croupier")
 @is_admin()
 @is_in_guild()
-@app_commands.describe(server="Serveur pour voir les commissions (T1, T2, O1, H1, E1)")
-async def daily_commissions(interaction: discord.Interaction, server: str):
-    """Affiche les commissions journalières pour un serveur"""
+@app_commands.describe(croupier_id="ID du croupier (optionnel)")
+async def daily_commissions(interaction: discord.Interaction, croupier_id: str = None):
+    """Affiche les commissions journalières pour tous les serveurs, filtré par croupier si spécifié"""
     await interaction.response.defer()
     try:
-        if server not in ["T1", "T2", "O1", "H1", "E1"]:
-            await interaction.followup.send("❌ Serveur invalide. Utilisez : T1, T2, O1, H1 ou E1")
-            return
-
         from commission_calculator import calculate_daily_commissions
-        commissions = calculate_daily_commissions(server)
-        
         from format_utils import format_kamas
-        is_euro = server == "E1"
         
         embed = discord.Embed(
-            title=f"Commissions journalières {server}",
-            description="Répartition des commissions du jour",
+            title="Commissions journalières par serveur",
+            description="Répartition des commissions du jour" + (f" pour le croupier <@{croupier_id}>" if croupier_id else ""),
             color=discord.Color.green()
         )
+
+        servers = ["T1", "T2", "O1", "H1", "E1"]
+        total_all_servers = 0
         
-        embed.add_field(
-            name="💰 Commission Totale",
-            value=format_kamas(str(commissions['total']), is_euro),
-            inline=False
-        )
-        
-        embed.add_field(
-            name="👑 Part VIP (50%)",
-            value=format_kamas(str(commissions['vip_share']), is_euro),
-            inline=True
-        )
-        
-        embed.add_field(
-            name="💼 Investissement (10%)",
-            value=format_kamas(str(commissions['investment']), is_euro),
-            inline=True
-        )
-        
-        embed.add_field(
-            name="🎲 Part Croupier (40%)",
-            value=format_kamas(str(commissions['croupier']), is_euro),
-            inline=True
-        )
-        
+        for server in servers:
+            commissions = calculate_daily_commissions(server)
+            is_euro = server == "E1"
+            
+            # Si un croupier est spécifié, vérifier s'il a des commissions sur ce serveur
+            if croupier_id:
+                server_data = db.get(f"{server}.json", {})
+                croupiers = server_data.get("croupiers", {})
+                if croupier_id not in croupiers:
+                    continue
+                
+                # Calculer la part du croupier spécifique
+                croupier_total = int(croupiers[croupier_id].get("total_commission", "0 jetons").split()[0])
+                if croupier_total == 0:
+                    continue
+                    
+                commissions["croupier"] = croupier_total
+            
+            if commissions["total"] > 0:
+                embed.add_field(
+                    name=f"📊 Serveur {server}",
+                    value=f"Commission Totale: **{format_kamas(str(commissions['total']), is_euro)}**\n"
+                          f"Part VIP (50%): {format_kamas(str(commissions['vip_share']), is_euro)}\n"
+                          f"Investissement (10%): {format_kamas(str(commissions['investment']), is_euro)}\n"
+                          f"Part Croupier (40%): {format_kamas(str(commissions['croupier']), is_euro)}",
+                    inline=False
+                )
+                total_all_servers += commissions["croupier"]
+
+        if total_all_servers > 0:
+            embed.add_field(
+                name="💰 Total des commissions croupier",
+                value=f"**{format_kamas(str(total_all_servers), False)}**",
+                inline=False
+            )
+        else:
+            embed.description = "Aucune commission trouvée" + (f" pour le croupier <@{croupier_id}>" if croupier_id else "")
+
         await interaction.followup.send(embed=embed)
         
     except Exception as e:
