@@ -17,10 +17,15 @@ def calculate_vip_commissions(server):
                 "total": 0
             }
 
-        # Extraire la commission totale
-        total_commission = server_data.get("commission_totale", "0 jetons")
-        if isinstance(total_commission, str):
-            total_commission = int(total_commission.split()[0])
+        # Récupérer les données des croupiers pour aujourd'hui
+        croupiers = server_data.get("croupiers", {})
+        total_commission = 0
+
+        # Calculer le total des commissions du jour
+        for croupier_data in croupiers.values():
+            commission = croupier_data.get("total_commission", "0 jetons")
+            if isinstance(commission, str):
+                total_commission += int(commission.split()[0])
 
         if total_commission == 0:
             print(f"ℹ️ Pas de commissions à redistribuer pour {server}")
