@@ -299,6 +299,10 @@ async def on_ready():
         send_flamboard_embed.start()
         print("✅ Tâche flamboard démarrée")
 
+        # Démarrer la tâche d'envoi des commissions journalières des croupiers
+        send_daily_croupier_info.start()
+        print("✅ Tâche d'envoi des commissions journalières des croupiers démarrée")
+
         # Liste des commandes disponibles
         print("📝 Commandes disponibles :")
         for cmd in bot.tree.get_commands():
@@ -732,7 +736,7 @@ async def add_forbidden_user(interaction: discord.Interaction, user_id: str, rea
     from replit import db  # Importer Replit DB
     forbidden_users = db.get("forbidden_vip_users", {})
 
-    # Vérifier si l'utilisateur est déjà dans la liste
+        # Vérifier si l'utilisateur est déjà dans la liste
     if user_id in forbidden_users:
         await interaction.followup.send(
             f"⚠️ L'utilisateur avec l'ID `{user_id}` est déjà dans la liste des interdits."
@@ -976,9 +980,9 @@ def create_flamboard_embed(server):
     """Crée l'embed du L'asBoard pour un serveur spécifique"""
     from commission_calculator import calculate_vip_commissions
     commissions = calculate_vip_commissions(server)
-    
+
     from format_utils import format_kamas
-    
+
     # Diviser la commission totale par 2 pour l'affichage
     display_total = commissions["total"] / 2
     is_euro = server == "E1"
@@ -1005,7 +1009,7 @@ def create_flamboard_embed(server):
         value="[Cliquez ici pour voir le leaderboard](https://lasdetrefle.replit.app/)",
         inline=False
     )
-    
+
     embed.set_image(url="https://zupimages.net/up/25/02/e6ln.png")
 
     embed.set_footer(text="Bonne chance à tous !")
@@ -1028,6 +1032,31 @@ async def send_flamboard_embed():
             else:
                 print(f"❌ Canal L'asBoard introuvable pour {server}: {channel_id}")
 
+
+@tasks.loop(minutes=1)
+async def send_daily_croupier_info():
+    """Envoie les informations des croupiers à minuit dans leurs salons respectifs"""
+    now = datetime.now()
+    if now.hour == 0 and now.minute == 0:  # À minuit
+        for server in ["T1", "T2", "O1", "H1", "E1"]:
+            try:
+                daily_commissions = calculate_daily_commissions(server)
+                if daily_commissions and daily_commissions["croupiers"]:
+                    for croupier_id, data in daily_commissions["croupiers"].items():
+                        channel = bot.get_channel(int(croupier_id))
+                        if channel:
+                            commission = data["commission"]
+                            message = (
+                                f"💰 **Commissions journalières - {server}**\n"
+                                f"Montant : **{commission:,}** jetons\n"
+                                f"Date : {datetime.now().strftime('%d/%m/%Y')}"
+                            )
+                            await channel.send(message)
+                            print(f"✅ Commission envoyée à {data['username']} pour {server}")
+                        else:
+                            print(f"❌ Canal introuvable pour le croupier {croupier_id}")
+            except Exception as e:
+                print(f"❌ Erreur lors de l'envoi des commissions pour {server}: {e}")
 
 @bot.event
 async def on_ready():
@@ -1073,6 +1102,9 @@ async def on_ready():
         if not send_flamboard_embed.is_running():
             send_flamboard_embed.start()
             print("✅ Tâche flamboard démarrée")
+        if not send_daily_croupier_info.is_running():
+            send_daily_croupier_info.start()
+            print("✅ Tâche d'envoi des commissions journalières des croupiers démarrée")
     except Exception as e:
         print(f"❌ Erreur dans on_ready : {e}")
 
