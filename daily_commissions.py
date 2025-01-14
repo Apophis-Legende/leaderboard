@@ -177,7 +177,7 @@ def calculate_daily_commissions(server):
                     "formatted_commission": formatted_amount,
                     "role": data.get("role", "standard")
                 }
-                daily_commissions["total"] += croupier_share
+                daily_commissions["total"] += float(croupier_share) if isinstance(croupier_share, str) else croupier_share
 
         # Sauvegarder l'historique détaillé
         history_key = f"{server}_commission_history"
