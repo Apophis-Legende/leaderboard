@@ -123,9 +123,10 @@ def calculate_daily_commissions(server):
             "croupiers": {}
         }
 
-        # Calculer les commissions pour chaque croupier
-        for croupier_id, data in croupiers.items():
-            commission = data.get("daily_commission", "0 jetons")
+        # Calculer les commissions pour l'hôte
+        host_data = server_data.get("hôtes", {})
+        for host_id, data in host_data.items():
+            commission = data.get("total_commission", "0 jetons")
             if isinstance(commission, str):
                 amount = int(commission.split()[0])
                 # 40% pour le croupier
