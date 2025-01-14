@@ -2,6 +2,7 @@
 from replit import db
 from datetime import datetime, timedelta
 import time
+from format_utils import format_kamas
 
 def get_today_timestamp():
     """Retourne le timestamp de minuit du jour actuel"""
@@ -33,20 +34,29 @@ def calculate_daily_commissions(server):
             commission = data.get("daily_commission", "0 jetons")
             if isinstance(commission, str):
                 amount = int(commission.split()[0])
-                # Application de la répartition selon le rôle
-                if data.get("role") == "premium":
-                    final_amount = int(amount * 0.50)  # 50%
-                elif data.get("role") == "standard":
-                    final_amount = int(amount * 0.40)  # 40%
-                else:
-                    final_amount = int(amount * 0.10)  # 10%
-                    
+                # 40% pour le croupier
+                croupier_share = int(amount * 0.40)
+                # 10% pour l'investissement
+                investment_share = int(amount * 0.10)
+                # 50% pour les VIP (géré par commission_calculator.py)
+                
+                # Sauvegarder la part investissement
+                if "investment_share" not in server_data:
+                    server_data["investment_share"] = "0 jetons"
+                current_investment = int(server_data["investment_share"].split()[0])
+                server_data["investment_share"] = f"{current_investment + investment_share} jetons"
+                
+                # Formatter le montant selon le serveur
+                is_euro = server == "E1"
+                formatted_amount = format_kamas(str(croupier_share), is_euro)
+                
                 daily_commissions["croupiers"][croupier_id] = {
                     "username": data.get("username", "Unknown"),
-                    "commission": final_amount,
+                    "commission": croupier_share,
+                    "formatted_commission": formatted_amount,
                     "role": data.get("role", "standard")
                 }
-                daily_commissions["total"] += final_amount
+                daily_commissions["total"] += croupier_share
 
         # Sauvegarder l'historique
         history_key = f"{server}_commission_history"
