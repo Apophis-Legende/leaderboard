@@ -71,8 +71,8 @@ def get_commission_history(server, days=7):
             
     return filtered_history
 
-def add_commission(server, croupier_id, amount):
-    """Ajoute une commission pour un croupier"""
+def add_commission(server, croupier_id, amount, role="standard"):
+    """Ajoute une commission pour un croupier avec répartition selon le rôle"""
     try:
         server_data = db.get(f"{server}.json", {})
         if not server_data:
@@ -85,11 +85,20 @@ def add_commission(server, croupier_id, amount):
         if croupier_id not in croupiers:
             croupiers[croupier_id] = {
                 "username": "Unknown",
-                "daily_commission": "0 jetons"
+                "daily_commission": "0 jetons",
+                "role": role
             }
 
+        # Appliquer la répartition
+        if role == "premium":
+            commission = amount * 0.50  # 50%
+        elif role == "standard":
+            commission = amount * 0.40  # 40%
+        else:
+            commission = amount * 0.10  # 10%
+
         current = int(croupiers[croupier_id]["daily_commission"].split()[0])
-        croupiers[croupier_id]["daily_commission"] = f"{current + amount} jetons"
+        croupiers[croupier_id]["daily_commission"] = f"{current + int(commission)} jetons"
         
         server_data["croupiers"] = croupiers
         db[f"{server}.json"] = server_data
