@@ -57,8 +57,10 @@ def calculate_daily_commissions(server):
     Calcule la répartition des commissions journalières pour un serveur.
     """
     try:
+        print(f"🔍 Calcul des commissions pour {server}")
         server_data = db.get(f"{server}.json")
         if not server_data:
+            print(f"❌ Aucune donnée trouvée pour {server}")
             return {
                 "total": 0,
                 "vip_share": 0,
@@ -69,11 +71,15 @@ def calculate_daily_commissions(server):
         # Récupérer les données des hôtes (croupiers)
         hosts = server_data.get("hôtes", {})
         daily_commission = 0
-        
-        for host_data in hosts.values():
+
+        print(f"👥 Nombre d'hôtes trouvés: {len(hosts)}")
+        for host_id, host_data in hosts.items():
+            print(f"🎲 Hôte {host_id}:")
             commission = host_data.get("total_commission", "0 jetons")
             if isinstance(commission, str):
-                daily_commission += int(commission.split()[0])
+                amount = int(commission.split()[0])
+                daily_commission += amount
+                print(f"💰 Commission: {amount}")
 
         vip_share = daily_commission * 0.5  # 50% pour les VIP
         investment = daily_commission * 0.1  # 10% pour l'investissement
