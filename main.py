@@ -919,12 +919,12 @@ async def host_info(interaction: discord.Interaction, user_id: str):
     except Exception as e:
         await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
 
-@bot.tree.command(name="test_flamboard", description="Teste l'envoi du flamboard")
+@bot.tree.command(name="test_lasboard", description="Teste l'envoi du flamboard")
 @is_admin()
 @is_in_guild()
-@app_commands.describe(server="Serveur pour lequel tester le flamboard (T1, T2, O1, H1, E1)")
+@app_commands.describe(server="Serveur pour lequel tester le L'asBoard (T1, T2, O1, H1, E1)")
 async def test_flamboard(interaction: discord.Interaction, server: str):
-    """Teste l'envoi du flamboard manuellement"""
+    """Teste l'envoi du L'asBoard manuellement"""
     await interaction.response.defer()
     try:
         if server not in ["T1", "T2", "O1", "H1", "E1"]:
@@ -932,7 +932,7 @@ async def test_flamboard(interaction: discord.Interaction, server: str):
             return
         embed = create_flamboard_embed(server)
         await interaction.followup.send(embed=embed)
-        await interaction.followup.send("✅ Flamboard envoyé avec succès !") # Confirmation message
+        await interaction.followup.send("✅ L'asBoard envoyé avec succès !") # Confirmation message
     except Exception as e:
         await interaction.followup.send(f"❌ Erreur : {e}")
 
@@ -948,11 +948,11 @@ def verify_db_connection():
 
 # Configuration des flamboards par serveur
 FLAMBOARD_CHANNELS = {
-    "T1": 1323220160253001761,  # Remplacer par l'ID du salon T1
-    "T2": 1323220160253001761,  # Remplacer par l'ID du salon T2
-    "O1": 1323220160253001761,  # Remplacer par l'ID du salon O1
-    "H1": 1323220160253001761,  # Remplacer par l'ID du salon H1
-    "E1": 1323220160253001761   # Remplacer par l'ID du salon E1
+    "T1": 1314239364016111647,  # Remplacer par l'ID du salon T1
+    "T2": 1320651859626819676,  # Remplacer par l'ID du salon T2
+    "O1": 1327975999534796810,  # Remplacer par l'ID du salon O1
+    "H1": 1327975950130085910,  # Remplacer par l'ID du salon H1
+    "E1": 1327976062893821962   # Remplacer par l'ID du salon E1
 }
 
 def calculate_vip_commission_distribution():
@@ -973,7 +973,7 @@ def calculate_vip_commission_distribution():
     return total_commission, vip_tiers
 
 def create_flamboard_embed(server):
-    """Crée l'embed du flamboard pour un serveur spécifique"""
+    """Crée l'embed du L'asBoard pour un serveur spécifique"""
     from commission_calculator import calculate_vip_commissions
     commissions = calculate_vip_commissions(server)
     
@@ -986,7 +986,7 @@ def create_flamboard_embed(server):
     embed = discord.Embed(
         title=f"LeaderBoard de l'as de trèfle {server} :four_leaf_clover: ",
         description="Bonsoir les Trèflois :four_leaf_clover: \n"
-                    "｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *+:｡.｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *",
+                    "★━━━━━━━━━━━━━━━━━━━━★",
         color=discord.Color.red()
     )
 
@@ -1001,17 +1001,19 @@ def create_flamboard_embed(server):
     embed.add_field(name="🥉 VIP 3", value=format_kamas(str(commissions['vip3']), is_euro), inline=False)
 
     embed.add_field(
-        name="｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *+:｡.｡.｡:+* ﾟ ゜ﾟ *+:｡.｡:+* ﾟ ゜ﾟ *",
+        name="★━━━━━━━━━━━━━━━━━━━━★",
         value="[Cliquez ici pour voir le leaderboard](https://lasdetrefle.replit.app/)",
         inline=False
     )
+    
+    embed.set_image(url="https://zupimages.net/up/25/02/e6ln.png")
 
-    embed.set_footer(text="Bonne chance à tous ! :four_leaf_clover: :four_leaf_clover: :four_leaf_clover:  ")
+    embed.set_footer(text="Bonne chance à tous !")
     return embed
 
 @tasks.loop(minutes=1)
 async def send_flamboard_embed():
-    """Envoie l'embed du flamboard à minuit pour chaque serveur"""
+    """Envoie l'embed du L'asBoard à minuit pour chaque serveur"""
     now = datetime.now()
     if now.hour == 0 and now.minute == 0:
         for server, channel_id in FLAMBOARD_CHANNELS.items():
@@ -1020,11 +1022,11 @@ async def send_flamboard_embed():
                 try:
                     embed = create_flamboard_embed(server)
                     await channel.send(embed=embed)
-                    print(f"✅ Flamboard envoyé avec succès pour {server}")
+                    print(f"✅ L'asBoard envoyé avec succès pour {server}")
                 except Exception as e:
-                    print(f"❌ Erreur lors de l'envoi du flamboard pour {server}: {e}")
+                    print(f"❌ Erreur lors de l'envoi du L'asBoard pour {server}: {e}")
             else:
-                print(f"❌ Canal flamboard introuvable pour {server}: {channel_id}")
+                print(f"❌ Canal L'asBoard introuvable pour {server}: {channel_id}")
 
 
 @bot.event
