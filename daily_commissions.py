@@ -267,9 +267,12 @@ def add_commission(server, croupier_id, amount, role="standard"):
                 "role": role
             }
 
-        current = int(croupiers[croupier_id]["daily_commission"].split()[0])
+        current = float(croupiers[croupier_id]["daily_commission"].split()[0])
         print(f"Ajout de {amount} jetons à {croupier_id}, ancien total: {current} jetons")
-        croupiers[croupier_id]["daily_commission"] = f"{current + int(amount)} jetons"
+        if server == "E1":
+            croupiers[croupier_id]["daily_commission"] = f"{current + float(amount)} jetons"
+        else:
+            croupiers[croupier_id]["daily_commission"] = f"{int(current + float(amount))} jetons"
 
         server_data["croupiers"] = croupiers
         db[f"{server}.json"] = server_data
