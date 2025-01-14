@@ -73,18 +73,20 @@ def calculate_daily_commissions(server):
                 "croupier": 0
             }
 
-        # Récupérer les données des croupiers
-        croupiers = server_data.get("croupiers", {})
-        daily_commission = 0
+        # Récupérer la date du jour (timestamp de minuit)
+        from datetime import datetime
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp()
 
-        print(f"👥 Nombre de croupiers trouvés: {len(croupiers)}")
-        for croupier_id, croupier_data in croupiers.items():
-            print(f"🎲 Croupier {croupier_id}:")
-            commission = croupier_data.get("total_commission", "0 jetons")
-            if isinstance(commission, str):
-                amount = int(commission.split()[0])
-                daily_commission += amount
-                print(f"💰 Commission: {amount}")
+        # Récupérer l'historique des commissions pour aujourd'hui
+        daily_commission = 0
+        commission_history = server_data.get("commission_history", {})
+        
+        # Calculer le total des commissions du jour
+        for timestamp, amount in commission_history.items():
+            if float(timestamp) >= today:
+                if isinstance(amount, str) and "jetons" in amount:
+                    daily_commission += int(amount.split()[0])
+                    print(f"💰 Commission trouvée: {amount}")
 
         vip_share = daily_commission * 0.5  # 50% pour les VIP
         investment = daily_commission * 0.1  # 10% pour l'investissement
