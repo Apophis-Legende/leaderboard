@@ -1,0 +1,97 @@
+ /api/check_forbidden?user_id=928329400666173520 HTTP/1.1" 500 -
+🔍 Requête VIP reçue - Serveur: Euro, User ID: 928329400666173520
+💰 Mises totales pour 928329400666173520: 200 jetons
+172.31.196.55 - - [14/Jan/2025 16:28:01] "GET /api/vip_status?user_id=928329400666173520&server=Euro HTTP/1.1" 200 -
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : 
+👤 Auteur : L'as Board#2618 (ID : 1291805139430146099)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+2025-01-14 16:28:14 ERROR    discord.app_commands.tree Ignoring exception in command 'delete_giveaway'
+Traceback (most recent call last):
+  File "/home/runner/workspace/main.py", line 655, in delete_giveaway_command
+    await interaction.response.defer(ephemeral=True)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/interactions.py", line 709, in defer
+    await adapter.create_interaction_response(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/webhook/async_.py", line 223, in request
+    raise HTTPException(response, data)
+discord.errors.HTTPException: 400 Bad Request (error code: 40060): Interaction has already been acknowledged.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/app_commands/commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+  File "/home/runner/workspace/main.py", line 672, in delete_giveaway_command
+    await interaction.response.send_message(error_message, ephemeral=True)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/webhook/async_.py", line 223, in request
+    raise HTTPException(response, data)
+discord.errors.HTTPException: 400 Bad Request (error code: 40060): Interaction has already been acknowledged.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/app_commands/tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/app_commands/commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/app_commands/commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'delete_giveaway' raised an exception: HTTPException: 400 Bad Request (error code: 40060): Interaction has already been acknowledged.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : ✅ Giveaway supprimé avec succès.
+👤 Auteur : L'as Board#2618 (ID : 1291805139430146099)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : ✅ Données ajoutées avec succès !
+👤 Auteur : L'as Board#2618 (ID : 1291805139430146099)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+2025-01-14 16:28:40 ERROR    discord.app_commands.tree Ignoring exception in command 'add_giveaway'
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/app_commands/commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+  File "/home/runner/workspace/main.py", line 620, in add_giveaway
+    await interaction.response.defer()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/interactions.py", line 709, in defer
+    await adapter.create_interaction_response(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/webhook/async_.py", line 223, in request
+    raise HTTPException(response, data)
+discord.errors.HTTPException: 400 Bad Request (error code: 40060): Interaction has already been acknowledged.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/app_commands/tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/app_commands/commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/app_commands/commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'add_giveaway' raised an exception: HTTPException: 400 Bad Request (error code: 40060): Interaction has already been acknowledged.
+2025-01-14 16:28:40 ERROR    discord.app_commands.tree Ignoring exception in command 'test_croupier_info'
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/app_commands/commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+  File "/home/runner/workspace/main.py", line 933, in test_croupier_info
+    await interaction.response.defer()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/interactions.py", line 709, in defer
+    await adapter.create_interaction_response(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/webhook/async_.py", line 206, in request
+    raise HTTPException(response, data)
+discord.errors.HTTPException: 429 Too Many Requests (error code: 0): too many 4xx response codes, try again later
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/app_commands/tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/app_commands/commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.10/site-packages/discord/app_commands/commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'test_croupier_info' raised an exception: HTTPException: 429 Too Many Requests (error code: 0): too many 4xx response codes, try again later
