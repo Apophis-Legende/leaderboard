@@ -1019,12 +1019,13 @@ FLAMBOARD_CHANNELS = {
 }
 
 COMMISSION_CHANNELS = {
-    "T1": {"channel": 1234567890, "user_id": "USER_ID_1"},
-    "T2": {"channel": 1234567891, "user_id": "USER_ID_2"},
-    "O1": {"channel": 1234567892, "user_id": "USER_ID_3"},
-    "H1": {"channel": 1234567893, "user_id": "USER_ID_4"},
-    "E1": {"channel": 1234567894, "user_id": "USER_ID_5"},
-    "GLOBAL": {"channel": 1234567895, "user_id": "USER_ID_6"}
+    "T1": {"channel": 1328089699075489852, "user_id": "1164911677632950394"},
+    "T2": {"channel": 1328089795888681023, "user_id": "880919250758410330"},
+    "O1": {"channel": 1328089867330261116, "user_id": "1293540027749367898"},
+    "H1": {"channel": 1328089908883230760, "user_id": "460558717318987796"},
+    "E1": {"channel": 1328089968937271346, "user_id": "1171906215002001510"},
+    "E1": {"channel": 1328090006320844930, "user_id": "928329400666173520"},
+    "GLOBAL": {"channel": 1328711022839595030, "user_id": "USER_ID_6"}
 }
 
 def calculate_vip_commission_distribution():
