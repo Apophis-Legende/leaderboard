@@ -10,6 +10,35 @@ def get_today_timestamp():
     midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
     return midnight.timestamp()
 
+def save_daily_leaderboard(server):
+    """Sauvegarde le leaderboard du jour"""
+    try:
+        today = datetime.now().strftime('%Y-%m-%d')
+        server_data = db.get(f"{server}.json", {})
+        
+        # Créer une copie des données du jour
+        daily_data = {
+            "date": today,
+            "serveur": server,
+            "nombre_de_jeux": server_data.get("nombre_de_jeux", 0),
+            "mises_totales_avant_commission": server_data.get("mises_totales_avant_commission", "0 jetons"),
+            "gains_totaux": server_data.get("gains_totaux", "0 jetons"),
+            "commission_totale": server_data.get("commission_totale", "0 jetons"),
+            "utilisateurs": server_data.get("utilisateurs", {}),
+            "hôtes": server_data.get("hôtes", {}),
+            "croupiers": server_data.get("croupiers", {})
+        }
+        
+        # Sauvegarder dans la DB avec une clé unique par jour
+        history_key = f"LB/{server}/{today}"
+        db[history_key] = daily_data
+        
+        print(f"✅ Leaderboard sauvegardé pour {server} - {today}")
+        return True
+    except Exception as e:
+        print(f"❌ Erreur lors de la sauvegarde du leaderboard: {e}")
+        return False
+
 def calculate_daily_commissions(server):
     """Calcule les commissions journalières pour un serveur"""
     try:
@@ -98,6 +127,9 @@ def calculate_daily_commissions(server):
         
         db[commission_history_key] = commission_details
 
+        # Sauvegarder le leaderboard du jour avant réinitialisation
+        save_daily_leaderboard(server)
+        
         # Réinitialiser les commissions journalières
         for croupier in croupiers.values():
             croupier["daily_commission"] = "0 jetons"
