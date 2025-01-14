@@ -928,39 +928,60 @@ async def host_info(interaction: discord.Interaction, user_id: str):
 @app_commands.describe(server="Serveur pour lequel envoyer les infos (T1, T2, O1, H1, E1)")
 async def test_croupier_info(interaction: discord.Interaction, server: str):
     try:
+        print(f"Commande test_croupier_info appelée avec le serveur : {server}")
+
         if server not in ["T1", "T2", "O1", "H1", "E1"]:
+            print("Serveur invalide fourni.")
             await interaction.response.send_message("❌ Serveur invalide. Utilisez : T1, T2, O1, H1 ou E1", ephemeral=True)
             return
 
         await interaction.response.defer(ephemeral=True)
-        
+        print("Réponse différée.")
+
         # Utiliser la date du jour pour la clé
         today = datetime.now().strftime('%Y-%m-%d')
+        print(f"Date actuelle : {today}")
+
         db_key = f"LB/{server}/{today}"
+        print(f"Clé de la base de données générée : {db_key}")
+
         server_data = db.get(db_key)
-        
-        if not server_data:
+        if server_data:
+            print(f"Données trouvées dans la base pour {db_key} : {server_data}")
+        else:
+            print(f"Aucune donnée trouvée pour la clé {db_key}.")
             await interaction.followup.send(f"❌ Aucune donnée trouvée pour {server} à la date {today}", ephemeral=True)
             return
-            
+
+        # Calculer les commissions journalières
+        print("Calcul des commissions journalières...")
         daily_commissions = calculate_daily_commissions(server)
+        print(f"Commissions calculées : {daily_commissions}")
+
         if daily_commissions and daily_commissions["croupiers"]:
+            print("Envoi des commissions aux croupiers...")
             for croupier_id, data in daily_commissions["croupiers"].items():
+                print(f"Traitement du croupier {croupier_id} avec les données : {data}")
+
                 channel = bot.get_channel(int(croupier_id))
                 if channel:
+                    print(f"Canal trouvé pour le croupier {croupier_id}. Envoi en cours...")
                     try:
                         await channel.send(f"💰 Commission: {data['commission']:,} jetons")
                         await asyncio.sleep(1)  # Délai pour éviter les limites
+                        print(f"Message envoyé au canal {croupier_id}.")
                     except discord.errors.HTTPException as e:
-                        print(f"Erreur d'envoi au canal {croupier_id}: {e}")
+                        print(f"Erreur d'envoi au canal {croupier_id} : {e}")
                 else:
                     print(f"Canal introuvable pour le croupier {croupier_id}")
             await interaction.followup.send("✅ Commissions envoyées avec succès.", ephemeral=True)
+            print("Commissions envoyées avec succès.")
         else:
+            print("Aucune commission à envoyer.")
             await interaction.followup.send("❌ Aucune commission à envoyer.", ephemeral=True)
     except Exception as e:
-        await interaction.followup.send(f"❌ Une erreur est survenue : {e}", ephemeral=True)
         print(f"Erreur dans test_croupier_info : {e}")
+        await interaction.followup.send(f"❌ Une erreur est survenue : {e}", ephemeral=True)
 
 
 @bot.tree.command(name="test_commission_channels", description="Teste l'envoi des commissions dans tous les salons")
