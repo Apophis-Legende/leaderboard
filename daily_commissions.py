@@ -16,16 +16,25 @@ def save_daily_leaderboard(server, giveaway_data=None):
         today = datetime.now().strftime('%Y-%m-%d')
         server_data = db.get(f"{server}.json", {})
         
+        # Récupérer la commission totale avant réinitialisation
+        commission_totale = server_data.get("commission_totale", "0 jetons")
+        if isinstance(commission_totale, str):
+            commission_totale = int(commission_totale.split()[0])
+            
         # Structure pour les données journalières
         daily_data = {
             "date": today,
             "serveur": server,
             "nombre_de_jeux": server_data.get("nombre_de_jeux", 0),
             "commissions": {
-                "total": server_data.get("commission_totale", "0 jetons"),
+                "total": commission_totale,
                 "details": []
             }
         }
+        
+        # Réinitialiser la commission dans les données du serveur
+        server_data["commission_totale"] = "0 jetons"
+        db[f"{server}.json"] = server_data
 
         # Ajouter les détails du nouveau giveaway s'il existe
         if giveaway_data and "giveaway" in giveaway_data:
@@ -71,8 +80,10 @@ def save_daily_leaderboard(server, giveaway_data=None):
         # Fusionner les nouvelles données avec l'existant
         if giveaway_data:
             if "commissions" not in existing_data:
-                existing_data["commissions"] = {"total": "0 jetons", "details": []}
-            existing_data["commissions"]["details"].extend(daily_data["commissions"]["details"])
+                existing_data["commissions"] = {"total": 0, "details": []}
+            existing_data["commissions"]["total"] = daily_data["commissions"]["total"]
+            if giveaway_data and "details" in daily_data["commissions"]:
+                existing_data["commissions"]["details"].extend(daily_data["commissions"]["details"])
         
         # Sauvegarder dans la DB
         db[history_key] = existing_data
