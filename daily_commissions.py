@@ -156,9 +156,24 @@ def calculate_daily_commissions(server):
                     else:
                         formatted_amount = f"{kamas//1000}K Kamas"
 
+                # Formatage spécial pour E1
+                if server == "E1":
+                    display_commission = f"{croupier_share:.2f}"
+                    formatted_amount = f"{croupier_share:.2f}€"
+                else:
+                    display_commission = str(croupier_share)
+                    kamas = croupier_share * 10000
+                    if kamas >= 1000000:
+                        millions = kamas/1000000
+                        whole = int(millions)
+                        decimal = int((millions - whole) * 10)
+                        formatted_amount = f"{whole}M{decimal} Kamas" if decimal else f"{whole}M Kamas"
+                    else:
+                        formatted_amount = f"{kamas//1000}K Kamas"
+
                 daily_commissions["croupiers"][host_id] = {
                     "username": data.get("username", "Unknown"),
-                    "commission": croupier_share if server != "E1" else f"{croupier_share:.2f}",
+                    "commission": display_commission,
                     "formatted_commission": formatted_amount,
                     "role": data.get("role", "standard")
                 }
