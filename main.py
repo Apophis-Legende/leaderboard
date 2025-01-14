@@ -1097,7 +1097,11 @@ def create_flamboard_embed(server):
 
     embed.add_field(
         name="💰 Redistribution des commissions",
-        value=f"Actuellement, **{format_kamas(str(display_total), is_euro)}** de nos commissions pour vous :four_leaf_clover: :four_leaf_clover: :four_leaf_clover: ",
+        value=f"Actuellement, **{format_kamas(str(display_total), is_euro)}** de nos commissions totales\n\n" + 
+              "**Répartition :**\n" +
+              "👑 50% VIP\n" +
+              "💼 10% Investissement\n" +
+              "🎲 40% Croupier",
         inline=False
     )
 
