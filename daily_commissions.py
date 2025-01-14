@@ -130,11 +130,11 @@ def calculate_daily_commissions(server):
         for host_id, data in host_data.items():
             commission = data.get("total_commission", "0 jetons")
             if isinstance(commission, str):
-                amount = int(commission.split()[0])
+                amount = float(commission.split()[0])
                 # 40% pour le croupier
-                croupier_share = int(amount * 0.40)
+                croupier_share = float(amount * 0.40)
                 # 10% pour l'investissement 
-                investment_share = int(amount * 0.10)
+                investment_share = float(amount * 0.10)
                 # 50% pour les VIP (géré par commission_calculator.py)
 
                 # Sauvegarder la part investissement
@@ -201,7 +201,7 @@ def calculate_daily_commissions(server):
                 }
 
             # Mettre à jour les totaux
-            commission_details[croupier_id]["total_commission"] += data["commission"]
+            commission_details[croupier_id]["total_commission"] = float(commission_details[croupier_id]["total_commission"]) + float(data["commission"])
 
             # Ajouter l'historique par date
             if str(today) not in commission_details[croupier_id]["commission_history"]:
