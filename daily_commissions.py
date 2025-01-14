@@ -16,19 +16,37 @@ def save_daily_leaderboard(server, giveaway_data=None):
         today = datetime.now().strftime('%Y-%m-%d')
         server_data = db.get(f"{server}.json", {})
         
-        # Créer une copie des données du jour
+        # Structure pour les données journalières
         daily_data = {
             "date": today,
             "serveur": server,
             "nombre_de_jeux": server_data.get("nombre_de_jeux", 0),
-            "mises_totales_avant_commission": server_data.get("mises_totales_avant_commission", "0 jetons"),
-            "gains_totaux": server_data.get("gains_totaux", "0 jetons"),
-            "commission_totale": server_data.get("commission_totale", "0 jetons"),
-            "utilisateurs": server_data.get("utilisateurs", {}),
-            "hôtes": server_data.get("hôtes", {}),
-            "croupiers": server_data.get("croupiers", {}),
-            "giveaways": []
+            "commissions": {
+                "total": server_data.get("commission_totale", "0 jetons"),
+                "details": []
+            }
         }
+
+        # Ajouter les détails du nouveau giveaway s'il existe
+        if giveaway_data and "giveaway" in giveaway_data:
+            prize_info = giveaway_data["giveaway"]["prize"].split()
+            if len(prize_info) >= 2:
+                gain = int(prize_info[1])
+                bet = int(gain / 0.95)
+                commission = bet - gain
+                
+                giveaway_detail = {
+                    "timestamp": datetime.now().timestamp(),
+                    "host": {
+                        "id": giveaway_data["giveaway"]["host"]["id"],
+                        "username": giveaway_data["giveaway"]["host"]["username"]
+                    },
+                    "prize": gain,
+                    "bet": bet,
+                    "commission": commission,
+                    "server": server
+                }
+                daily_data["commissions"]["details"].append(giveaway_detail)
         
         # Récupérer l'historique existant ou créer un nouveau
         history_key = f"LB/{server}/{today}"
@@ -46,10 +64,20 @@ def save_daily_leaderboard(server, giveaway_data=None):
                 "entries_count": len(giveaway_data.get("entries", [])),
             })
         
+        # Récupérer l'historique existant ou utiliser les nouvelles données
+        history_key = f"COMMISSION/{server}/{today}"
+        existing_data = db.get(history_key, daily_data)
+        
+        # Fusionner les nouvelles données avec l'existant
+        if giveaway_data:
+            if "commissions" not in existing_data:
+                existing_data["commissions"] = {"total": "0 jetons", "details": []}
+            existing_data["commissions"]["details"].extend(daily_data["commissions"]["details"])
+        
         # Sauvegarder dans la DB
         db[history_key] = existing_data
         
-        print(f"✅ Leaderboard sauvegardé pour {server} - {today}")
+        print(f"✅ Commissions sauvegardées pour {server} - {today}")
         return True
     except Exception as e:
         print(f"❌ Erreur lors de la sauvegarde du leaderboard: {e}")
