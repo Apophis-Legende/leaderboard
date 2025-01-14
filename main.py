@@ -17,6 +17,7 @@ from add import add_giveaway_data
 import re
 from modif import process_giveaway
 from replit import db
+from daily_commissions import calculate_daily_commissions
 from discord.ext import tasks
 from datetime import datetime
 
