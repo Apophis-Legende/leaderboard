@@ -91,25 +91,36 @@
             return `${win_amount - bet_amount} jetons`;
         }
 
-        function getHighestVip(userId, server) {
-                // Vérifie d'abord si l'utilisateur est dans la liste des interdits
-                return fetch('/api/check_forbidden?user_id=' + userId)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.is_forbidden === true) {
-                            return Promise.resolve('Utilisateur interdit');
-                        }
-                        // Si non interdit, récupère le statut VIP
-                        return fetch(`/api/vip_status?user_id=${userId}&server=${server}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.vip_level) {
-                                    return `VIP ${data.vip_level}`;
-                                }
-                                return '---';
-                            });
-                    })
+        async function getHighestVip(userId, server) {
+            try {
+                // Vérifier si l'utilisateur est interdit
+                const forbiddenResponse = await fetch('/api/check_forbidden?user_id=' + userId);
+                if (!forbiddenResponse.ok) {
+                    throw new Error(`Erreur API check_forbidden : ${forbiddenResponse.status}`);
+                }
+                const forbiddenData = await forbiddenResponse.json();
+
+                if (forbiddenData.is_forbidden === true) {
+                    return 'Utilisateur interdit';
+                }
+
+                // Récupérer le statut VIP
+                const vipResponse = await fetch(`/api/vip_status?user_id=${userId}&server=${server}`);
+                if (!vipResponse.ok) {
+                    throw new Error(`Erreur API vip_status : ${vipResponse.status}`);
+                }
+                const vipData = await vipResponse.json();
+
+                if (vipData.vip_level) {
+                    return `VIP ${vipData.vip_level}`;
+                }
+                return '---';
+            } catch (error) {
+                console.error('Erreur dans getHighestVip:', error);
+                return '---';
+            }
         }
+
 
 
         function fetchLeaderboardData() {
