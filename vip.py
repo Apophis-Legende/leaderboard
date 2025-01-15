@@ -33,7 +33,7 @@ VIP_ROLE_MAPPING = {
 VIP_TIERS = {
     1: 4000,
     2: 10000,
-    3: 20000
+    3: 15000
 }
 
 # Liste des ID des rôles interdits de recevoir un VIP
@@ -245,7 +245,7 @@ def calculate_vip_tier(total_bets, server=""):
         elif total_bets >= 150:
             return 1
     else:  # Seuils pour T1, T2, O1, H1
-        if total_bets >= 20000:
+        if total_bets >= 15000:
             return 3
         elif total_bets >= 10000:
             return 2
