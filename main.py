@@ -108,10 +108,10 @@ def check_forbidden():
     try:
         forbidden_users = load_forbidden_vip_users()
         print("Contenu de la DB forbidden_vip_users:", forbidden_users)
-        is_forbidden = user_id in forbidden_users
+        is_forbidden = str(user_id) in forbidden_users
         return jsonify({
             "is_forbidden": is_forbidden,
-            "details": forbidden_users.get(user_id) if is_forbidden else None
+            "details": forbidden_users.get(str(user_id)) if is_forbidden else None
         })
     except Exception as e:
         print(f"Erreur lors de la vérification des utilisateurs interdits: {e}")
