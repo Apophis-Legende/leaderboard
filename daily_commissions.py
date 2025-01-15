@@ -16,16 +16,21 @@ def get_daily_data(server, today=None):
     if not today:
         today = datetime.now().strftime('%Y-%m-%d')
     key = f"LB/{server}/{today}"
-    return db.get(key, {
-        "date": today,
-        "serveur": server,
-        "croupiers": {},
-        "hôtes": {},
-        "nombre_de_jeux": 0,
-        "commission_totale": "0 jetons",
-        "mises_totales_avant_commission": "0 jetons",
-        "gains_totaux": "0 jetons"
-    })
+    try:
+        data = db.get(key)
+        if data is None:
+            data = {
+                "date": today,
+                "serveur": server,
+                "croupiers": {},
+                "total": 0,
+                "details": []
+            }
+            db[key] = data
+        return data
+    except Exception as e:
+        print(f"❌ Erreur lors de la lecture des données LB : {e}")
+        return None
 
 
 def save_daily_data(server, data, today=None):
@@ -33,7 +38,17 @@ def save_daily_data(server, data, today=None):
     if not today:
         today = datetime.now().strftime('%Y-%m-%d')
     key = f"LB/{server}/{today}"
-    db[key] = data
+    try:
+        if isinstance(data, dict):
+            db[key] = data
+            print(f"✅ Données sauvegardées pour {key}")
+            return True
+        else:
+            print(f"❌ Format de données invalide pour {key}")
+            return False
+    except Exception as e:
+        print(f"❌ Erreur lors de la sauvegarde des données LB : {e}")
+        return False
 
 
 def save_daily_leaderboard(server, giveaway_data=None):
