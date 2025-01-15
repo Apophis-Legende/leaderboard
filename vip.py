@@ -83,15 +83,19 @@ async def assign_vip_role(member, server_name, vip_tier, guild: discord.Guild):
     if str(member.id) in forbidden_users:
         print(f"🚫 Utilisateur {member.name} interdit de VIP")
         
-        # Retirer tous les rôles VIP existants
-        for tier in range(1, 4):  # VIP 1 à 3
-            for server_code in ["T1", "T2", "O1", "H1", "E1"]:
-                role_name = VIP_ROLE_MAPPING[tier][server_code]
-                role = discord.utils.get(member.guild.roles, name=role_name)
-                if role and role in member.roles:
-                    await member.remove_roles(role)
-                    print(f"🗑️ Rôle {role.name} retiré de {member.name}")
-        return
+        # Retirer TOUS les rôles VIP existants de manière forcée
+        try:
+            for tier in range(1, 4):
+                for server_code in ["T1", "T2", "O1", "H1", "E1"]:
+                    role_name = VIP_ROLE_MAPPING[tier][server_code]
+                    role = discord.utils.get(guild.roles, name=role_name)
+                    if role and role in member.roles:
+                        await member.remove_roles(role, reason="Utilisateur interdit de VIP")
+                        print(f"🗑️ Rôle {role.name} retiré de {member.name}")
+            return False
+        except Exception as e:
+            print(f"❌ Erreur lors du retrait des rôles VIP: {e}")
+            return False
 
     role_name = VIP_ROLE_MAPPING.get(vip_tier, {}).get(server_name, None)
 
@@ -229,13 +233,24 @@ def load_server_json(file_name):
         print(f"❌ Erreur lors du chargement des données {server_name}: {e}")
         return {}
 
-def calculate_vip_tier(total_bets):
+def calculate_vip_tier(total_bets, server=""):
     """
-    Calcule le palier VIP en fonction des mises totales.
+    Calcule le palier VIP en fonction des mises totales et du serveur.
     """
-    for tier, threshold in sorted(VIP_TIERS.items(), reverse=True):
-        if total_bets >= threshold:
-            return tier
+    if server == "E1":
+        if total_bets >= 600:
+            return 3
+        elif total_bets >= 350:
+            return 2
+        elif total_bets >= 150:
+            return 1
+    else:
+        if total_bets >= 20000:
+            return 3
+        elif total_bets >= 10000:
+            return 2
+        elif total_bets >= 4000:
+            return 1
     return None
 
 def load_forbidden_vip_users():
