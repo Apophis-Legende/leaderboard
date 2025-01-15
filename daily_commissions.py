@@ -106,9 +106,10 @@ def calculate_daily_commissions(server):
                     amount = float(commission.split()[0])
 
                     # Répartition des commissions
-                    croupier_share = float(amount * 0.40)  # 40% pour le croupier
-                    investment_share = float(amount * 0.10)  # 10% pour l'investissement
-                    # Note: Les 50% restants sont pour les VIP
+                    total_amount = float(amount)
+                    vip_share = total_amount * 0.50  # 50% pour les VIP
+                    investment_share = total_amount * 0.10  # 10% pour les charges/investissement
+                    croupier_share = total_amount * 0.40  # 40% pour le croupier
 
                 except ValueError:
                     amount = 0
