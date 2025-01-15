@@ -109,7 +109,8 @@ def calculate_daily_commissions(server):
     """Calcule les commissions journalières pour un serveur"""
     try:
         today = datetime.now().strftime('%Y-%m-%d')
-        server_data = db.get(f"LB/{server}/{today}", {})
+        history_key = f"COMMISSION/{server}/{today}"
+        server_data = db.get(history_key, {})
         if not server_data:
             return {
                 "date": get_today_timestamp(),
