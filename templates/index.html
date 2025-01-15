@@ -97,7 +97,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.is_forbidden) {
-                        return Promise.resolve('Utilisateur interdit');
+                        return 'Utilisateur interdit';
                     }
                     // Si non interdit, récupère le statut VIP
                     return fetch(`/api/vip_status?user_id=${userId}&server=${server}`)

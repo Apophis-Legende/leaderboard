@@ -234,11 +234,13 @@ def load_forbidden_vip_users():
     Charge les utilisateurs interdits depuis Replit DB.
     """
     try:
-        forbidden_users = db.get("forbidden_vip_users")
-        if forbidden_users is None or not isinstance(forbidden_users, dict):
+        # Charger les utilisateurs interdits
+        forbidden_users = db.get("forbidden_vip_users", {})
+        if forbidden_users is None:
+            # Initialisation si les données n'existent pas
             db["forbidden_vip_users"] = {}
             return {}
-        return forbidden_users
+        return dict(forbidden_users)
     except Exception as e:
         print(f"⚠️ Erreur lors du chargement des utilisateurs interdits : {e}")
         return {}
