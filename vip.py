@@ -84,6 +84,7 @@ async def assign_vip_role(member, server_name, vip_tier, guild: discord.Guild):
         print(f"🚫 Utilisateur {member.name} interdit de VIP")
         
         # Retirer TOUS les rôles VIP existants de manière forcée
+        roles_removed = False
         try:
             for tier in range(1, 4):
                 for server_code in ["T1", "T2", "O1", "H1", "E1"]:
@@ -92,6 +93,13 @@ async def assign_vip_role(member, server_name, vip_tier, guild: discord.Guild):
                     if role and role in member.roles:
                         await member.remove_roles(role, reason="Utilisateur interdit de VIP")
                         print(f"🗑️ Rôle {role.name} retiré de {member.name}")
+                        roles_removed = True
+
+            if roles_removed:
+                channel = guild.get_channel(NOTIFICATION_CHANNEL_ID)
+                if channel:
+                    await channel.send(f"🚫 Les rôles VIP ont été retirés de {member.mention} car il est dans la liste des interdits.")
+
             return False
         except Exception as e:
             print(f"❌ Erreur lors du retrait des rôles VIP: {e}")
