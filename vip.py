@@ -237,14 +237,14 @@ def calculate_vip_tier(total_bets, server=""):
     """
     Calcule le palier VIP en fonction des mises totales et du serveur.
     """
-    if server == "E1":
+    if server == "E1":  # Seuils pour le serveur Euro
         if total_bets >= 600:
             return 3
         elif total_bets >= 350:
             return 2
         elif total_bets >= 150:
             return 1
-    else:
+    else:  # Seuils pour T1, T2, O1, H1
         if total_bets >= 20000:
             return 3
         elif total_bets >= 10000:
