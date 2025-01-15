@@ -78,10 +78,19 @@ async def assign_vip_role(member, server_name, vip_tier, guild: discord.Guild):
     """
     print(f"🔍 Attribution du rôle VIP pour {member.name} (ID : {member.id})")
 
-    # Charger les utilisateurs interdits depuis Replit DB
+    # Vérifier si l'utilisateur est interdit
     forbidden_users = load_forbidden_vip_users()
     if str(member.id) in forbidden_users:
         print(f"🚫 Utilisateur {member.name} interdit de VIP")
+        
+        # Retirer tous les rôles VIP existants
+        for tier in range(1, 4):  # VIP 1 à 3
+            for server_code in ["T1", "T2", "O1", "H1", "E1"]:
+                role_name = VIP_ROLE_MAPPING[tier][server_code]
+                role = discord.utils.get(member.guild.roles, name=role_name)
+                if role and role in member.roles:
+                    await member.remove_roles(role)
+                    print(f"🗑️ Rôle {role.name} retiré de {member.name}")
         return
 
     role_name = VIP_ROLE_MAPPING.get(vip_tier, {}).get(server_name, None)
