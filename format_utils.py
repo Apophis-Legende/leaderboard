@@ -45,7 +45,7 @@ def get_highest_vip(user_id, server):
             else:
                 return {"vip_level": 0}
         else:  # Autres serveurs
-            if total_bets >= 20000:
+            if total_bets >= 15000:
                 return {"vip_level": 3}
             elif total_bets >= 10000:
                 return {"vip_level": 2}
@@ -63,7 +63,7 @@ def get_highest_vip(user_id, server):
 VIP_TIERS = {
     1: 4000,  # 4000 jetons
     2: 10000, # 10000 jetons
-    3: 20000  # 20000 jetons
+    3: 15000  # 20000 jetons
 }
 
 
