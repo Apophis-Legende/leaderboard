@@ -94,14 +94,21 @@ def calculate_daily_commissions(server):
     """Calcule les commissions journalières pour un serveur"""
     try:
         today = datetime.now().strftime('%Y-%m-%d')
-        history_key = f"LB/{server}/{today}"  # Utilisation de LB/{server}/{today}
-        server_data = db.get(history_key, {})
-        if not server_data:
-            return {
+        history_key = f"LB/{server}/{today}"
+        print(f"🔍 Tentative de lecture des données pour {history_key}")
+        
+        server_data = db.get(history_key)
+        if server_data is None:
+            print(f"⚠️ Aucune donnée trouvée pour {history_key}")
+            default_data = {
                 "date": get_today_timestamp(),
                 "total": 0,
                 "croupiers": {}
             }
+            db[history_key] = default_data
+            return default_data
+            
+        print(f"✅ Données trouvées pour {history_key}: {server_data}")
 
         croupiers = server_data.get("croupiers", {})
         today_timestamp = get_today_timestamp()
@@ -117,11 +124,21 @@ def calculate_daily_commissions(server):
             commission = data.get("total_commission", "0 jetons")
             if isinstance(commission, str):
                 try:
-                    # Extraction du montant numérique
-                    amount = float(commission.split()[0])
-
-                    # Répartition des commissions
-                    total_amount = float(amount)
+                    # Extraction du montant numérique avec vérification
+                    try:
+                        commission_parts = commission.split()
+                        if not commission_parts:
+                            print(f"⚠️ Format de commission invalide: {commission}")
+                            continue
+                            
+                        amount = float(commission_parts[0])
+                        print(f"✅ Montant extrait: {amount}")
+                        
+                        # Répartition des commissions
+                        total_amount = float(amount)
+                    except (ValueError, IndexError) as e:
+                        print(f"❌ Erreur lors de l'extraction du montant: {e}")
+                        continue
                     vip_share = total_amount * 0.50  # 50% pour les VIP
                     investment_share = total_amount * 0.10  # 10% pour les charges/investissement
                     croupier_share = total_amount * 0.40  # 40% pour le croupier
