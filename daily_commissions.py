@@ -201,7 +201,12 @@ def calculate_daily_commissions(server):
         db[history_key] = daily_commissions
 
         # Réinitialiser les commissions journalières pour les croupiers
-
+        for croupier in croupiers.values():
+            croupier["daily_commission"] = "0 jetons"
+        db[history_key] = server_data
+        
+        print(f"✅ Commissions calculées pour {server} - {today}")
+        return daily_commissions
 
 def extract_commission_data(data):
     """Extrait les données de commission"""
@@ -234,10 +239,6 @@ def extract_commission_data(data):
     except Exception as e:
         print(f"❌ Erreur lors de l'extraction des données de commission : {e}")
         return None
-
-        for croupier in croupiers.values():
-            croupier["daily_commission"] = "0 jetons"
-        db[history_key] = server_data
 
         print(f"✅ Commissions calculées pour {server} - {today}")
         return daily_commissions
