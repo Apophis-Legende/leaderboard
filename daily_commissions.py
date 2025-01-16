@@ -201,6 +201,40 @@ def calculate_daily_commissions(server):
         db[history_key] = daily_commissions
 
         # Réinitialiser les commissions journalières pour les croupiers
+
+
+def extract_commission_data(data):
+    """Extrait les données de commission"""
+    try:
+        commission_data = {
+            "total": 0,
+            "croupiers": {},
+            "details": []
+        }
+
+        # Extraction des données des croupiers
+        for host_id, host_data in data.get("hôtes", {}).items():
+            commission = host_data.get("total_commission", "0 jetons")
+            if isinstance(commission, str):
+                try:
+                    amount = float(commission.split()[0])
+                    commission_data["croupiers"][host_id] = {
+                        "username": host_data.get("username", "Unknown"),
+                        "commission": amount,
+                        "role": host_data.get("role", "standard")
+                    }
+                    commission_data["total"] += amount
+                except ValueError:
+                    print(f"❌ Erreur de conversion pour la commission de {host_id}")
+
+        # Extraction des détails
+        commission_data["details"] = data.get("commissions", {}).get("details", [])
+        
+        return commission_data
+    except Exception as e:
+        print(f"❌ Erreur lors de l'extraction des données de commission : {e}")
+        return None
+
         for croupier in croupiers.values():
             croupier["daily_commission"] = "0 jetons"
         db[history_key] = server_data
