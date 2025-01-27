@@ -1039,6 +1039,23 @@ async def test_commission_channels(interaction: discord.Interaction):
     except Exception as e:
         await interaction.followup.send(f"❌ Erreur : {e}")
 
+@bot.tree.command(name="rapport", description="Affiche le rapport journalier d'un serveur")
+@is_admin()
+@is_in_guild()
+@app_commands.describe(server="Serveur (T1, T2, O1, H1, E1)")
+async def rapport(interaction: discord.Interaction, server: str):
+    """Affiche le rapport journalier pour un serveur spécifique"""
+    await interaction.response.defer()
+    try:
+        from daily_report import generate_daily_report
+        if server not in ["T1", "T2", "O1", "H1", "E1"]:
+            await interaction.followup.send("❌ Serveur invalide. Utilisez : T1, T2, O1, H1 ou E1")
+            return
+        rapport = generate_daily_report(server)
+        await interaction.followup.send(rapport)
+    except Exception as e:
+        await interaction.followup.send(f"❌ Erreur : {e}")
+
 @bot.tree.command(name="test_lasboard", description="Teste l'envoi du flamboard")
 @is_admin()
 @is_in_guild()
