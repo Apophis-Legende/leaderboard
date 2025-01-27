@@ -55,6 +55,9 @@ async def process_giveaway_data(raw_data, channel):
     Traite les données brutes d'un giveaway et met à jour le fichier JSON du serveur concerné.
     """
     try:
+        from datetime import datetime
+        today = datetime.now().strftime('%Y-%m-%d')
+        
         if "giveaway" not in raw_data or "winners" not in raw_data or "entries" not in raw_data:
             raise KeyError("Les clés 'giveaway', 'winners' ou 'entries' sont manquantes dans les données.")
             
@@ -89,6 +92,7 @@ async def process_giveaway_data(raw_data, channel):
         server_data["commission_totale"] = format_amount(previous_total_commission + commission_total)
 
         server_data["nombre_de_jeux"] += 1
+        server_data["derniere_mise_a_jour"] = today
 
         for winner in raw_data["winners"]:
             user_id = winner["id"]
