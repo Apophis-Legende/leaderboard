@@ -63,7 +63,8 @@ def format_daily_report(server, stats):
     croupiers_card = "```\n╔══════════════════════════════════════════\n║           Détails Croupiers              \n╠══════════════════════════════════════════"
     
     for croupier_id, data in stats['croupiers'].items():
-        croupiers_card += f"\n║ 👤 {data['username']}\n║ 💸 Commission: {format_kamas(f'{data['commission']} jetons', is_euro)}\n║ 📋 Rôle: {data['role']}\n║ ──────────────────────────────────────────"
+        commission_str = f"{data.get('commission', 0)} jetons"
+        croupiers_card += f"\n║ 👤 {data.get('username', 'Inconnu')}\n║ 💸 Commission: {format_kamas(commission_str, is_euro)}\n║ 📋 Rôle: {data.get('role', 'standard')}\n║ ──────────────────────────────────────────"
     
     croupiers_card += "\n╚══════════════════════════════════════════```"
     
