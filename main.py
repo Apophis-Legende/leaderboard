@@ -501,10 +501,6 @@ async def retrieve_previous_message_with_summary(channel):
     """
     print("🔍 Recherche des messages récents avec un résumé de giveaway...")
     try:
-        # Obtenir la date du jour
-        today = datetime.now().strftime('%Y-%m-%d')
-        print(f"📅 Date du giveaway: {today}")
-        
         # Parcourt les 50 derniers messages dans le canal
         async for msg in channel.history(limit=50):
             if hasattr(msg, "components") and msg.components:
@@ -515,8 +511,7 @@ async def retrieve_previous_message_with_summary(channel):
                         if button.label and button.label.lower() == "giveaway summary":
                             if button.url:
                                 print(f"🌐 Bouton 'Giveaway Summary' trouvé : {button.url}")
-                                today = datetime.now().strftime('%Y-%m-%d')
-                                await download_json_from_summary(button.url, channel, today)
+                                await download_json_from_summary(button.url, channel)
                                 return
                             else:
                                 print("⚠️ Bouton 'Giveaway Summary' trouvé, mais l'URL est absente.")
