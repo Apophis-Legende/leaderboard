@@ -416,7 +416,15 @@ async def on_message(message):
     # Vérifier si un gagnant a été annoncé
     if "won the" in message.content.lower():
         print("🎉 Un gagnant a été détecté dans le message.")
-        await retrieve_previous_message_with_summary(message.channel)
+        # Vérifie si le message a déjà été traité dans les dernières secondes
+        last_processed = getattr(bot, 'last_processed_giveaway', 0)
+        current_time = time.time()
+        
+        if current_time - last_processed > 5:  # 5 secondes entre chaque traitement
+            bot.last_processed_giveaway = current_time
+            await retrieve_previous_message_with_summary(message.channel)
+        else:
+            print("🔄 Ignorer le traitement en double du giveaway")
 
         try:
             # Extraire la partie contenant le serveur depuis le message
