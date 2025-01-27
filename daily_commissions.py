@@ -131,6 +131,10 @@ def calculate_daily_commissions(server):
                     amount = float(commission_parts[0])
                     print(f"✅ Montant extrait: {amount}")
 
+                    # Pour le serveur E1, on traite déjà en euros
+                    if server == "E1":
+                        amount = amount  # Garder le montant tel quel pour E1
+                    
                     # Répartition des commissions
                     total_amount = float(amount)
                     vip_share = total_amount * 0.50
