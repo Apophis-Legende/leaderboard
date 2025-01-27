@@ -441,6 +441,7 @@ async def on_message(message):
             print(f"❌ Erreur lors de l'extraction des informations VIP : {e}")
             await message.channel.send("⚠️ Impossible de déterminer le serveur pour la mise à jour VIP.")
 
+
 async def update_vip_status(json_file, channel):
     """
     Met à jour les statuts VIP pour un fichier JSON donné.

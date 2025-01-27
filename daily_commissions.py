@@ -96,7 +96,7 @@ def calculate_daily_commissions(server):
         today = datetime.now().strftime('%Y-%m-%d')
         history_key = f"LB/{server}/{today}"
         print(f"🔍 Tentative de lecture des données pour {history_key}")
-        
+
         server_data = db.get(history_key)
         if server_data is None:
             print(f"⚠️ Aucune donnée trouvée pour {history_key}")
@@ -107,10 +107,9 @@ def calculate_daily_commissions(server):
             }
             db[history_key] = default_data
             return default_data
-            
+
         print(f"✅ Données trouvées pour {history_key}: {server_data}")
 
-        croupiers = server_data.get("croupiers", {})
         today_timestamp = get_today_timestamp()
         daily_commissions = {
             "date": today_timestamp,
@@ -124,89 +123,41 @@ def calculate_daily_commissions(server):
             commission = data.get("total_commission", "0 jetons")
             if isinstance(commission, str):
                 try:
-                    # Extraction du montant numérique avec vérification
-                    try:
-                        commission_parts = commission.split()
-                        if not commission_parts:
-                            print(f"⚠️ Format de commission invalide: {commission}")
-                            continue
-                            
-                        amount = float(commission_parts[0])
-                        print(f"✅ Montant extrait: {amount}")
-                        
-                        # Répartition des commissions
-                        total_amount = float(amount)
-                    except (ValueError, IndexError) as e:
-                        print(f"❌ Erreur lors de l'extraction du montant: {e}")
+                    commission_parts = commission.split()
+                    if not commission_parts:
+                        print(f"⚠️ Format de commission invalide: {commission}")
                         continue
-                    vip_share = total_amount * 0.50  # 50% pour les VIP
-                    investment_share = total_amount * 0.10  # 10% pour les charges/investissement
-                    croupier_share = total_amount * 0.40  # 40% pour le croupier
 
-                except ValueError:
-                    amount = 0
-                    croupier_share = 0
-                    investment_share = 0
+                    amount = float(commission_parts[0])
+                    print(f"✅ Montant extrait: {amount}")
 
-                # 50% pour les VIP (géré par commission_calculator.py)
+                    # Répartition des commissions
+                    total_amount = float(amount)
+                    vip_share = total_amount * 0.50
+                    investment_share = total_amount * 0.10
+                    croupier_share = total_amount * 0.40
 
-                # Sauvegarder la part investissement
-                if "investment_share" not in server_data:
-                    server_data["investment_share"] = "0 jetons"
-                if server == "E1":
-                    current_investment = float(server_data["investment_share"].split()[0])
-                    server_data["investment_share"] = f"{current_investment + investment_share:.2f} jetons"
-                else:
-                    current_investment = int(server_data["investment_share"].split()[0])
-                    server_data["investment_share"] = f"{current_investment + investment_share} jetons"
-
-                # Formatter le montant selon le serveur
-                if server == "E1":
-                    formatted_amount = f"{croupier_share:.2f}€"
-                else:
-                    kamas = croupier_share * 10000
-                    if kamas >= 1000000:
-                        millions = kamas / 1000000
-                        whole = int(millions)
-                        decimal = int((millions - whole) * 10)
-                        formatted_amount = f"{whole}M{decimal} Kamas" if decimal else f"{whole}M Kamas"
-                    else:
-                        formatted_amount = f"{kamas // 1000}K Kamas"
-
-                # Formatage spécial pour E1
-                if server == "E1":
-                    display_commission = f"{croupier_share:.2f}"
-                    formatted_amount = f"{croupier_share:.2f}€"
-                else:
-                    display_commission = str(croupier_share)
-                    kamas = croupier_share * 10000
-                    if kamas >= 1000000:
-                        millions = kamas / 1000000
-                        whole = int(millions)
-                        decimal = int((millions - whole) * 10)
-                        formatted_amount = f"{whole}M{decimal} Kamas" if decimal else f"{whole}M Kamas"
-                    else:
-                        formatted_amount = f"{kamas // 1000}K Kamas"
+                except (ValueError, IndexError) as e:
+                    print(f"❌ Erreur lors de l'extraction du montant: {e}")
+                    continue
 
                 # Ajouter les commissions calculées aux données journalières
                 daily_commissions["croupiers"][host_id] = {
                     "username": data.get("username", "Unknown"),
-                    "commission": display_commission,
-                    "formatted_commission": formatted_amount,
+                    "commission": f"{croupier_share:.2f}",
                     "role": data.get("role", "standard")
                 }
-                daily_commissions["total"] += float(croupier_share)
+                daily_commissions["total"] += croupier_share
 
         # Sauvegarder dans LB/{server}/{today}
         db[history_key] = daily_commissions
-
-        # Réinitialiser les commissions journalières pour les croupiers
-        for croupier in croupiers.values():
-            croupier["daily_commission"] = "0 jetons"
-        db[history_key] = server_data
-        
         print(f"✅ Commissions calculées pour {server} - {today}")
         return daily_commissions
+
+    except Exception as e:
+        print(f"❌ Erreur lors du calcul des commissions pour {server}: {e}")
+        return None
+
 
 def extract_commission_data(data):
     """Extrait les données de commission"""
@@ -234,18 +185,13 @@ def extract_commission_data(data):
 
         # Extraction des détails
         commission_data["details"] = data.get("commissions", {}).get("details", [])
-        
+
         return commission_data
     except Exception as e:
         print(f"❌ Erreur lors de l'extraction des données de commission : {e}")
         return None
 
-        print(f"✅ Commissions calculées pour {server} - {today}")
-        return daily_commissions
 
-    except Exception as e:
-        print(f"❌ Erreur lors du calcul des commissions pour {server}: {e}")
-        return None
 
 
 
