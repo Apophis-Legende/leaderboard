@@ -44,9 +44,9 @@ def calculate_host_stats(host_id):
                 total_bets = int(user_data['total_bets'].split()[0])
                 # Séparation des commissions Euro et Kamas
                 if server == 'E1':
-                    total_stats['commission_from_participation_euro'] += int(total_bets * 0.05)
+                    total_stats['commission_from_participation_euro'] += int(total_bets * 0.052631578947368)
                 else:
-                    total_stats['commission_from_participation'] += int(total_bets * 0.05)
+                    total_stats['commission_from_participation'] += int(total_bets * 0.052631578947368)
 
         except Exception as e:
             print(f"❌ Erreur lecture données {server}: {e}")
