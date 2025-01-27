@@ -25,7 +25,7 @@ def get_highest_vip(user_id, server):
         # Vérifier si l'utilisateur existe
         users = server_data.get("utilisateurs", {})
         user_data = users.get(str(user_id))
-        
+
         if not user_data:
             print(f"❌ Utilisateur {user_id} non trouvé dans {server}")
             return {"vip_level": 0}
@@ -73,15 +73,13 @@ def format_kamas(jetons_amount, is_euro=False):
         amount = float(jetons_amount.split(' ')[0])
         if is_euro:
             return f"{amount:.2f}€"
-            
+
         kamas = amount * 10000  # 1 jeton = 10k kamas
         if kamas >= 1000000:
             millions = kamas/1000000
-            whole = int(millions)
-            decimal = int((millions - whole) * 10)
-            if decimal == 0:
-                return f"{whole}M Kamas"
-            return f"{whole}M{decimal} Kamas"
+            if millions.is_integer():
+                return f"{int(millions)}M Kamas"
+            return f"{millions:.1f}M Kamas"
         return f"{kamas//1000}K Kamas"
     except:
         return "0 Kamas" if not is_euro else "0.00€"
