@@ -48,11 +48,12 @@ def format_daily_report(server, stats):
     }
     
     is_euro = server == 'E1'
+    server_name = server_names.get(server, server)
     
     # Carte principale
     main_card = f"""```
 ╔══════════════════════════════════════════
-║     Rapport Journalier - {server_names.get(server, server)}     
+║     Rapport Journalier - {server_name}     
 ╠══════════════════════════════════════════
 ║ 📅 Date: {datetime.now().strftime('%d/%m/%Y')}
 ║ 💰 Commission Totale: {format_kamas(f"{stats['total_commission']} jetons", is_euro)}
