@@ -75,7 +75,9 @@ async def process_giveaway_data(raw_data, channel):
                     await asyncio.sleep(3)  # Attendre 3 secondes
                     custom_message = get_random_winner_message(f"<@{winner_id}>", f"<@{loser['id']}>")
                     await channel.send(custom_message)
-                    print("✅ Message personnalisé envoyé avec succès")
+                    print(f"✅ Message personnalisé envoyé: {custom_message}")
+                except ImportError as e:
+                    print(f"❌ Erreur d'importation du module giveaway_messages: {e}")
                 except Exception as e:
                     print(f"❌ Erreur lors de l'envoi du message personnalisé: {e}")
             
