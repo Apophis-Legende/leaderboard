@@ -1058,74 +1058,78 @@ class ServerView(discord.ui.View):
 @bot.tree.command(name="lb", description="Affiche votre statut VIP et progression sur un serveur")
 async def check_lb(interaction: discord.Interaction):
     """Affiche le statut VIP et la progression d'un joueur"""
-    view = ServerView()
-    
-    async def select_callback(interaction: discord.Interaction):
-        server = interaction.data["values"][0]
-
-        from leaderboard_status import get_vip_status
-        from replit import db
-
-        # Vérifier d'abord si l'utilisateur est interdit
-        forbidden_users = db.get("forbidden_vip_users", {})
-        if str(interaction.user.id) in forbidden_users:
-            status = get_vip_status(interaction.user.id, server, 0)
-            embed = discord.Embed(
-                title=f"🎯 Statut VIP sur {server}",
-                color=discord.Color.gold()
-            )
-            embed.add_field(
-                name="💬 Message du jour",
-                value=status["message"],
-                inline=False
-            )
-            await interaction.followup.send(embed=embed)
-            return
-
-        # Récupérer les données du joueur
-        server_data = db.get(f"{server}.json", {})
-        user_data = server_data.get("utilisateurs", {}).get(str(interaction.user.id), {})
+    try:
+        view = ServerView()
         
-        if not user_data:
-            status = get_vip_status(interaction.user.id, server, 0)
+        async def select_callback(interaction: discord.Interaction):
+            server = interaction.data["values"][0]
+
+            from leaderboard_status import get_vip_status
+            from replit import db
+
+            # Vérifier d'abord si l'utilisateur est interdit
+            forbidden_users = db.get("forbidden_vip_users", {})
+            if str(interaction.user.id) in forbidden_users:
+                status = get_vip_status(interaction.user.id, server, 0)
+                embed = discord.Embed(
+                    title=f"🎯 Statut VIP sur {server}",
+                    color=discord.Color.gold()
+                )
+                embed.add_field(
+                    name="💬 Message du jour",
+                    value=status["message"],
+                    inline=False
+                )
+                await interaction.followup.send(embed=embed)
+                return
+
+            # Récupérer les données du joueur
+            server_data = db.get(f"{server}.json", {})
+            user_data = server_data.get("utilisateurs", {}).get(str(interaction.user.id), {})
+            
+            if not user_data:
+                status = get_vip_status(interaction.user.id, server, 0)
+                embed = discord.Embed(
+                    title=f"🎯 Statut VIP sur {server}",
+                    color=discord.Color.gold()
+                )
+                embed.add_field(
+                    name="💬 Message du jour",
+                    value=status["message"],
+                    inline=False
+                )
+                await interaction.followup.send(embed=embed)
+                return
+
+            total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
+            status = get_vip_status(interaction.user.id, server, total_bets)
+
+            # Créer l'embed
             embed = discord.Embed(
                 title=f"🎯 Statut VIP sur {server}",
                 color=discord.Color.gold()
             )
+
+            # Ajouter le message humoristique
             embed.add_field(
                 name="💬 Message du jour",
                 value=status["message"],
                 inline=False
             )
+
+            # Ajouter les informations de progression
+            embed.add_field(
+                name="📊 Progression",
+                value=f"Niveau VIP actuel : **{status['current_vip']}**\n" +
+                      (f"Prochain palier : **VIP {status['current_vip'] + 1}**\n" if status['next_threshold'] else "") +
+                      (f"Reste à gagner : **{format_kamas(str(status['remaining']), server=='E1')}**" if status['next_threshold'] else "🎉 Niveau maximum atteint !"),
+                inline=False
+            )
+
             await interaction.followup.send(embed=embed)
-            return
 
-        total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
-        status = get_vip_status(interaction.user.id, server, total_bets)
-
-        # Créer l'embed
-        embed = discord.Embed(
-            title=f"🎯 Statut VIP sur {server}",
-            color=discord.Color.gold()
-        )
-
-        # Ajouter le message humoristique
-        embed.add_field(
-            name="💬 Message du jour",
-            value=status["message"],
-            inline=False
-        )
-
-        # Ajouter les informations de progression
-        embed.add_field(
-            name="📊 Progression",
-            value=f"Niveau VIP actuel : **{status['current_vip']}**\n" +
-                  (f"Prochain palier : **VIP {status['current_vip'] + 1}**\n" if status['next_threshold'] else "") +
-                  (f"Reste à gagner : **{format_kamas(str(status['remaining']), server=='E1')}**" if status['next_threshold'] else "🎉 Niveau maximum atteint !"),
-            inline=False
-        )
-
-        await interaction.followup.send(embed=embed)
+        await interaction.response.send_message("Choisissez un serveur:", view=view)
+        view.children[0].callback = select_callback
 
     except Exception as e:
         print(f"❌ Erreur dans la commande lb: {e}")
