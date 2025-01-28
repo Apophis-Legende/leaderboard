@@ -1042,13 +1042,18 @@ async def test_commission_channels(interaction: discord.Interaction):
 class ServerSelect(discord.ui.Select):
     def __init__(self):
         options = [
-            discord.SelectOption(label="Tiliwan 1", value="T1", emoji="1️⃣"),
-            discord.SelectOption(label="Tiliwan 2", value="T2", emoji="2️⃣"),
-            discord.SelectOption(label="Oshimo", value="O1", emoji="🎯"),
-            discord.SelectOption(label="Herdegrize", value="H1", emoji="🎲"),
-            discord.SelectOption(label="Euro", value="E1", emoji="💶")
+            discord.SelectOption(label="Tiliwan 1", value="T1", emoji="1️⃣", description="Serveur Tiliwan 1"),
+            discord.SelectOption(label="Tiliwan 2", value="T2", emoji="2️⃣", description="Serveur Tiliwan 2"),
+            discord.SelectOption(label="Oshimo", value="O1", emoji="🎯", description="Serveur Oshimo"),
+            discord.SelectOption(label="Herdegrize", value="H1", emoji="🎲", description="Serveur Herdegrize"),
+            discord.SelectOption(label="Euro", value="E1", emoji="💶", description="Serveur Euro")
         ]
-        super().__init__(placeholder="Sélectionnez un serveur", options=options)
+        super().__init__(
+            placeholder="👉 Cliquez pour choisir un serveur",
+            min_values=1,
+            max_values=1,
+            options=options
+        )
 
 class ServerView(discord.ui.View):
     def __init__(self):
