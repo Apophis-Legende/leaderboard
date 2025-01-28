@@ -16,6 +16,21 @@ VIP_THRESHOLDS = {
     }
 }
 
+# Messages spéciaux pour les croupiers et utilisateurs sans données
+CROUPIER_MESSAGES = [
+    "Hey le croupier ! Tu veux pas plutôt distribuer des cartes au lieu de chercher des VIP ? 🎲",
+    "Un croupier qui veut devenir VIP ? C'est comme un poisson qui veut apprendre à voler ! 🐠",
+    "T'es croupier mon reuf, tu gagnes déjà assez de kamas comme ça ! 💸",
+    "Reste à ta table de jeu, c'est là que tu brilles le plus ! ✨"
+]
+
+NO_DATA_MESSAGES = [
+    "Tu cherches tes données comme un joueur cherche ses kamas après une défaite ! 🔍",
+    "Tes données sont aussi vides que ta bourse de kamas ! 💰",
+    "On a rien trouvé... comme tes chances de gagner au poker ! 🎰",
+    "Données introuvables... T'as vérifié sous ton tapis ? 🧐"
+]
+
 VIP_MESSAGES = {
     0: [
         "Ah... Je vois que tu es aussi riche que mon compte en banque un lendemain de sortie ! 😅",
@@ -50,6 +65,25 @@ VIP_MESSAGES = {
 
 def get_vip_status(user_id, server, total_bets):
     """Calculate VIP status and next threshold for a user"""
+    # Vérifier si l'utilisateur est un croupier
+    forbidden_users = db.get("forbidden_vip_users", {})
+    if str(user_id) in forbidden_users:
+        return {
+            "current_vip": None,
+            "message": random.choice(CROUPIER_MESSAGES),
+            "next_threshold": None,
+            "remaining": 0
+        }
+
+    # Vérifier si l'utilisateur a des données
+    if total_bets == 0:
+        return {
+            "current_vip": None,
+            "message": random.choice(NO_DATA_MESSAGES),
+            "next_threshold": None,
+            "remaining": 0
+        }
+
     server_code = SERVER_MAPPING.get(server, server)
     thresholds = VIP_THRESHOLDS["E1"] if server_code == "E1" else VIP_THRESHOLDS["default"]
     
