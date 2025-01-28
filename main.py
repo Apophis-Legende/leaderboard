@@ -418,13 +418,14 @@ async def on_message(message):
         print("🎉 Un gagnant a été détecté dans le message.")
         
         try:
-            # Extraire le gagnant (maintenant avec @mention)
-            winner = None
-            if "<@" in message.content:
+            # Extraire le gagnant
+            if "**" in message.content:
+                winner = message.content.split("**")[1]
+            elif "<@" in message.content:
                 winner = message.content.split("<@")[1].split(">")[0]
                 winner = f"<@{winner}>"
             else:
-                winner = message.content.split("**")[1]
+                winner = message.content.split("Congratulations")[1].split("won")[0].strip()
 
             print(f"👑 Gagnant extrait: {winner}")
             
