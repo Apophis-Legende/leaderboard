@@ -418,14 +418,14 @@ async def on_message(message):
         print("🎉 Un gagnant a été détecté dans le message.")
         
         try:
-            # Extraire le gagnant avec gestion améliorée
-            winner = None
-            # Extraction du gagnant avec mention
+            # D'abord récupérer les données du giveaway
+            await retrieve_previous_message_with_summary(message.channel)
+            
+            # Ensuite extraire le gagnant
             winner = None
             if "<@" in message.content:
                 winner_id = message.content.split("<@")[1].split(">")[0]
                 winner = f"<@{winner_id}>"
-            # Si pas de mention, essayer avec le format Congratulations
             elif "Congratulations" in message.content:
                 winner = message.content.split("Congratulations")[1].split("won")[0].strip()
 
