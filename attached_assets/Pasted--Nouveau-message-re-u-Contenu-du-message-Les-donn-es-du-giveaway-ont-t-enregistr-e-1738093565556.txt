@@ -1,0 +1,47 @@
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : 🎉 Les données du giveaway ont été enregistrées !
+👤 Auteur : L'as Board#2618 (ID : 1291805139430146099)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : 🎉 Les données du giveaway ont été enregistrées !
+👤 Auteur : L'as Board#2618 (ID : 1291805139430146099)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+📝 Serveur détecté pour VIP : E1
+🔄 Mise à jour des statuts VIP pour le serveur E1 en cours...
+🔄 Lecture des données pour le serveur : E1...
+✅ Données chargées: ObservedDict(value={'serveur': 'E1', 'nombre_de_jeux': 1, 'mises_totales_avant_commission': '1600 jetons', 'gains_totaux': '1140 jetons', 'commission_totale': '40 jetons', 'utilisateurs': ObservedDict(value={'928329400666173520': ObservedDict(value={'username': 'apophislegende', 'total_wins': '380 jetons', 'total_losses': '0 jetons', 'total_bets': '200 jetons', 'participation': 1}), '713416677072568331': ObservedDict(value={'username': 'tktpaszebi', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0}), '443437067788091392': ObservedDict(value={'username': 'thael7457', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0}), '880919250758410330': ObservedDict(value={'username': 'merlinout', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0}), '1171906215002001510': ObservedDict(value={'username': 'bellache.', 'total_wins': '0 jetons', 'total_losses': '200 jetons', 'total_bets': '200 jetons', 'participation': 1})}), 'hôtes': ObservedDict(value={'928329400666173520': ObservedDict(value={'username': 'apophislegende', 'total_bets': '400 jetons', 'total_commission': '20 jetons', 'total_giveaways': 12})}), 'croupiers': ObservedDict(value={}), 'derniere_mise_a_jour': '2025-01-28'})
+🔍 Utilisateurs trouvés : ObservedDict(value={'928329400666173520': ObservedDict(value={'username': 'apophislegende', 'total_wins': '380 jetons', 'total_losses': '0 jetons', 'total_bets': '200 jetons', 'participation': 1}), '713416677072568331': ObservedDict(value={'username': 'tktpaszebi', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0}), '443437067788091392': ObservedDict(value={'username': 'thael7457', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0}), '880919250758410330': ObservedDict(value={'username': 'merlinout', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0}), '1171906215002001510': ObservedDict(value={'username': 'bellache.', 'total_wins': '0 jetons', 'total_losses': '200 jetons', 'total_bets': '200 jetons', 'participation': 1})})
+🔍 Utilisateur 928329400666173520 : ObservedDict(value={'username': 'apophislegende', 'total_wins': '380 jetons', 'total_losses': '0 jetons', 'total_bets': '200 jetons', 'participation': 1})
+🔍 Attribution du rôle VIP pour apophislegende (ID : 928329400666173520)
+🚫 Utilisateur apophislegende interdit de VIP
+🔍 Utilisateur 713416677072568331 : ObservedDict(value={'username': 'tktpaszebi', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0})
+🔍 Utilisateur 443437067788091392 : ObservedDict(value={'username': 'thael7457', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0})
+🔍 Utilisateur 880919250758410330 : ObservedDict(value={'username': 'merlinout', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0})
+🔍 Utilisateur 1171906215002001510 : ObservedDict(value={'username': 'bellache.', 'total_wins': '0 jetons', 'total_losses': '200 jetons', 'total_bets': '200 jetons', 'participation': 1})
+🔍 Attribution du rôle VIP pour bellache. (ID : 1171906215002001510)
+🚫 Utilisateur bellache. interdit de VIP
+✅ Mise à jour des statuts VIP pour le serveur E1.json terminée.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : jai des k pour toi
+👤 Auteur : bellache. (ID : 1171906215002001510)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+172.31.196.14 - - [28/Jan/2025 19:45:35] "GET /static/banner.png HTTP/1.1" 304 -
+172.31.196.14 - - [28/Jan/2025 19:45:35] "GET /static/background.jpg HTTP/1.1" 304 -
+🔍 Requête pour le fichier JSON : T1.json
+🔍 Tentative de connexion à la base de données Replit...
+✅ Connexion à la base de données Replit réussie
+✅ Données chargées: {'serveur': 'T1', 'nombre_de_jeux': 0, 'mises_totales_avant_commission': '0 jetons', 'gains_totaux': '0 jetons', 'commission_totale': '0 jetons', 'utilisateurs': {}, 'hôtes': {}, 'croupiers': {}}
+172.31.196.14 - - [28/Jan/2025 19:45:53] "GET /api/leaderboard?server=Tiliwan1&t=1738093553008 HTTP/1.1" 200 -
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : Ta trouvé le glitxh pour full win ,
+👤 Auteur : fatchoudou (ID : 795586989067075594)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : Envoie
+👤 Auteur : fatchoudou (ID : 795586989067075594)
+🔄 Ignoré : ce message ne provient pas du bot cible.
