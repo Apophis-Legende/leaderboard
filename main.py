@@ -1118,7 +1118,7 @@ async def check_lb(interaction: discord.Interaction, server: app_commands.Choice
                 name="📊 Progression",
                 value=f"Niveau VIP actuel : **{status['current_vip']}**\n" +
                       (f"Prochain palier : **VIP {status['current_vip'] + 1}**\n" if status['next_threshold'] else "") +
-                      (f"Reste à gagner : **{status['remaining']}**" if status['next_threshold'] else "🎉 Niveau maximum atteint !"),
+                      (f"Reste à miser : **{status['remaining']}**" if status['next_threshold'] else "🎉 Niveau maximum atteint !"),
                 inline=False
             )
 
