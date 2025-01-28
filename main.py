@@ -447,10 +447,12 @@ async def on_message(message):
                     try:
                         loser = loser_entry.split(". ")[1].split(" (")[0].strip()
                         print(f"😢 Perdant sélectionné: {loser}")
-                            
-                            # Importer et utiliser le message personnalisé
+
+                        # Importer et utiliser le message personnalisé
                         from giveaway_messages import get_random_winner_message
                         custom_message = get_random_winner_message(winner, loser)
+                        await message.channel.send(custom_message)
+                        print("✅ Message humoristique envoyé avec succès")
                         
                         # Envoi du message avec gestion d'erreur améliorée
                         try:
