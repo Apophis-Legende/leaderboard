@@ -1039,16 +1039,29 @@ async def test_commission_channels(interaction: discord.Interaction):
     except Exception as e:
         await interaction.followup.send(f"❌ Erreur : {e}")
 
-@bot.tree.command(name="lb", description="Affiche votre statut VIP et progression sur un serveur")
-@app_commands.describe(server="Serveur (T1, T2, O1, H1, E1)")
-async def check_lb(interaction: discord.Interaction, server: str):
-    """Affiche le statut VIP et la progression d'un joueur"""
-    await interaction.response.defer()
+class ServerSelect(discord.ui.Select):
+    def __init__(self):
+        options = [
+            discord.SelectOption(label="Tiliwan 1", value="T1", emoji="1️⃣"),
+            discord.SelectOption(label="Tiliwan 2", value="T2", emoji="2️⃣"),
+            discord.SelectOption(label="Oshimo", value="O1", emoji="🎯"),
+            discord.SelectOption(label="Herdegrize", value="H1", emoji="🎲"),
+            discord.SelectOption(label="Euro", value="E1", emoji="💶")
+        ]
+        super().__init__(placeholder="Sélectionnez un serveur", options=options)
 
-    try:
-        if server not in ["T1", "T2", "O1", "H1", "E1"]:
-            await interaction.followup.send("❌ Serveur invalide. Utilisez : T1, T2, O1, H1 ou E1")
-            return
+class ServerView(discord.ui.View):
+    def __init__(self):
+        super().__init__()
+        self.add_item(ServerSelect())
+
+@bot.tree.command(name="lb", description="Affiche votre statut VIP et progression sur un serveur")
+async def check_lb(interaction: discord.Interaction):
+    """Affiche le statut VIP et la progression d'un joueur"""
+    view = ServerView()
+    
+    async def select_callback(interaction: discord.Interaction):
+        server = interaction.data["values"][0]
 
         from leaderboard_status import get_vip_status
         from replit import db
