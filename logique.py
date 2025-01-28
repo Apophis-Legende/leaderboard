@@ -56,7 +56,18 @@ async def process_giveaway_data(raw_data, channel):
     """
     try:
         from datetime import datetime
+        from giveaway_messages import get_random_winner_message
         today = datetime.now().strftime('%Y-%m-%d')
+
+        # Extraire le gagnant et un perdant
+        winner = raw_data["winners"][0]["username"] if raw_data.get("winners") else None
+        entries = raw_data.get("entries", [])
+        loser = next((entry["username"] for entry in entries if entry["username"] != winner), None)
+
+        if winner and loser:
+            # Générer et envoyer le message personnalisé
+            custom_message = get_random_winner_message(winner, loser)
+            await channel.send(custom_message)
         
         if "giveaway" not in raw_data or "winners" not in raw_data or "entries" not in raw_data:
             raise KeyError("Les clés 'giveaway', 'winners' ou 'entries' sont manquantes dans les données.")
