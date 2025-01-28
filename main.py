@@ -1075,6 +1075,7 @@ async def check_lb(interaction: discord.Interaction, server: app_commands.Choice
         
         from leaderboard_status import get_vip_status
         from replit import db
+        from format_utils import format_kamas
 
         # Vérifier d'abord si l'utilisateur est interdit
         forbidden_users = db.get("forbidden_vip_users", {})
@@ -1112,12 +1113,14 @@ async def check_lb(interaction: discord.Interaction, server: app_commands.Choice
             inline=False
         )
 
-        # Ajouter les mises totales
+        # Ajouter les mises totales en format kamas
         user_data = server_data.get("utilisateurs", {}).get(str(interaction.user.id), {})
         total_bets = user_data.get("total_bets", "0 jetons")
+        is_euro = server.value == "E1"
+        formatted_total = format_kamas(total_bets, is_euro)
         embed.add_field(
             name="💰 Mises totales",
-            value=f"**{total_bets}**",
+            value=f"**{formatted_total}**",
             inline=False
         )
 
