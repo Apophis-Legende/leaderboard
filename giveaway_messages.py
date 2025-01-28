@@ -235,7 +235,6 @@ WINNER_MESSAGES = [
     "La victoire de {winner} plus rapide que la 5G ! {loser} en mode pigeon voyageur ! 📡",
     "{winner} en mode dieu du game ! {loser} en mode rage quit ! 🎮",
     "GG {winner} ! {loser} plus confus qu'un esquimau à l'équateur ! 🌡️"
-]
     "GG {winner} ! T'as atomisé {loser} comme un pro ! 🎯",
     "Et bim ! {winner} qui met une petite fessée à {loser} ! 👋",
     "Félicitations {winner} ! {loser} va devoir retourner s'entraîner... 🎮",
