@@ -1076,6 +1076,8 @@ async def check_lb(interaction: discord.Interaction, server: app_commands.Choice
     try:
         from leaderboard_status import get_vip_status
         from replit import db
+        
+        view = ServerView()
 
         # Vérifier d'abord si l'utilisateur est interdit
         forbidden_users = db.get("forbidden_vip_users", {})
