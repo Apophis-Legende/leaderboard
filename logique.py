@@ -73,7 +73,7 @@ async def process_giveaway_data(raw_data, channel):
                 from giveaway_messages import get_random_winner_message
                 await asyncio.sleep(3)  # Attendre 3 secondes
                 custom_message = get_random_winner_message(f"<@{winner_id}>", f"<@{loser['id']}>")
-                await channel.send(f"**```ansi\n\u001b[1;32m{custom_message}\u001b[0m\n```**")
+                await channel.send(custom_message)
             
         print("🔍 Données reçues:", raw_data)  # Debug log
 
