@@ -1061,19 +1061,37 @@ class ServerView(discord.ui.View):
         self.add_item(ServerSelect())
 
 @bot.tree.command(name="lb", description="Affiche votre statut VIP et progression sur un serveur")
-async def check_lb(interaction: discord.Interaction):
+@app_commands.describe(server="Sélectionnez un serveur")
+@app_commands.choices(server=[
+    app_commands.Choice(name="Tiliwan 1", value="T1"),
+    app_commands.Choice(name="Tiliwan 2", value="T2"),
+    app_commands.Choice(name="Oshimo", value="O1"),
+    app_commands.Choice(name="Herdegrize", value="H1"),
+    app_commands.Choice(name="Euro", value="E1")
+])
+async def check_lb(interaction: discord.Interaction, server: app_commands.Choice[str]):
     """Affiche le statut VIP et la progression d'un joueur"""
     await interaction.response.defer()
     
     try:
-        view = ServerView()
+        from leaderboard_status import get_vip_status
+        from replit import db
 
-        async def select_callback(select_interaction: discord.Interaction):
-            await select_interaction.response.defer()
-            server = interaction.data["values"][0]
-
-            from leaderboard_status import get_vip_status
-            from replit import db
+        # Vérifier d'abord si l'utilisateur est interdit
+        forbidden_users = db.get("forbidden_vip_users", {})
+        if str(interaction.user.id) in forbidden_users:
+            status = get_vip_status(interaction.user.id, server.value, 0)
+            embed = discord.Embed(
+                title=f"🎯 Statut VIP sur {server.value}",
+                color=discord.Color.gold()
+            )
+            embed.add_field(
+                name="💬 Message du jour",
+                value=status["message"],
+                inline=False
+            )
+            await interaction.followup.send(embed=embed)
+            return
 
             # Vérifier d'abord si l'utilisateur est interdit
             forbidden_users = db.get("forbidden_vip_users", {})
