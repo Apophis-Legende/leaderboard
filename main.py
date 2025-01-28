@@ -1039,6 +1039,59 @@ async def test_commission_channels(interaction: discord.Interaction):
     except Exception as e:
         await interaction.followup.send(f"❌ Erreur : {e}")
 
+@bot.tree.command(name="lb", description="Affiche votre statut VIP et progression sur un serveur")
+@app_commands.describe(server="Serveur (T1, T2, O1, H1, E1)")
+async def check_lb(interaction: discord.Interaction, server: str):
+    """Affiche le statut VIP et la progression d'un joueur"""
+    await interaction.response.defer()
+
+    try:
+        if server not in ["T1", "T2", "O1", "H1", "E1"]:
+            await interaction.followup.send("❌ Serveur invalide. Utilisez : T1, T2, O1, H1 ou E1")
+            return
+
+        from leaderboard_status import get_vip_status
+        from replit import db
+
+        # Récupérer les données du joueur
+        server_data = db.get(f"{server}.json", {})
+        user_data = server_data.get("utilisateurs", {}).get(str(interaction.user.id), {})
+        
+        if not user_data:
+            await interaction.followup.send("❌ Aucune donnée trouvée pour vous sur ce serveur.")
+            return
+
+        total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
+        status = get_vip_status(interaction.user.id, server, total_bets)
+
+        # Créer l'embed
+        embed = discord.Embed(
+            title=f"🎯 Statut VIP sur {server}",
+            color=discord.Color.gold()
+        )
+
+        # Ajouter le message humoristique
+        embed.add_field(
+            name="💬 Message du jour",
+            value=status["message"],
+            inline=False
+        )
+
+        # Ajouter les informations de progression
+        embed.add_field(
+            name="📊 Progression",
+            value=f"Niveau VIP actuel : **{status['current_vip']}**\n" +
+                  (f"Prochain palier : **VIP {status['current_vip'] + 1}**\n" if status['next_threshold'] else "") +
+                  (f"Reste à gagner : **{format_kamas(str(status['remaining']), server=='E1')}**" if status['next_threshold'] else "🎉 Niveau maximum atteint !"),
+            inline=False
+        )
+
+        await interaction.followup.send(embed=embed)
+
+    except Exception as e:
+        print(f"❌ Erreur dans la commande lb: {e}")
+        await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
+
 @bot.tree.command(name="test_lasboard", description="Teste l'envoi du flamboard")
 @is_admin()
 @is_in_guild()
