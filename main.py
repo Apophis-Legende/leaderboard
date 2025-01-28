@@ -416,7 +416,38 @@ async def on_message(message):
     # Vérifier si un gagnant a été annoncé
     if "won the" in message.content.lower():
         print("🎉 Un gagnant a été détecté dans le message.")
-        await retrieve_previous_message_with_summary(message.channel)
+        
+        try:
+            # Extraire le gagnant
+            winner = message.content.split("**")[1]
+            
+            # Récupérer les entrées du giveaway précédent
+            async for msg in message.channel.history(limit=50):
+                if msg.author.id == TARGET_BOT_ID and "entries" in msg.content.lower():
+                    # Trouver un perdant aléatoire parmi les participants
+                    entries = [entry for entry in msg.content.split("\n") if "." in entry]
+                    if entries:
+                        import random
+                        loser_entry = random.choice(entries)
+                        loser = loser_entry.split(". ")[1].split(" (")[0]
+                        
+                        # Si le perdant choisi est le gagnant, en choisir un autre
+                        while loser == winner and len(entries) > 1:
+                            loser_entry = random.choice(entries)
+                            loser = loser_entry.split(". ")[1].split(" (")[0]
+                        
+                        # Importer et utiliser le message personnalisé
+                        from giveaway_messages import get_random_winner_message
+                        custom_message = get_random_winner_message(winner, loser)
+                        await message.channel.send(custom_message)
+                    break
+            
+            # Continuer avec le traitement existant
+            await retrieve_previous_message_with_summary(message.channel)
+            
+        except Exception as e:
+            print(f"❌ Erreur lors de l'envoi du message personnalisé : {e}")
+            await retrieve_previous_message_with_summary(message.channel)
 
         try:
             # Extraire la partie contenant le serveur depuis le message
