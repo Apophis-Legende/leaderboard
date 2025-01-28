@@ -416,15 +416,7 @@ async def on_message(message):
     # Vérifier si un gagnant a été annoncé
     if "won the" in message.content.lower():
         print("🎉 Un gagnant a été détecté dans le message.")
-        # Vérifie si le message a déjà été traité dans les dernières secondes
-        last_processed = getattr(bot, 'last_processed_giveaway', 0)
-        current_time = time.time()
-        
-        if current_time - last_processed > 5:  # 5 secondes entre chaque traitement
-            bot.last_processed_giveaway = current_time
-            await retrieve_previous_message_with_summary(message.channel)
-        else:
-            print("🔄 Ignorer le traitement en double du giveaway")
+        await retrieve_previous_message_with_summary(message.channel)
 
         try:
             # Extraire la partie contenant le serveur depuis le message
@@ -1044,23 +1036,6 @@ async def test_commission_channels(interaction: discord.Interaction):
             else:
                 print(f"❌ Canal introuvable: {config['channel']} pour {user_id}")
         await interaction.followup.send("✅ Test terminé - Messages envoyés dans tous les salons configurés")
-    except Exception as e:
-        await interaction.followup.send(f"❌ Erreur : {e}")
-
-@bot.tree.command(name="rapport", description="Affiche le rapport journalier d'un serveur")
-@is_admin()
-@is_in_guild()
-@app_commands.describe(server="Serveur (T1, T2, O1, H1, E1)")
-async def rapport(interaction: discord.Interaction, server: str):
-    """Affiche le rapport journalier pour un serveur spécifique"""
-    await interaction.response.defer()
-    try:
-        from daily_report import generate_daily_report
-        if server not in ["T1", "T2", "O1", "H1", "E1"]:
-            await interaction.followup.send("❌ Serveur invalide. Utilisez : T1, T2, O1, H1 ou E1")
-            return
-        rapport = generate_daily_report(server)
-        await interaction.followup.send(rapport)
     except Exception as e:
         await interaction.followup.send(f"❌ Erreur : {e}")
 
