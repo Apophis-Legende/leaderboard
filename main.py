@@ -420,12 +420,13 @@ async def on_message(message):
         try:
             # Extraire le gagnant avec gestion améliorée
             winner = None
-            if "**" in message.content:
-                winner = message.content.split("**")[1]
-            elif "<@" in message.content:
+            # Extraction du gagnant avec mention
+            winner = None
+            if "<@" in message.content:
                 winner_id = message.content.split("<@")[1].split(">")[0]
                 winner = f"<@{winner_id}>"
-            else:
+            # Si pas de mention, essayer avec le format Congratulations
+            elif "Congratulations" in message.content:
                 winner = message.content.split("Congratulations")[1].split("won")[0].strip()
 
             print(f"👑 Gagnant extrait: {winner}")
