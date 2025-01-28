@@ -67,6 +67,7 @@ VIP_MESSAGES = {
 def get_vip_status(user_id, server, total_bets):
     """Calculate VIP status and next threshold for a user"""
     is_euro = server == "E1"
+    server_code = SERVER_MAPPING.get(server, server)
     
     # Vérifier si l'utilisateur est un croupier
     forbidden_users = db.get("forbidden_vip_users", {})
@@ -108,9 +109,10 @@ def get_vip_status(user_id, server, total_bets):
 
     message = random.choice(VIP_MESSAGES[current_vip])
     
+    formatted_remaining = format_kamas(f"{remaining} jetons", is_euro) if remaining > 0 else "0"
     return {
         "current_vip": current_vip,
         "message": message,
         "next_threshold": next_threshold,
-        "remaining": remaining
+        "remaining": formatted_remaining
     }
