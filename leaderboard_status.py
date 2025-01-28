@@ -1,5 +1,6 @@
 
 import random
+from replit import db
 from format_utils import format_kamas, SERVER_MAPPING
 from vip import calculate_vip_tier
 
