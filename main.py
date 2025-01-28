@@ -1070,6 +1070,66 @@ class ServerView(discord.ui.View):
     app_commands.Choice(name="Euro", value="E1")
 ])
 async def check_lb(interaction: discord.Interaction, server: app_commands.Choice[str]):
+    try:
+        await interaction.response.defer()
+        
+        from leaderboard_status import get_vip_status
+        from replit import db
+
+        # Vérifier d'abord si l'utilisateur est interdit
+        forbidden_users = db.get("forbidden_vip_users", {})
+        if str(interaction.user.id) in forbidden_users:
+            status = get_vip_status(interaction.user.id, server.value, 0)
+            embed = discord.Embed(
+                title=f"🎯 Statut VIP sur {server.value}",
+                color=discord.Color.gold()
+            )
+            embed.add_field(
+                name="💬 Message du jour",
+                value=status["message"],
+                inline=False
+            )
+            await interaction.followup.send(embed=embed)
+            return
+
+        # Récupérer les données du joueur
+        server_data = db.get(f"{server.value}.json", {})
+        user_data = server_data.get("utilisateurs", {}).get(str(interaction.user.id), {})
+
+        total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
+        status = get_vip_status(interaction.user.id, server.value, total_bets)
+
+        # Créer l'embed
+        embed = discord.Embed(
+            title=f"🎯 Statut VIP sur {server.value}",
+            color=discord.Color.gold()
+        )
+
+        # Ajouter le message humoristique
+        embed.add_field(
+            name="💬 Message du jour",
+            value=status["message"],
+            inline=False
+        )
+
+        # Ajouter les informations de progression
+        if status["current_vip"] is not None:
+            embed.add_field(
+                name="📊 Progression",
+                value=f"Niveau VIP actuel : **{status['current_vip']}**\n" +
+                      (f"Prochain palier : **VIP {status['current_vip'] + 1}**\n" if status['next_threshold'] else "") +
+                      (f"Reste à gagner : **{status['remaining']}**" if status['next_threshold'] else "🎉 Niveau maximum atteint !"),
+                inline=False
+            )
+
+        await interaction.followup.send(embed=embed)
+
+    except Exception as e:
+        print(f"❌ Erreur dans la commande lb: {e}")
+        if not interaction.response.is_done():
+            await interaction.response.send_message("❌ Une erreur est survenue lors de la récupération de votre statut VIP.", ephemeral=True)
+        else:
+            await interaction.followup.send("❌ Une erreur est survenue lors de la récupération de votre statut VIP.", ephemeral=True)
     """Affiche le statut VIP et la progression d'un joueur"""
     await interaction.response.defer()
     
