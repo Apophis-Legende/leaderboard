@@ -414,55 +414,9 @@ async def on_message(message):
     print("🎯 Message suivi : ce message provient du bot cible !")
 
     # Vérifier si un gagnant a été annoncé
-    if "won the" in message.content.lower() and "Congratulations" in message.content:
+    if "won the" in message.content.lower():
         print("🎉 Un gagnant a été détecté dans le message.")
-        
-        try:
-            # Extraire le gagnant
-            if "**" in message.content:
-                winner = message.content.split("**")[1]
-            elif "<@" in message.content:
-                winner = message.content.split("<@")[1].split(">")[0]
-                winner = f"<@{winner}>"
-            else:
-                winner = message.content.split("Congratulations")[1].split("won")[0].strip()
-
-            print(f"👑 Gagnant extrait: {winner}")
-            
-            # Récupérer les entrées du giveaway précédent
-            async for msg in message.channel.history(limit=50):
-                if msg.author.id == TARGET_BOT_ID and "entries" in msg.content.lower():
-                    entries = [entry for entry in msg.content.split("\n") if "." in entry]
-                    if entries:
-                        import random
-                        loser_entry = random.choice(entries)
-                        try:
-                            loser = loser_entry.split(". ")[1].split(" (")[0]
-                            
-                            # Si le perdant choisi est le gagnant, en choisir un autre
-                            while loser == winner and len(entries) > 1:
-                                loser_entry = random.choice(entries)
-                                loser = loser_entry.split(". ")[1].split(" (")[0]
-                            
-                            print(f"😢 Perdant sélectionné: {loser}")
-                            
-                            # Importer et utiliser le message personnalisé
-                            from giveaway_messages import get_random_winner_message
-                            custom_message = get_random_winner_message(winner, loser)
-                            
-                            # Envoi du message immédiatement
-                            await message.channel.send(custom_message)
-                            print("✅ Message envoyé avec succès")
-                        except Exception as e:
-                            print(f"❌ Erreur lors du traitement du perdant: {e}")
-                    break
-            
-            # Continuer avec le traitement existant
-            await retrieve_previous_message_with_summary(message.channel)
-            
-        except Exception as e:
-            print(f"❌ Erreur lors de l'envoi du message personnalisé : {e}")
-            await retrieve_previous_message_with_summary(message.channel)
+        await retrieve_previous_message_with_summary(message.channel)
 
         try:
             # Extraire la partie contenant le serveur depuis le message
