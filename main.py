@@ -447,9 +447,7 @@ async def on_message(message):
                         loser = loser_entry.split(". ")[1].split(" (")[0].strip()
                         print(f"😢 Perdant sélectionné: {loser}")
                             
-                            print(f"😢 Perdant sélectionné: {loser}")
-                        
-                        # Importer et utiliser le message personnalisé
+                            # Importer et utiliser le message personnalisé
                         from giveaway_messages import get_random_winner_message
                         custom_message = get_random_winner_message(winner, loser)
                         
