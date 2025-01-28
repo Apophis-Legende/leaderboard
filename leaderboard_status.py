@@ -77,7 +77,11 @@ def get_vip_status(user_id, server, total_bets):
         }
 
     # Vérifier si l'utilisateur a des données
-    if total_bets == 0:
+    server_code = SERVER_MAPPING.get(server, server)
+    server_data = db.get(f"{server_code}.json", {})
+    user_data = server_data.get("utilisateurs", {}).get(str(user_id), {})
+    
+    if not user_data:
         return {
             "current_vip": None,
             "message": random.choice(NO_DATA_MESSAGES),
