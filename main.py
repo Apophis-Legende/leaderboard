@@ -1058,10 +1058,13 @@ class ServerView(discord.ui.View):
 @bot.tree.command(name="lb", description="Affiche votre statut VIP et progression sur un serveur")
 async def check_lb(interaction: discord.Interaction):
     """Affiche le statut VIP et la progression d'un joueur"""
+    await interaction.response.defer()
+    
     try:
         view = ServerView()
 
-        async def select_callback(interaction: discord.Interaction):
+        async def select_callback(select_interaction: discord.Interaction):
+            await select_interaction.response.defer()
             server = interaction.data["values"][0]
 
             from leaderboard_status import get_vip_status
