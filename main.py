@@ -1112,6 +1112,15 @@ async def check_lb(interaction: discord.Interaction, server: app_commands.Choice
             inline=False
         )
 
+        # Ajouter les mises totales
+        user_data = server_data.get("utilisateurs", {}).get(str(interaction.user.id), {})
+        total_bets = user_data.get("total_bets", "0 jetons")
+        embed.add_field(
+            name="💰 Mises totales",
+            value=f"**{total_bets}**",
+            inline=False
+        )
+
         # Ajouter les informations de progression
         if status["current_vip"] is not None:
             embed.add_field(
