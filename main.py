@@ -992,7 +992,7 @@ async def test_croupier_info(interaction: discord.Interaction):
                             vip_part = commission * 0.50
                             invest_part = commission * 0.10
                             croupier_part = commission * 0.40
-                            
+
                             embed.add_field(
                                 name="📊 Répartition des commissions",
                                 value=f"Commission totale: **{commission:.2f}**\n\n" +
@@ -1060,7 +1060,7 @@ async def check_lb(interaction: discord.Interaction):
     """Affiche le statut VIP et la progression d'un joueur"""
     try:
         view = ServerView()
-        
+
         async def select_callback(interaction: discord.Interaction):
             server = interaction.data["values"][0]
 
@@ -1080,13 +1080,16 @@ async def check_lb(interaction: discord.Interaction):
                     value=status["message"],
                     inline=False
                 )
-                await interaction.followup.send(embed=embed)
+                try:
+                    await interaction.followup.send(embed=embed)
+                except discord.NotFound:
+                    print("Warning: Interaction expired, could not send followup")
                 return
 
             # Récupérer les données du joueur
             server_data = db.get(f"{server}.json", {})
             user_data = server_data.get("utilisateurs", {}).get(str(interaction.user.id), {})
-            
+
             if not user_data:
                 status = get_vip_status(interaction.user.id, server, 0)
                 embed = discord.Embed(
@@ -1098,7 +1101,10 @@ async def check_lb(interaction: discord.Interaction):
                     value=status["message"],
                     inline=False
                 )
-                await interaction.followup.send(embed=embed)
+                try:
+                    await interaction.followup.send(embed=embed)
+                except discord.NotFound:
+                    print("Warning: Interaction expired, could not send followup")
                 return
 
             total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
@@ -1126,7 +1132,10 @@ async def check_lb(interaction: discord.Interaction):
                 inline=False
             )
 
-            await interaction.followup.send(embed=embed)
+            try:
+                await interaction.followup.send(embed=embed)
+            except discord.NotFound:
+                print("Warning: Interaction expired, could not send followup")
 
         await interaction.response.send_message("Choisissez un serveur:", view=view)
         view.children[0].callback = select_callback
