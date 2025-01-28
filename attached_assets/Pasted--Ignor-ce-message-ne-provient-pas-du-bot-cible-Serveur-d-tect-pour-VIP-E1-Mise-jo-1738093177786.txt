@@ -1,0 +1,53 @@
+🔄 Ignoré : ce message ne provient pas du bot cible.
+📝 Serveur détecté pour VIP : E1
+🔄 Mise à jour des statuts VIP pour le serveur E1 en cours...
+🔄 Lecture des données pour le serveur : E1...
+✅ Données chargées: ObservedDict(value={'serveur': 'E1', 'nombre_de_jeux': 1, 'mises_totales_avant_commission': '1200 jetons', 'gains_totaux': '1140 jetons', 'commission_totale': '40 jetons', 'utilisateurs': ObservedDict(value={'928329400666173520': ObservedDict(value={'username': 'apophislegende', 'total_wins': '380 jetons', 'total_losses': '0 jetons', 'total_bets': '133 jetons', 'participation': 1}), '713416677072568331': ObservedDict(value={'username': 'tktpaszebi', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0}), '443437067788091392': ObservedDict(value={'username': 'thael7457', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0}), '880919250758410330': ObservedDict(value={'username': 'merlinout', 'total_wins': '0 jetons', 'total_losses': '133 jetons', 'total_bets': '133 jetons', 'participation': 1}), '1171906215002001510': ObservedDict(value={'username': 'bellache.', 'total_wins': '0 jetons', 'total_losses': '133 jetons', 'total_bets': '133 jetons', 'participation': 1})}), 'hôtes': ObservedDict(value={'928329400666173520': ObservedDict(value={'username': 'apophislegende', 'total_bets': '400 jetons', 'total_commission': '20 jetons', 'total_giveaways': 10})}), 'croupiers': ObservedDict(value={}), 'derniere_mise_a_jour': '2025-01-28'})
+🔍 Utilisateurs trouvés : ObservedDict(value={'928329400666173520': ObservedDict(value={'username': 'apophislegende', 'total_wins': '380 jetons', 'total_losses': '0 jetons', 'total_bets': '133 jetons', 'participation': 1}), '713416677072568331': ObservedDict(value={'username': 'tktpaszebi', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0}), '443437067788091392': ObservedDict(value={'username': 'thael7457', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0}), '880919250758410330': ObservedDict(value={'username': 'merlinout', 'total_wins': '0 jetons', 'total_losses': '133 jetons', 'total_bets': '133 jetons', 'participation': 1}), '1171906215002001510': ObservedDict(value={'username': 'bellache.', 'total_wins': '0 jetons', 'total_losses': '133 jetons', 'total_bets': '133 jetons', 'participation': 1})})
+🔍 Utilisateur 928329400666173520 : ObservedDict(value={'username': 'apophislegende', 'total_wins': '380 jetons', 'total_losses': '0 jetons', 'total_bets': '133 jetons', 'participation': 1})
+🔍 Utilisateur 713416677072568331 : ObservedDict(value={'username': 'tktpaszebi', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0})
+🔍 Utilisateur 443437067788091392 : ObservedDict(value={'username': 'thael7457', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0})
+🔍 Utilisateur 880919250758410330 : ObservedDict(value={'username': 'merlinout', 'total_wins': '0 jetons', 'total_losses': '133 jetons', 'total_bets': '133 jetons', 'participation': 1})
+🔍 Utilisateur 1171906215002001510 : ObservedDict(value={'username': 'bellache.', 'total_wins': '0 jetons', 'total_losses': '133 jetons', 'total_bets': '133 jetons', 'participation': 1})
+✅ Mise à jour des statuts VIP pour le serveur E1.json terminée.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : Bababa
+👤 Auteur : merlinout (ID : 880919250758410330)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : MERRRRRRRRRRRRRDE
+👤 Auteur : apophislegende (ID : 928329400666173520)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : J’ai tellement la mort jsui vénère de fou depuis tal
+👤 Auteur : clikclikboom_ (ID : 1164911677632950394)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : 
+👤 Auteur : L'as Board#2618 (ID : 1291805139430146099)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : Ouai beh trkl
+👤 Auteur : merlinout (ID : 880919250758410330)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : ✅ Giveaway supprimé avec succès.
+👤 Auteur : L'as Board#2618 (ID : 1291805139430146099)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : J’étais à 2 doigt d’me
+barrer
+👤 Auteur : clikclikboom_ (ID : 1164911677632950394)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : Moi aussi tu m'a mis le feu au cul la
+👤 Auteur : merlinout (ID : 880919250758410330)
+🔄 Ignoré : ce message ne provient pas du bot cible.
