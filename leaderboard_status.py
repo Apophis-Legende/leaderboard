@@ -66,6 +66,8 @@ VIP_MESSAGES = {
 
 def get_vip_status(user_id, server, total_bets):
     """Calculate VIP status and next threshold for a user"""
+    is_euro = server == "E1"
+    
     # Vérifier si l'utilisateur est un croupier
     forbidden_users = db.get("forbidden_vip_users", {})
     if str(user_id) in forbidden_users:
