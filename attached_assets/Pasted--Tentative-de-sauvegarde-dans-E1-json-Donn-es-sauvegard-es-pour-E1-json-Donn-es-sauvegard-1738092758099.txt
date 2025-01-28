@@ -1,0 +1,54 @@
+ Tentative de sauvegarde dans E1.json...
+✅ Données sauvegardées pour : E1.json
+✅ Données sauvegardées avec succès dans E1.json
+📊 Données actuelles dans la base :
+- Serveur : E1
+- Nombre de jeux : 1
+- Utilisateurs : 3
+- Hôtes : 1
+🚀 Envoi des données au serveur Flask...
+127.0.0.1 - - [28/Jan/2025 19:31:54] "POST /update_data HTTP/1.1" 200 -
+✅ Données envoyées à Flask avec succès : {'message': 'Données mises à jour avec succès'}
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : T’inquiète le s
+👤 Auteur : thael7457 (ID : 443437067788091392)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : 🎉 Les données du giveaway ont été enregistrées !
+👤 Auteur : L'as Board#2618 (ID : 1291805139430146099)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+
+🚨 Nouveau message reçu 🚨
+📨 Contenu du message : 🎉 Les données du giveaway ont été enregistrées !
+👤 Auteur : L'as Board#2618 (ID : 1291805139430146099)
+🔄 Ignoré : ce message ne provient pas du bot cible.
+📝 Serveur détecté pour VIP : E1
+🔄 Mise à jour des statuts VIP pour le serveur E1 en cours...
+🔄 Lecture des données pour le serveur : E1...
+✅ Données chargées: ObservedDict(value={'serveur': 'E1', 'nombre_de_jeux': 1, 'mises_totales_avant_commission': '800 jetons', 'gains_totaux': '760 jetons', 'commission_totale': '20 jetons', 'utilisateurs': ObservedDict(value={'928329400666173520': ObservedDict(value={'username': 'apophislegende', 'total_wins': '0 jetons', 'total_losses': '200 jetons', 'total_bets': '200 jetons', 'participation': 1}), '713416677072568331': ObservedDict(value={'username': 'tktpaszebi', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0}), '443437067788091392': ObservedDict(value={'username': 'thael7457', 'total_wins': '380 jetons', 'total_losses': '0 jetons', 'total_bets': '200 jetons', 'participation': 1})}), 'hôtes': ObservedDict(value={'928329400666173520': ObservedDict(value={'username': 'apophislegende', 'total_bets': '400 jetons', 'total_commission': '20 jetons', 'total_giveaways': 7})}), 'croupiers': ObservedDict(value={}), 'derniere_mise_a_jour': '2025-01-28'})
+🔍 Utilisateurs trouvés : ObservedDict(value={'928329400666173520': ObservedDict(value={'username': 'apophislegende', 'total_wins': '0 jetons', 'total_losses': '200 jetons', 'total_bets': '200 jetons', 'participation': 1}), '713416677072568331': ObservedDict(value={'username': 'tktpaszebi', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0}), '443437067788091392': ObservedDict(value={'username': 'thael7457', 'total_wins': '380 jetons', 'total_losses': '0 jetons', 'total_bets': '200 jetons', 'participation': 1})})
+🔍 Utilisateur 928329400666173520 : ObservedDict(value={'username': 'apophislegende', 'total_wins': '0 jetons', 'total_losses': '200 jetons', 'total_bets': '200 jetons', 'participation': 1})
+🔍 Attribution du rôle VIP pour apophislegende (ID : 928329400666173520)
+🚫 Utilisateur apophislegende interdit de VIP
+🔍 Utilisateur 713416677072568331 : ObservedDict(value={'username': 'tktpaszebi', 'total_wins': '0 jetons', 'total_losses': '0 jetons', 'total_bets': '0 jetons', 'participation': 0})
+🔍 Utilisateur 443437067788091392 : ObservedDict(value={'username': 'thael7457', 'total_wins': '380 jetons', 'total_losses': '0 jetons', 'total_bets': '200 jetons', 'participation': 1})
+🔍 Attribution du rôle VIP pour thael7457 (ID : 443437067788091392)
+❌ Le rôle VIP 1 Euro n'existe pas sur le serveur LEAD L'ADT.
+✅ Mise à jour des statuts VIP pour le serveur E1.json terminée.
+🔍 Requête pour le fichier JSON : T1.json
+🔍 Tentative de connexion à la base de données Replit...
+✅ Connexion à la base de données Replit réussie
+✅ Données chargées: {'serveur': 'T1', 'nombre_de_jeux': 0, 'mises_totales_avant_commission': '0 jetons', 'gains_totaux': '0 jetons', 'commission_totale': '0 jetons', 'utilisateurs': {}, 'hôtes': {}, 'croupiers': {}}
+172.31.196.14 - - [28/Jan/2025 19:32:00] "GET /api/leaderboard?server=Tiliwan1&t=1738092719673 HTTP/1.1" 200 -
+🔍 Requête pour le fichier JSON : T1.json
+🔍 Tentative de connexion à la base de données Replit...
+✅ Connexion à la base de données Replit réussie
+✅ Données chargées: {'serveur': 'T1', 'nombre_de_jeux': 0, 'mises_totales_avant_commission': '0 jetons', 'gains_totaux': '0 jetons', 'commission_totale': '0 jetons', 'utilisateurs': {}, 'hôtes': {}, 'croupiers': {}}
+172.31.196.14 - - [28/Jan/2025 19:32:27] "GET /api/leaderboard?server=Tiliwan1&t=1738092746837 HTTP/1.1" 200 -
+🔍 Requête pour le fichier JSON : T1.json
+🔍 Tentative de connexion à la base de données Replit...
+✅ Connexion à la base de données Replit réussie
+✅ Données chargées: {'serveur': 'T1', 'nombre_de_jeux': 0, 'mises_totales_avant_commission': '0 jetons', 'gains_totaux': '0 jetons', 'commission_totale': '0 jetons', 'utilisateurs': {}, 'hôtes': {}, 'croupiers': {}}
+172.31.196.14 - - [28/Jan/2025 19:32:30] "GET /api/leaderboard?server=Tiliwan1&t=1738092749681 HTTP/1.1" 200 -
