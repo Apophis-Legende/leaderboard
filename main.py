@@ -1053,12 +1053,38 @@ async def check_lb(interaction: discord.Interaction, server: str):
         from leaderboard_status import get_vip_status
         from replit import db
 
+        # Vérifier d'abord si l'utilisateur est interdit
+        forbidden_users = db.get("forbidden_vip_users", {})
+        if str(interaction.user.id) in forbidden_users:
+            status = get_vip_status(interaction.user.id, server, 0)
+            embed = discord.Embed(
+                title=f"🎯 Statut VIP sur {server}",
+                color=discord.Color.gold()
+            )
+            embed.add_field(
+                name="💬 Message du jour",
+                value=status["message"],
+                inline=False
+            )
+            await interaction.followup.send(embed=embed)
+            return
+
         # Récupérer les données du joueur
         server_data = db.get(f"{server}.json", {})
         user_data = server_data.get("utilisateurs", {}).get(str(interaction.user.id), {})
         
         if not user_data:
-            await interaction.followup.send("❌ Aucune donnée trouvée pour vous sur ce serveur.")
+            status = get_vip_status(interaction.user.id, server, 0)
+            embed = discord.Embed(
+                title=f"🎯 Statut VIP sur {server}",
+                color=discord.Color.gold()
+            )
+            embed.add_field(
+                name="💬 Message du jour",
+                value=status["message"],
+                inline=False
+            )
+            await interaction.followup.send(embed=embed)
             return
 
         total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
