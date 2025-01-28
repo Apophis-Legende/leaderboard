@@ -1,8 +1,21 @@
 
 import random
 from replit import db
-from format_utils import format_kamas, SERVER_MAPPING
+from format_utils import format_kamas
 from vip import calculate_vip_tier
+
+SERVER_MAPPING = {
+    "Tiliwan1": "T1",
+    "Tiliwan2": "T2", 
+    "Oshimo": "O1",
+    "Herdegrize": "H1",
+    "Euro": "E1",
+    "T1": "T1",
+    "T2": "T2",
+    "O1": "O1",
+    "H1": "H1",
+    "E1": "E1"
+}
 
 VIP_THRESHOLDS = {
     "E1": {
