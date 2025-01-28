@@ -57,30 +57,24 @@ async def process_giveaway_data(raw_data, channel):
     try:
         from datetime import datetime
         today = datetime.now().strftime('%Y-%m-%d')
-        
+
         if "giveaway" not in raw_data or "winners" not in raw_data or "entries" not in raw_data:
             raise KeyError("Les clés 'giveaway', 'winners' ou 'entries' sont manquantes dans les données.")
 
         # Extraire le gagnant et un perdant pour le message personnalisé
         winner = raw_data["winners"][0] if raw_data.get("winners") else None
         entries = raw_data.get("entries", [])
-        
+
         if winner:
             winner_id = winner["id"]
             loser = next((entry for entry in entries if entry["id"] != winner_id), None)
-            
+
             if loser:
-                try:
-                    from giveaway_messages import get_random_winner_message
-                    await asyncio.sleep(3)  # Attendre 3 secondes
-                    custom_message = get_random_winner_message(f"<@{winner_id}>", f"<@{loser['id']}>")
-                    await channel.send(custom_message)
-                    print(f"✅ Message personnalisé envoyé: {custom_message}")
-                except ImportError as e:
-                    print(f"❌ Erreur d'importation du module giveaway_messages: {e}")
-                except Exception as e:
-                    print(f"❌ Erreur lors de l'envoi du message personnalisé: {e}")
-            
+                from giveaway_messages import get_random_winner_message
+                await asyncio.sleep(3)  # Attendre 3 secondes
+                custom_message = get_random_winner_message(f"<@{winner_id}>", f"<@{loser['id']}>")
+                await channel.send(custom_message)
+
         print("🔍 Données reçues:", raw_data)  # Debug log
 
         giveaway_info = raw_data["giveaway"]
