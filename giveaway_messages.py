@@ -105,3 +105,16 @@ def get_random_winner_message(winner, loser):
     """Retourne un message aléatoire en remplaçant les noms"""
     message = random.choice(WINNER_MESSAGES)
     return message.format(winner=winner, loser=loser)
+
+async def send_giveaway_message(raw_data, channel):
+    """Envoie un message personnalisé après un giveaway"""
+    winner = raw_data["winners"][0]["username"] if raw_data.get("winners") else None
+    entries = raw_data.get("entries", [])
+    loser = next((entry["username"] for entry in entries if entry["username"] != winner), None)
+
+    if winner and loser:
+        await asyncio.sleep(3)  # Attendre 3 secondes
+        winner_id = next((user["id"] for user in raw_data["winners"] if user["username"] == winner), None)
+        loser_id = next((user["id"] for user in raw_data["entries"] if user["username"] == loser), None)
+        custom_message = get_random_winner_message(f"<@{winner_id}>", f"<@{loser_id}>")
+        await channel.send(f"**```diff\n+ {custom_message}\n```**")
