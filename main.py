@@ -449,8 +449,7 @@ async def on_message(message):
                             from giveaway_messages import get_random_winner_message
                             custom_message = get_random_winner_message(winner, loser)
                             
-                            # Envoi du message avec délai
-                            await asyncio.sleep(1)
+                            # Envoi du message immédiatement
                             await message.channel.send(custom_message)
                             print("✅ Message envoyé avec succès")
                         except Exception as e:
