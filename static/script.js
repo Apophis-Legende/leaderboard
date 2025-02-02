@@ -25,29 +25,17 @@ document.addEventListener("DOMContentLoaded", function () {
         tbody.innerHTML = ""; // Vide le tableau existant
 
         if (data.utilisateurs && Object.keys(data.utilisateurs).length > 0) {
-            // Convertir en tableau et trier par mises totales
+            // Convertir en tableau et trier par mises totales (en jetons) avant le formatage
             const sortedUsers = Object.values(data.utilisateurs)
                 .sort((a, b) => {
-                    const convertToNumber = (str) => {
+                    const getJetons = (str) => {
                         if (!str) return 0;
-                        // Format "15M8 Kamas"
-                        const matches = str.match(/(\d+)M(\d+)?\s*Kamas/);
-                        if (matches) {
-                            const millions = parseInt(matches[1]);
-                            const decimal = matches[2] ? parseInt(matches[2]) : 0;
-                            return millions * 1000000 + decimal * 100000;
-                        }
-                        // Format simple "6M Kamas"
-                        const simpleMatches = str.match(/(\d+)M\s*Kamas/);
-                        if (simpleMatches) {
-                            return parseInt(simpleMatches[1]) * 1000000;
-                        }
-                        return 0;
+                        return parseInt(str.split(' ')[0]) || 0;
                     };
                     
-                    const betsA = convertToNumber(a.total_bets);
-                    const betsB = convertToNumber(b.total_bets);
-                    return betsB - betsA;
+                    const betsA = getJetons(a.total_bets);
+                    const betsB = getJetons(b.total_bets);
+                    return betsB - betsA; // Tri décroissant
                 });
 
             sortedUsers.forEach((user) => {
