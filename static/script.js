@@ -25,17 +25,25 @@ document.addEventListener("DOMContentLoaded", function () {
         tbody.innerHTML = ""; // Vide le tableau existant
 
         if (data.utilisateurs && Object.keys(data.utilisateurs).length > 0) {
-            // Convertir en tableau et trier par mises totales (en jetons) avant le formatage
+            // Convertir en tableau et trier par mises totales
             const sortedUsers = Object.values(data.utilisateurs)
                 .sort((a, b) => {
-                    const getJetons = (str) => {
+                    const getBets = (str) => {
                         if (!str) return 0;
-                        return parseInt(str.split(' ')[0]) || 0;
+                        const matches = str.match(/(\d+)M(\d+)?/);
+                        if (matches) {
+                            const millions = parseInt(matches[1]);
+                            const decimal = matches[2] ? parseInt(matches[2]) : 0;
+                            return millions * 1000000 + decimal * 100000;
+                        }
+                        const simpleMatch = str.match(/(\d+)M/);
+                        if (simpleMatch) {
+                            return parseInt(simpleMatch[1]) * 1000000;
+                        }
+                        return parseInt(str) || 0;
                     };
                     
-                    const betsA = getJetons(a.total_bets);
-                    const betsB = getJetons(b.total_bets);
-                    return betsB - betsA; // Tri décroissant
+                    return getBets(b.total_bets) - getBets(a.total_bets);
                 });
 
             sortedUsers.forEach((user) => {
