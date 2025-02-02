@@ -28,8 +28,20 @@ document.addEventListener("DOMContentLoaded", function () {
             // Convertir en tableau et trier par mises totales
             const sortedUsers = Object.values(data.utilisateurs)
                 .sort((a, b) => {
-                    const betsA = parseInt(a.total_bets?.replace(/[^0-9]/g, '')) || 0;
-                    const betsB = parseInt(b.total_bets?.replace(/[^0-9]/g, '')) || 0;
+                    // Fonction pour convertir "XMY Kamas" en nombre
+                    const convertToNumber = (str) => {
+                        if (!str) return 0;
+                        const matches = str.match(/(\d+)M(\d+)?/);
+                        if (matches) {
+                            const millions = parseInt(matches[1]);
+                            const decimal = matches[2] ? parseInt(matches[2]) : 0;
+                            return millions * 1000000 + decimal * 100000;
+                        }
+                        return parseInt(str.replace(/[^0-9]/g, '')) || 0;
+                    };
+                    
+                    const betsA = convertToNumber(a.total_bets);
+                    const betsB = convertToNumber(b.total_bets);
                     return betsB - betsA; // Tri décroissant
                 });
 
