@@ -25,7 +25,15 @@ document.addEventListener("DOMContentLoaded", function () {
         tbody.innerHTML = ""; // Vide le tableau existant
 
         if (data.utilisateurs && Object.keys(data.utilisateurs).length > 0) {
-            Object.values(data.utilisateurs).forEach((user) => {
+            // Convertir en tableau et trier par mises totales
+            const sortedUsers = Object.values(data.utilisateurs)
+                .sort((a, b) => {
+                    const betsA = parseInt(a.total_bets) || 0;
+                    const betsB = parseInt(b.total_bets) || 0;
+                    return betsB - betsA;
+                });
+
+            sortedUsers.forEach((user) => {
                 const row = `
                     <tr>
                         <td>${user.username || "Inconnu"}</td>
