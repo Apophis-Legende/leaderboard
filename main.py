@@ -365,9 +365,6 @@ async def download_json_from_summary(url, channel):
         print("🚀 Envoi des données au serveur Flask...")
         await send_data_to_flask(processed_data)
 
-        # Confirmer l'envoi réussi au canal Discord
-        await channel.send(f"🎉 Les données du giveaway ont été enregistrées !")
-
     except requests.exceptions.RequestException as req_err:
         # Gestion des erreurs liées à la requête HTTP
         print(f"❌ Erreur HTTP lors de la récupération des données JSON : {req_err}")
