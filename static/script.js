@@ -28,9 +28,9 @@ document.addEventListener("DOMContentLoaded", function () {
             // Convertir en tableau et trier par mises totales
             const sortedUsers = Object.values(data.utilisateurs)
                 .sort((a, b) => {
-                    const betsA = parseInt(a.total_bets?.split(' ')[0]) || 0;
-                    const betsB = parseInt(b.total_bets?.split(' ')[0]) || 0;
-                    return betsB - betsA;
+                    const betsA = parseInt(a.total_bets?.replace(/[^0-9]/g, '')) || 0;
+                    const betsB = parseInt(b.total_bets?.replace(/[^0-9]/g, '')) || 0;
+                    return betsB - betsA; // Tri décroissant
                 });
 
             sortedUsers.forEach((user) => {
