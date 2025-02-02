@@ -31,9 +31,9 @@ VIP_ROLE_MAPPING = {
 
 # Liste des paliers VIP
 VIP_TIERS = {
-    1: 4000,
-    2: 10000,
-    3: 15000
+    1: 8000,
+    2: 23000,
+    3: 38000
 }
 
 # Liste des ID des rôles interdits de recevoir un VIP
