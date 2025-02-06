@@ -1217,53 +1217,6 @@ async def remove_commission(interaction: discord.Interaction, server: str, amoun
     except Exception as e:
         await interaction.followup.send(f"❌ Une erreur est survenue: {str(e)}")
 
-            user_data = server_data.get("utilisateurs", {}).get(str(interaction.user.id), {})
-
-            if not user_data:
-                status = get_vip_status(interaction.user.id, server, 0)
-                embed = discord.Embed(
-                    title=f"🎯 Statut VIP sur {server}",
-                    color=discord.Color.gold()
-                )
-                embed.add_field(
-                    name="💬 Message du jour",
-                    value=status["message"],
-                    inline=False
-                )
-                await interaction.followup.send(embed=embed)
-                return
-        except Exception as e:
-            print(f"❌ Erreur dans la commande lb: {e}")
-            if not interaction.response.is_done():
-                await interaction.response.send_message("❌ Une erreur est survenue.", ephemeral=True)
-            else:
-                await interaction.followup.send("❌ Une erreur est survenue.")
-
-@bot.tree.command(name="remove_commission", description="Retire un montant de la commission totale")
-@is_admin()
-@is_in_guild()
-@app_commands.describe(
-    server="Serveur (T1, T2, O1, H1, E1)",
-    amount="Montant à retirer"
-)
-async def remove_commission(interaction: discord.Interaction, server: str, amount: int):
-    await interaction.response.defer()
-    try:
-                embed = discord.Embed(
-                    title=f"🎯 Statut VIP sur {server}",
-                    color=discord.Color.gold()
-                )
-                embed.add_field(
-                    name="💬 Message du jour",
-                    value=status["message"],
-                    inline=False
-                )
-                try:
-                    await interaction.followup.send(embed=embed)
-                except discord.NotFound:
-                    print("Warning: Interaction expired, could not send followup")
-                return
-
             total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
             status = get_vip_status(interaction.user.id, server, total_bets)
 
