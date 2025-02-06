@@ -1216,6 +1216,7 @@ async def remove_commission(interaction: discord.Interaction, server: str, amoun
 
     except Exception as e:
         await interaction.followup.send(f"❌ Une erreur est survenue: {str(e)}")
+
 # This block likely belongs to another function
 async def some_other_function(interaction: discord.Interaction, server: str):
     try:
