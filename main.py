@@ -1230,6 +1230,26 @@ async def remove_commission(interaction: discord.Interaction, server: str, amoun
                     value=status["message"],
                     inline=False
                 )
+                await interaction.followup.send(embed=embed)
+                return
+
+@bot.tree.command(name="remove_commission", description="Retire un montant de la commission totale")
+@is_admin()
+@is_in_guild()
+@app_commands.describe(
+    server="Serveur (T1, T2, O1, H1, E1)",
+    amount="Montant à retirer"
+)
+                status = get_vip_status(interaction.user.id, server, 0)
+                embed = discord.Embed(
+                    title=f"🎯 Statut VIP sur {server}",
+                    color=discord.Color.gold()
+                )
+                embed.add_field(
+                    name="💬 Message du jour",
+                    value=status["message"],
+                    inline=False
+                )
                 try:
                     await interaction.followup.send(embed=embed)
                 except discord.NotFound:
