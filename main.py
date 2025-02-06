@@ -1241,6 +1241,19 @@ async def check_lb(interaction: discord.Interaction, server: app_commands.Choice
         print(f"❌ Erreur dans la commande lb: {e}")
         await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
 
+@bot.tree.command(name="ajouter_giveaway", description="Ajoute manuellement un giveaway")
+@is_admin()
+@is_in_guild()
+@app_commands.describe(
+    participants_count="Nombre de participants",
+    winner="Le gagnant du giveaway (@mention)",
+    prize="Format: 'T2 950' (serveur + montant)"
+)
+async def add_manual_giveaway(interaction: discord.Interaction, participants_count: int, winner: discord.Member, prize: str):
+    await interaction.response.defer()
+    from manual_add import manual_add_giveaway
+    await manual_add_giveaway(interaction, participants_count, winner, prize)
+
 @bot.tree.command(name="test_lasboard", description="Teste l'envoi du flamboard")
 @is_admin()
 @is_in_guild()
