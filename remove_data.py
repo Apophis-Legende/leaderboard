@@ -41,7 +41,13 @@ async def remove_player_data(interaction, player: discord.Member, server: str, a
 
         # Mettre à jour les statistiques globales
         current_total_bets = int(data["mises_totales_avant_commission"].split()[0])
+        current_total_commission = int(data["commission_totale"].split()[0])
+        
+        # Calculer la commission (5.2631578947368%)
+        commission_reduction = int(amount * 0.052631578947368)
+        
         data["mises_totales_avant_commission"] = format_amount(current_total_bets - amount)
+        data["commission_totale"] = format_amount(current_total_commission - commission_reduction)
 
         # Sauvegarder les modifications
         db[server_file] = data
