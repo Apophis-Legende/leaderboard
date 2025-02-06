@@ -1185,6 +1185,38 @@ async def check_lb(interaction: discord.Interaction, server: app_commands.Choice
 
             # Récupérer les données du joueur
             server_data = db.get(f"{server}.json", {})
+
+@bot.tree.command(name="remove_commission", description="Retire un montant de la commission totale")
+@is_admin()
+@is_in_guild()
+@app_commands.describe(
+    server="Serveur (T1, T2, O1, H1, E1)",
+    amount="Montant à retirer"
+)
+async def remove_commission(interaction: discord.Interaction, server: str, amount: int):
+    await interaction.response.defer()
+    
+    try:
+        server_file = f"{server}.json"
+        data = db.get(server_file)
+        
+        if not data:
+            raise ValueError(f"Aucune donnée trouvée pour le serveur {server}")
+            
+        current_commission = int(data["commission_totale"].split()[0])
+        if current_commission < amount:
+            raise ValueError(f"La commission totale actuelle ({current_commission}) est inférieure au montant à retirer ({amount})")
+            
+        data["commission_totale"] = f"{current_commission - amount} jetons"
+        db[server_file] = data
+        
+        await interaction.followup.send(f"✅ Commission mise à jour pour {server}:\n"
+                                      f"💰 Montant retiré: {amount} jetons\n"
+                                      f"📊 Nouvelle commission totale: {data['commission_totale']}")
+                                      
+    except Exception as e:
+        await interaction.followup.send(f"❌ Une erreur est survenue: {str(e)}")
+
             user_data = server_data.get("utilisateurs", {}).get(str(interaction.user.id), {})
 
             if not user_data:
