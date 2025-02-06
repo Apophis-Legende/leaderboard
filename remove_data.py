@@ -31,10 +31,13 @@ async def remove_player_data(interaction, player: discord.Member, server: str, a
             user_data["total_bets"] = format_amount(current_bets - amount)
             user_data["total_wins"] = format_amount(current_wins - amount)
         else:  # remove_type == "wins"
-            if current_wins < amount:
-                raise ValueError(f"Le joueur n'a que {current_wins} jetons de gains")
-            # Mettre à jour uniquement les gains
-            user_data["total_wins"] = format_amount(current_wins - amount)
+            # Pour les bénéfices négatifs, on ajoute le montant au lieu de le soustraire
+            if amount < 0:
+                user_data["total_wins"] = format_amount(current_wins + abs(amount))
+            else:
+                if current_wins < amount:
+                    raise ValueError(f"Le joueur n'a que {current_wins} jetons de gains")
+                user_data["total_wins"] = format_amount(current_wins - amount)
 
         # Mettre à jour les statistiques globales
         current_total_bets = int(data["mises_totales_avant_commission"].split()[0])
