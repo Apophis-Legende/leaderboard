@@ -143,8 +143,17 @@
             tbody.innerHTML = ''; // Effacer les données existantes
 
             if (data && data.utilisateurs) {
-                const promises = Object.entries(data.utilisateurs).map(([userId, user]) => {
-                    return getHighestVip(userId, currentServer).then(vipStatus => {
+                // Convertir en tableau et trier par mises totales
+                const sortedUsers = Object.entries(data.utilisateurs)
+                    .map(([userId, user]) => ({userId, ...user}))
+                    .sort((a, b) => {
+                        const betsA = parseInt(a.total_bets.split(' ')[0]);
+                        const betsB = parseInt(b.total_bets.split(' ')[0]);
+                        return betsB - betsA;
+                    });
+
+                const promises = sortedUsers.map(user => {
+                    return getHighestVip(user.userId, currentServer).then(vipStatus => {
                         return `
                             <tr>
                                 <td>${user.username}</td>
