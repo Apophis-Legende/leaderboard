@@ -22,12 +22,14 @@ async def remove_player_data(interaction, player: discord.Member, server: str, a
         # Récupérer les données actuelles du joueur
         user_data = data["utilisateurs"][player_id]
         current_bets = int(user_data["total_bets"].split()[0])
+        current_wins = int(user_data.get("total_wins", "0 jetons").split()[0])
         
         if current_bets < amount:
             raise ValueError(f"Le joueur n'a que {current_bets} jetons de mises")
 
         # Mettre à jour les mises du joueur
         user_data["total_bets"] = format_amount(current_bets - amount)
+        user_data["total_wins"] = format_amount(current_wins - amount)
 
         # Mettre à jour les statistiques globales
         current_total_bets = int(data["mises_totales_avant_commission"].split()[0])
