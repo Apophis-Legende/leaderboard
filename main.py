@@ -1197,24 +1197,33 @@ async def remove_commission(interaction: discord.Interaction, server: str, amoun
     await interaction.response.defer()
 
     try:
+        # Vérification du serveur
         if server not in ["T1", "T2", "O1", "H1", "E1"]:
             await interaction.followup.send("❌ Serveur invalide. Utilisez : T1, T2, O1, H1 ou E1")
             return
 
+        # Récupération et vérification des données
         server_file = f"{server}.json"
         data = db.get(server_file)
-
         if not data:
             await interaction.followup.send(f"❌ Aucune donnée trouvée pour le serveur {server}")
             return
 
+        # Vérification et mise à jour de la commission
         current_commission = int(data["commission_totale"].split()[0])
         if current_commission < amount:
             await interaction.followup.send(f"❌ La commission totale actuelle ({current_commission}) est inférieure au montant à retirer ({amount})")
             return
 
-        data["commission_totale"] = f"{current_commission - amount} jetons"
+        # Mise à jour de la commission
+        new_commission = current_commission - amount
+        data["commission_totale"] = f"{new_commission} jetons"
         db[server_file] = data
+
+        # Confirmation
+        await interaction.followup.send(f"✅ Commission mise à jour pour {server}:\n"
+                                      f"💰 Montant retiré: {amount} jetons\n"
+                                      f"📊 Nouvelle commission totale: {data['commission_totale']}")
 
         await interaction.followup.send(f"✅ Commission mise à jour pour {server}:\n"
                                       f"💰 Montant retiré: {amount} jetons\n"
