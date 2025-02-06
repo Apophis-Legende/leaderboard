@@ -253,11 +253,11 @@ def calculate_vip_tier(total_bets, server=""):
         elif total_bets >= 150:
             return 1
     else:  # Seuils pour T1, T2, O1, H1
-        if total_bets >= 15000:
+        if total_bets >= 38000:
             return 3
-        elif total_bets >= 10000:
+        elif total_bets >= 23000:
             return 2
-        elif total_bets >= 4000:
+        elif total_bets >= 8000:
             return 1
     return None
 
