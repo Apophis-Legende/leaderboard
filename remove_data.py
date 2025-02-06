@@ -5,7 +5,7 @@ import discord
 def format_amount(amount):
     return f"{amount} jetons"
 
-async def remove_player_data(interaction, player: discord.Member, server: str, amount: int):
+async def remove_player_data(interaction, player: discord.Member, server: str, amount: int, remove_type: str = "bets"):
     try:
         # Vérifier le format du serveur
         server_file = f"{server}.json"
@@ -24,12 +24,17 @@ async def remove_player_data(interaction, player: discord.Member, server: str, a
         current_bets = int(user_data["total_bets"].split()[0])
         current_wins = int(user_data.get("total_wins", "0 jetons").split()[0])
         
-        if current_bets < amount:
-            raise ValueError(f"Le joueur n'a que {current_bets} jetons de mises")
-
-        # Mettre à jour les mises du joueur
-        user_data["total_bets"] = format_amount(current_bets - amount)
-        user_data["total_wins"] = format_amount(current_wins - amount)
+        if remove_type == "bets":
+            if current_bets < amount:
+                raise ValueError(f"Le joueur n'a que {current_bets} jetons de mises")
+            # Mettre à jour les mises du joueur
+            user_data["total_bets"] = format_amount(current_bets - amount)
+            user_data["total_wins"] = format_amount(current_wins - amount)
+        else:  # remove_type == "wins"
+            if current_wins < amount:
+                raise ValueError(f"Le joueur n'a que {current_wins} jetons de gains")
+            # Mettre à jour uniquement les gains
+            user_data["total_wins"] = format_amount(current_wins - amount)
 
         # Mettre à jour les statistiques globales
         current_total_bets = int(data["mises_totales_avant_commission"].split()[0])
