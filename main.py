@@ -1195,64 +1195,64 @@ async def check_lb(interaction: discord.Interaction, server: app_commands.Choice
 )
 async def remove_commission(interaction: discord.Interaction, server: str, amount: int):
     await interaction.response.defer()
-    
+
     try:
         server_file = f"{server}.json"
         data = db.get(server_file)
-        
+
         if not data:
             raise ValueError(f"Aucune donnée trouvée pour le serveur {server}")
-            
+
         current_commission = int(data["commission_totale"].split()[0])
         if current_commission < amount:
             raise ValueError(f"La commission totale actuelle ({current_commission}) est inférieure au montant à retirer ({amount})")
-            
+
         data["commission_totale"] = f"{current_commission - amount} jetons"
         db[server_file] = data
-        
+
         await interaction.followup.send(f"✅ Commission mise à jour pour {server}:\n"
                                       f"💰 Montant retiré: {amount} jetons\n"
                                       f"📊 Nouvelle commission totale: {data['commission_totale']}")
-                                      
+
     except Exception as e:
         await interaction.followup.send(f"❌ Une erreur est survenue: {str(e)}")
+# This block likely belongs to another function
+async def some_other_function(interaction: discord.Interaction, server: str):
+    try:
+        total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
+        status = get_vip_status(interaction.user.id, server, total_bets)
 
-            total_bets = int(user_data.get("total_bets", "0 jetons").split(" ")[0])
-            status = get_vip_status(interaction.user.id, server, total_bets)
+        # Créer l'embed
+        embed = discord.Embed(
+            title=f"🎯 Statut VIP sur {server}",
+            color=discord.Color.gold()
+        )
 
-            # Créer l'embed
-            embed = discord.Embed(
-                title=f"🎯 Statut VIP sur {server}",
-                color=discord.Color.gold()
-            )
+        # Ajouter le message humoristique
+        embed.add_field(
+            name="💬 Message du jour",
+            value=status["message"],
+            inline=False
+        )
 
-            # Ajouter le message humoristique
-            embed.add_field(
-                name="💬 Message du jour",
-                value=status["message"],
-                inline=False
-            )
+        # Ajouter les informations de progression
+        embed.add_field(
+            name="📊 Progression",
+            value=f"Niveau VIP actuel : **{status['current_vip']}**\n" +
+                  (f"Prochain palier : **VIP {status['current_vip'] + 1}**\n" if status['next_threshold'] else "") +
+                  (f"Reste à miser : **{format_kamas(str(status['remaining']), server=='E1')}**" if status['next_threshold'] else "🎉 Niveau maximum atteint !"),
+            inline=False
+        )
 
-            # Ajouter les informations de progression
-            embed.add_field(
-                name="📊 Progression",
-                value=f"Niveau VIP actuel : **{status['current_vip']}**\n" +
-                      (f"Prochain palier : **VIP {status['current_vip'] + 1}**\n" if status['next_threshold'] else "") +
-                      (f"Reste à miser : **{format_kamas(str(status['remaining']), server=='E1')}**" if status['next_threshold'] else "🎉 Niveau maximum atteint !"),
-                inline=False
-            )
-
-            try:
-                await interaction.followup.send(embed=embed)
-            except discord.NotFound:
-                print("Warning: Interaction expired, could not send followup")
-
-        await interaction.response.send_message("Choisissez un serveur:", view=view)
-        view.children[0].callback = select_callback
+        try:
+            await interaction.followup.send(embed=embed)
+        except discord.NotFound:
+            print("Warning: Interaction expired, could not send followup")
 
     except Exception as e:
         print(f"❌ Erreur dans la commande lb: {e}")
         await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
+
 
 @bot.tree.command(name="remove_wins", description="Retire des bénéfices à un joueur")
 @is_admin()
