@@ -1245,14 +1245,26 @@ async def check_lb(interaction: discord.Interaction, server: app_commands.Choice
 @is_admin()
 @is_in_guild()
 @app_commands.describe(
-    participants_count="Nombre de participants",
+    participants="Liste des participants (@mentions)",
     winner="Le gagnant du giveaway (@mention)",
     prize="Format: 'T2 950' (serveur + montant)"
 )
-async def add_manual_giveaway(interaction: discord.Interaction, participants_count: int, winner: discord.Member, prize: str):
+async def add_manual_giveaway(interaction: discord.Interaction, participants: str, winner: discord.Member, prize: str):
     await interaction.response.defer()
+    
+    # Convertir la chaîne de participants en liste de Member
+    participant_ids = [int(id.strip('<@!>')) for id in participants.split()]
+    participant_members = []
+    for pid in participant_ids:
+        try:
+            member = await interaction.guild.fetch_member(pid)
+            participant_members.append(member)
+        except discord.NotFound:
+            await interaction.followup.send(f"⚠️ Membre avec l'ID {pid} non trouvé")
+            return
+    
     from manual_add import manual_add_giveaway
-    await manual_add_giveaway(interaction, participants_count, winner, prize)
+    await manual_add_giveaway(interaction, participant_members, winner, prize)
 
 @bot.tree.command(name="test_lasboard", description="Teste l'envoi du flamboard")
 @is_admin()
