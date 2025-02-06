@@ -1225,6 +1225,7 @@ async def some_other_function(interaction: discord.Interaction, server: str):
         await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
 
 
+
 @bot.tree.command(name="remove_wins", description="Retire des bénéfices à un joueur")
 @is_admin()
 @is_in_guild()
