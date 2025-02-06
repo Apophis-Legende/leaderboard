@@ -1241,6 +1241,19 @@ async def check_lb(interaction: discord.Interaction, server: app_commands.Choice
         print(f"❌ Erreur dans la commande lb: {e}")
         await interaction.followup.send(f"❌ Une erreur est survenue : {str(e)}")
 
+@bot.tree.command(name="remove_bets", description="Retire des mises à un joueur")
+@is_admin()
+@is_in_guild()
+@app_commands.describe(
+    player="Le joueur (@mention)",
+    server="Serveur (T1, T2, O1, H1, E1)",
+    amount="Montant à retirer"
+)
+async def remove_bets(interaction: discord.Interaction, player: discord.Member, server: str, amount: int):
+    await interaction.response.defer()
+    from remove_data import remove_player_data
+    await remove_player_data(interaction, player, server, amount)
+
 @bot.tree.command(name="ajouter_giveaway", description="Ajoute manuellement un giveaway")
 @is_admin()
 @is_in_guild()
