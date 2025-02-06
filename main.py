@@ -1197,15 +1197,21 @@ async def remove_commission(interaction: discord.Interaction, server: str, amoun
     await interaction.response.defer()
 
     try:
+        if server not in ["T1", "T2", "O1", "H1", "E1"]:
+            await interaction.followup.send("❌ Serveur invalide. Utilisez : T1, T2, O1, H1 ou E1")
+            return
+
         server_file = f"{server}.json"
         data = db.get(server_file)
 
         if not data:
-            raise ValueError(f"Aucune donnée trouvée pour le serveur {server}")
+            await interaction.followup.send(f"❌ Aucune donnée trouvée pour le serveur {server}")
+            return
 
         current_commission = int(data["commission_totale"].split()[0])
         if current_commission < amount:
-            raise ValueError(f"La commission totale actuelle ({current_commission}) est inférieure au montant à retirer ({amount})")
+            await interaction.followup.send(f"❌ La commission totale actuelle ({current_commission}) est inférieure au montant à retirer ({amount})")
+            return
 
         data["commission_totale"] = f"{current_commission - amount} jetons"
         db[server_file] = data
@@ -1216,6 +1222,7 @@ async def remove_commission(interaction: discord.Interaction, server: str, amoun
 
     except Exception as e:
         await interaction.followup.send(f"❌ Une erreur est survenue: {str(e)}")
+        print(f"❌ Erreur dans remove_commission: {e}")
 
 # This block likely belongs to another function
 async def some_other_function(interaction: discord.Interaction, server: str):
