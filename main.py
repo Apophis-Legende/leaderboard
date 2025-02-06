@@ -1067,6 +1067,7 @@ class ServerView(discord.ui.View):
     app_commands.Choice(name="Euro", value="E1")
 ])
 async def check_lb(interaction: discord.Interaction, server: app_commands.Choice[str]):
+    """Affiche le statut VIP et la progression d'un joueur"""
     try:
         await interaction.response.defer()
         
@@ -1111,7 +1112,6 @@ async def check_lb(interaction: discord.Interaction, server: app_commands.Choice
         )
 
         # Ajouter les mises totales en format kamas
-        user_data = server_data.get("utilisateurs", {}).get(str(interaction.user.id), {})
         total_bets = user_data.get("total_bets", "0 jetons")
         is_euro = server.value == "E1"
         formatted_total = format_kamas(total_bets, is_euro)
@@ -1139,52 +1139,6 @@ async def check_lb(interaction: discord.Interaction, server: app_commands.Choice
             await interaction.response.send_message("❌ Une erreur est survenue lors de la récupération de votre statut VIP.", ephemeral=True)
         else:
             await interaction.followup.send("❌ Une erreur est survenue lors de la récupération de votre statut VIP.", ephemeral=True)
-    """Affiche le statut VIP et la progression d'un joueur"""
-    await interaction.response.defer()
-    
-    try:
-        from leaderboard_status import get_vip_status
-        from replit import db
-        
-        view = ServerView()
-
-        # Vérifier d'abord si l'utilisateur est interdit
-        forbidden_users = db.get("forbidden_vip_users", {})
-        if str(interaction.user.id) in forbidden_users:
-            status = get_vip_status(interaction.user.id, server.value, 0)
-            embed = discord.Embed(
-                title=f"🎯 Statut VIP sur {server.value}",
-                color=discord.Color.gold()
-            )
-            embed.add_field(
-                name="💬 Message du jour",
-                value=status["message"],
-                inline=False
-            )
-            await interaction.followup.send(embed=embed)
-            return
-
-            # Vérifier d'abord si l'utilisateur est interdit
-            forbidden_users = db.get("forbidden_vip_users", {})
-            if str(interaction.user.id) in forbidden_users:
-                status = get_vip_status(interaction.user.id, server, 0)
-                embed = discord.Embed(
-                    title=f"🎯 Statut VIP sur {server}",
-                    color=discord.Color.gold()
-                )
-                embed.add_field(
-                    name="💬 Message du jour",
-                    value=status["message"],
-                    inline=False
-                )
-                try:
-                    await interaction.followup.send(embed=embed)
-                except discord.NotFound:
-                    print("Warning: Interaction expired, could not send followup")
-                return
-
-            # Récupérer les données du joueur
-            server_data = db.get(f"{server}.json", {})
 
 @bot.tree.command(name="remove_commission", description="Retire un montant de la commission totale")
 @is_admin()
