@@ -45,11 +45,11 @@ def get_highest_vip(user_id, server):
             else:
                 return {"vip_level": 0}
         else:  # Autres serveurs
-            if total_bets >= 38000:
+            if total_bets >= 24000:
                 return {"vip_level": 3}
-            elif total_bets >= 23000:
+            elif total_bets >= 14500:
                 return {"vip_level": 2}
-            elif total_bets >= 8000:
+            elif total_bets >= 6000:
                 return {"vip_level": 1}
             else:
                 return {"vip_level": 0}
