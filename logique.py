@@ -70,9 +70,8 @@ async def process_giveaway_data(raw_data, channel):
             loser = next((entry for entry in entries if entry["id"] != winner_id), None)
 
             if loser:
-                from giveaway_messages import get_random_winner_message
-                custom_message = get_random_winner_message(f"<@{winner_id}>", f"<@{loser['id']}>")
-                await channel.send(custom_message)
+                # Messages de giveaway désactivés
+                pass
 
         print("🔍 Données reçues:", raw_data)  # Debug log
 
